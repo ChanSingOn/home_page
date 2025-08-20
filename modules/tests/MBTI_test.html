@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MBTI职业性格测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF9AA2',
+                        secondary: '#FFB7B2',
+                        tertiary: '#FFDAC1',
+                        accent: '#E2F0CB',
+                        neutral: '#B5EAD7',
+                        background: '#C7CEEA',
+                        e: '#FF9AA2', // 外倾
+                        i: '#B5EAD7', // 内倾
+                        s: '#FFB7B2', // 感觉
+                        n: '#E2F0CB', // 直觉
+                        t: '#FFDAC1', // 思维
+                        f: '#C7CEEA', // 情感
+                        j: '#FF9AA2', // 判断
+                        p: '#B5EAD7', // 知觉
+                    },
+                    fontFamily: {
+                        title: ['"Comic Sans MS"', '"华文彩云"', 'cursive'],
+                        body: ['"微软雅黑"', '"幼圆"', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+            }
+
+            .btn-hover {
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+
+            .btn-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .btn-active {
+                transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .btn-active:active {
+                transform: scale(0.96);
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .progress-animation {
+                transition: width 0.5s ease-in-out;
+            }
+
+            .card-shadow {
+                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.05), 0 10px 10px rgba(0, 0, 0, 0.03);
+            }
+
+            .firework {
+                position: absolute;
+                border-radius: 50%;
+                transform: scale(0);
+                opacity: 0;
+                animation: firework 2s ease-out forwards;
+            }
+
+            @keyframes firework {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+
+                50% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(1.5);
+                    opacity: 0;
+                }
+            }
+
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .result-card {
+                background: linear-gradient(135deg, #FF9AA2 0%, #B5EAD7 100%);
+            }
+
+            .touch-target {
+                min-height: 48px;
+                min-width: 48px;
+            }
+
+            .mbti-bar {
+                height: 2rem;
+                border-radius: 9999px;
+                overflow: hidden;
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+
+            .mbti-bar-fill {
+                height: 100%;
+                transition: width 1s ease-in-out;
+            }
+        }
+	/* 禁止页面滚动 */
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-between bg-gradient-to-br from-background to-neutral p-4 font-body">
+    <!-- 内容容器 - 居中显示 -->
+    <div class="flex-1 w-full max-w-md mx-auto flex flex-col items-center justify-center">
+        <!-- 大标题 - 移至卡片上方 -->
+        <h1 id="main-title" class="text-[clamp(1.8rem,5vw,3rem)] font-title text-center text-gray-800 text-shadow mb-4 transition-all duration-500">
+            MBTI职业性格测试
+        </h1>
+
+        <!-- 进度条容器 -->
+        <div id="progress-container" class="w-full mb-6 transition-all duration-500 hidden">
+            <div class="text-center text-sm font-medium text-gray-700 mb-1">
+                <span id="progress-text">1/10</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-primary h-2.5 rounded-full progress-animation" style="width: 10%"></div>
+            </div>
+        </div>
+
+        <!-- 测试卡片容器 -->
+        <div id="test-container" class="w-full flex flex-col items-center">
+            <!-- 测试标题卡片 -->
+            <div id="title-card" class="bg-glass rounded-3xl p-6 md:p-8 mb-6 card-shadow w-full">
+                <p class="text-center text-gray-600 mb-8 text-base md:text-lg">
+                <p><strong>测试介绍：</strong>MBTI性格测试是由美国的凯恩琳·布里格斯和她的女儿共同发展设计，以瑞士心理学家荣格划分的8种类型为基础。MBTI仅供测试者确定自己的性格类型之用，性格类型没有好坏，只有不同。每一种性格特征都有其价值和优点，也有缺点和需要注意的地方。清楚地了解自己的性格优劣势，有利于更好地发挥自己的特长，而尽可能的在为人处事中避免自己性格中的劣势，更好地和他人相处，更好地作重要的决策。</p>
+                <p><strong>适用人群：</strong>探索职业方向的成年人和学生</p>
+                <p><strong>测试时长：</strong>15-30分钟</p>
+                <p><strong>指导语：</strong>参加测试的人员请务必诚实、独立地回答问题，只有如此，才能得到有效的结果。本测试共200题。所有题目没有对错之分，请根据自己的实际情况选择A或B。<br>点击下方按钮，立即开始测试</p>
+                </p>
+                <br>
+                <button id="start-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-full btn-hover btn-active transition-all touch-target">
+                    开始测试
+                </button>
+            </div>
+
+            <!-- 题目卡片容器 -->
+            <div id="questions-container" class="w-full">
+                <!-- 题目卡片将通过JavaScript动态生成 -->
+                <!-- 题目内容省略显示，实际使用时会通过JavaScript动态加载 -->
+            </div>
+
+            <!-- 结果卡片 -->
+            <div id="result-card" class="result-card rounded-3xl p-6 md:p-10 shadow-xl w-full hidden">
+                <h2 class="text-[clamp(1.5rem,4vw,2.5rem)] font-title text-center text-white text-shadow mb-6">
+                    你的性格类型是：
+                </h2>
+                <div id="result-type" class="text-[clamp(2rem,6vw,3.5rem)] font-bold text-center text-white mb-8"></div>
+                <!-- 添加图片显示区域 -->
+                <img id="result-image" class="mx-auto mb-8 rounded-2xl shadow-lg" src="" alt="MBTI性格类型图片">
+                <div id="result-description" class="text-white text-center mb-10 text-base md:text-xl"></div>
+                <!-- 图表容器 -->
+                <div class="bg-white/20 rounded-xl p-4 mb-8 backdrop-blur-sm">
+                    <h3 class="text-white text-center mb-6 font-bold">性格维度对比</h3>
+                    <div id="mbti-chart-container" class="space-y-8">
+                        <!-- 性格维度对比图表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                <button id="restart-btn" class="w-full bg-white text-primary hover:bg-gray-100 font-bold py-4 px-8 rounded-full btn-hover btn-active transition-all touch-target">
+                    再试一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 烟花效果容器 -->
+    <div id="fireworks-container" class="fixed inset-0 pointer-events-none z-0 hidden"></div>
+
+    <!-- 底部信息 - 固定在视口底部 -->
+	<div class="w-full max-w-md mx-auto text-center text-gray-700 text-xs font-body py-4">
+    	     <p>测试仅供娱乐，非专业心理评估</p>
+             <p class="mt-1">© 2025 MBTI职业性格测试</p>
+             <p class="mt-1">版本:1.4.2 Made by 陈省安</p>
+    	<!-- 社交图标链接 -->
+		<div class="mt-4 flex justify-center space-x-4">
+  		  <a href="javascript:void(0);" onclick="showWechatQRCode()" class="text-gray-700 hover:text-gray-900">
+    		    <i class="fas fa-qrcode fa-lg"></i>
+  		  </a>
+	</div>
+
+	<!-- 微信公众号二维码模态框 -->
+	<div id="wechatQRCodeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden transition-opacity duration-300">
+  		  <div class="bg-white p-4 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+   		     <div class="text-center">
+       		     <h3 class="text-lg font-bold mb-2 text-gray-800">关注我们的公众号</h3>
+      		      <p class="mb-4 text-gray-600">扫码关注获取更多内容</p>
+				<div class="flex justify-center mb-4">
+         		       <img src="https://raw.githubusercontent.com/ChanSingOn/MBTI_test/refs/heads/main/images/qr.jpg" alt="公众号二维码" class="w-64 h-64 rounded-md shadow-md">
+        			    </div>
+         	   <p class="text-sm text-gray-500 mb-4">或在微信中搜索: 陈省安</p>
+      		      <button onclick="closeWechatQRCodeModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 rounded p-2 transition-colors duration-200">
+                	关闭
+        	    </button>
+     		   	</div>
+  	  	</div>
+	</div>
+
+	<script>
+	// 显示微信公众号二维码模态框
+	function showWechatQRCode() {
+    	const modal = document.getElementById('wechatQRCodeModal');
+    	const modalContent = document.getElementById('modalContent');
+    
+    	// 显示模态框
+   	 modal.classList.remove('hidden');
+    
+    	// 等待下一帧以触发动画
+    	setTimeout(() => {
+        	modalContent.classList.remove('scale-95', 'opacity-0');
+        	modalContent.classList.add('scale-100', 'opacity-100');
+    		}, 10);
+    
+    	// 阻止背景滚动
+    	document.body.style.overflow = 'hidden';
+	}
+
+	// 关闭微信公众号二维码模态框
+	function closeWechatQRCodeModal() {
+   	 const modal = document.getElementById('wechatQRCodeModal');
+   	 const modalContent = document.getElementById('modalContent');
+    
+    	// 添加关闭动画
+    	modalContent.classList.remove('scale-100', 'opacity-100');
+    	modalContent.classList.add('scale-95', 'opacity-0');
+    
+    	// 等待动画完成后隐藏模态框
+    	setTimeout(() => {
+        	modal.classList.add('hidden');
+        	// 恢复背景滚动
+        	document.body.style.overflow = '';
+   	 }, 300);
+	}
+
+	// 点击模态框背景关闭
+	document.getElementById('wechatQRCodeModal').addEventListener('click', function(e) {
+    		if (e.target === this) {
+        	closeWechatQRCodeModal();
+   	 }
+	});
+	</script>
+</div>
+
+    <script>
+        // 定义MBTI类型及其描述
+        const mbtiTypes = {
+            "INTJ": "建筑师型人格（INTJ）<br>你是一个富有创造力和战略性思维的人，<br>总是能看到事物的潜在可能性。<br>🌟 你聪明、独立，喜欢深入思考复杂的问题。<br>💡 你有很强的洞察力和决断力，善于规划未来。<br>🚀 你追求完美，对自己和他人都有很高的标准。",
+            "INTP": "逻辑学家型人格（INTP）<br>你是一个理性、好奇且富有创造力的思考者，<br>喜欢探索理论和概念。<br>🧠 你擅长分析问题，寻找逻辑漏洞和解决方案。<br>🎯 你独立自主，不喜欢受约束，喜欢按照自己的节奏工作。<br>🌌 你对知识有着无尽的渴望，总是在学习新的东西。",
+            "ENTJ": "指挥官型人格（ENTJ）<br>你是一个自信、果断且有领导力的人，<br>喜欢掌控局面并推动事情发展。<br>👑 你有很强的组织能力和决策力，善于制定计划和目标。<br>💼 你追求效率和成果，不喜欢浪费时间在无关紧要的事情上。<br>🌟 你有远见卓识，能够看到大局并引领团队走向成功。",
+            "ENTP": "辩论家型人格（ENTP）<br>你是一个聪明、机智且富有创意的人，<br>喜欢挑战传统观念和权威。<br>💬 你擅长辩论和说服他人，总能找到新颖的观点和解决方案。<br>🎭 你好奇心强，对各种事物都有兴趣，喜欢探索新领域。<br>🚀 你适应性强，能够快速应对变化和挑战。",
+            "INFJ": "提倡者型人格（INFJ）<br>你是一个富有洞察力、同情心和创造力的人，<br>总是能理解他人的情感和需求。<br>🌈 你有很强的直觉和同理心，善于感知他人的内心世界。<br>🌟 你追求和谐与意义，喜欢帮助他人实现自我价值。<br>💫 你有自己独特的价值观和信仰，并且坚定不移地追求它们。",
+            "INFP": "调停者型人格（INFP）<br>你是一个理想主义、富有同情心且敏感的人，<br>总是关注他人的情感和需求。<br>🌸 你有丰富的内心世界和想象力，喜欢创造和表达自己。<br>💖 你追求和谐与美好，对不公正和苦难感到敏感。<br>🌟 你有很强的道德感和价值观，并且愿意为了理想而奋斗。",
+            "ENFJ": "主人公型人格（ENFJ）<br>你是一个热情、有领导力且善于社交的人，<br>总是能激励和影响他人。<br>🌟 你有很强的人际交往能力和同理心，善于理解和满足他人的需求。<br>💼 你有远大的理想和目标，并且能够带领团队一起实现它们。<br>🌈 你追求和谐与合作，喜欢营造积极向上的氛围。",
+            "ENFP": "竞选者型人格（ENFP）<br>你是一个热情、充满活力且富有创造力的人，<br>总是能给周围的人带来快乐和灵感。<br>🎡 你有丰富的想象力和创新思维，喜欢探索新的可能性和机会。<br>💖 你热爱社交和与人互动，善于建立和维护人际关系。<br>🌟 你乐观向上，对生活充满热情，总是能看到事情的积极面。",
+            "ISTJ": "物流师型人格（ISTJ）<br>你是一个实际、有序且负责任的人，<br>总是能高效地完成任务和履行职责。<br>📚 你注重细节和事实，喜欢按照规则和程序做事。<br>💼 你有很强的责任心和忠诚度，对工作和家庭都非常认真。<br>🌟 你稳重可靠，是团队中值得信赖的成员。",
+            "ISFJ": "守卫者型人格（ISFJ）<br>你是一个温暖、体贴且富有同情心的人，<br>总是能关注和照顾他人的需求。<br>🌸 你注重细节和传统，喜欢稳定和有序的生活。<br>💖 你有很强的责任心和奉献精神，愿意为他人付出时间和精力。<br>🌟 你是团队中的支持者和守护者，总是能在他人需要时提供帮助。",
+            "ESTJ": "总经理型人格（ESTJ）<br>你是一个务实、果断且有领导力的人，<br>总是能高效地组织和管理事务。<br>👔 你注重事实和逻辑，喜欢按照计划和规则做事。<br>💼 你有很强的责任心和决策力，善于制定和执行计划。<br>🌟 你是团队中的领导者和组织者，能够带领团队实现目标。",
+            "ESFJ": "执政官型人格（ESFJ）<br>你是一个热情、友好且善于社交的人，<br>总是能营造和谐的氛围和建立良好的人际关系。<br>🌈 你注重他人的感受和需求，喜欢帮助他人解决问题。<br>💖 你有很强的组织能力和团队合作精神，善于协调和沟通。<br>🌟 你是团队中的粘合剂，能够促进团队成员之间的合作和团结。",
+            "ISTP": "鉴赏家型人格（ISTP）<br>你是一个实际、灵活且善于解决问题的人，<br>总是能快速应对各种挑战和变化。<br>🔧 你注重实践和动手能力，喜欢探索和尝试新的事物。<br>💡 你有很强的观察力和分析能力，能够快速找到问题的关键所在。<br>🌟 你独立自主，喜欢按照自己的方式做事，不喜欢受约束。",
+            "ISFP": "探险家型人格（ISFP）<br>你是一个温和、敏感且富有艺术气息的人，<br>总是能欣赏和创造美好的事物。<br>🎨 你注重个人感受和体验，喜欢自由和独立的生活。<br>💖 你有很强的创造力和审美能力，善于表达自己的情感和想法。<br>🌟 你是一个和平主义者，喜欢避免冲突和争吵，追求和谐与平衡。",
+            "ESTP": "企业家型人格（ESTP）<br>你是一个外向、果断且善于社交的人，<br>总是能在各种场合中自如应对并取得成功。<br>💼 你注重实际和结果，喜欢挑战和冒险。<br>🎭 你有很强的应变能力和决策力，能够快速做出判断和行动。<br>🌟 你是一个天生的领导者和创业者，喜欢掌控局面并推动事情发展。",
+            "ESFP": "表演者型人格（ESFP）<br>你是一个热情、活泼且善于社交的人，<br>总是能给周围的人带来快乐和活力。<br>🎪 你注重当下的体验和感受，喜欢享受生活和与人互动。<br>💃 你有很强的表现力和感染力，善于吸引他人的注意力和关注。<br>🌟 你是一个乐观主义者，对生活充满热情，总是能看到事情的积极面。"
+        };
+
+        // 定义200道题目的数据（整合自MBTI题库.xlsx）
+        const questions = [
+            // --------------------------- Sheet1 词对题（50题） ---------------------------
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 注重隐私", type: "I" },
+                    { text: "B. 坦率开放", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 预先安排的", type: "J" },
+                    { text: "B. 走一步看一步", type: "P" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 喜欢比喻联想", type: "N" },
+                    { text: "B. 喜欢具体描述", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 迎合他人", type: "F" },
+                    { text: "B. 批评他人", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 客观公正", type: "T" },
+                    { text: "B. 偏好和睦", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 关注效益", type: "S" },
+                    { text: "B. 关注意义", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 易冲动", type: "P" },
+                    { text: "B. 先思考", type: "J" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 更追求生活质量", type: "S" },
+                    { text: "B. 更追求精神富足", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 社交会消耗能量", type: "I" },
+                    { text: "B. 社交会产生能量", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 有系统的", type: "J" },
+                    { text: "B. 随性而为", type: "P" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 关注全貌", type: "N" },
+                    { text: "B. 注重细节", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 更愿意获得欣赏", type: "F" },
+                    { text: "B. 更愿意取得成就", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 令人信服", type: "T" },
+                    { text: "B. 令人感动", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 偏好实际", type: "S" },
+                    { text: "B. 有想象力", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 更关注自己的感受", type: "I" },
+                    { text: "B. 更关注他人对自己的看法", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 矜持", type: "I" },
+                    { text: "B. 健谈", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 压力再大也能保持放松", type: "P" },
+                    { text: "B. 有压力时容易焦虑", type: "J" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 我比大多数人优秀", type: "N" },
+                    { text: "B. 我普普通通", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 喜欢呆在人群中心", type: "E" },
+                    { text: "B. 喜欢去人少的地方", type: "I" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 常看到他人的缺点", type: "T" },
+                    { text: "B. 常夸奖他人", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 务实具体的", type: "S" },
+                    { text: "B. 理论抽象的", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 朋友不多", type: "I" },
+                    { text: "B. 朋友众多", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 发散思维", type: "N" },
+                    { text: "B. 就事论事", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 亲切的", type: "F" },
+                    { text: "B. 客观的", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 情感需符合逻辑", type: "T" },
+                    { text: "B. 任何情感都有价值", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 建设建造", type: "S" },
+                    { text: "B. 发明创造", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 为避免他人不高兴而放弃辩论", type: "F" },
+                    { text: "B. 赢得辩论更重要", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 常过于担心别人怎么想", type: "F" },
+                    { text: "B. 别人怎么想不重要", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 被认为感情过多", type: "F" },
+                    { text: "B. 被认为冷漠", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 一视同仁", type: "T" },
+                    { text: "B. 多愁善感", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 想象的", type: "N" },
+                    { text: "B. 真实的", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 仁慈慷慨的", type: "F" },
+                    { text: "B. 意志坚定的", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 重视规则的", type: "T" },
+                    { text: "B. 重视感情的", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 可能性", type: "N" },
+                    { text: "B. 必然性", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 温柔", type: "F" },
+                    { text: "B. 力量", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 做事先考虑事", type: "T" },
+                    { text: "B. 做事先考虑人", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 新颖的", type: "N" },
+                    { text: "B. 已知的", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 关注他人情绪", type: "F" },
+                    { text: "B. 关注客观实际", type: "T" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 坚持己见", type: "T" },
+                    { text: "B. 温柔有爱心", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 能干", type: "T" },
+                    { text: "B. 仁慈", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 实际的", type: "S" },
+                    { text: "B. 创新的", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 别人认为我会公正处事，并尊重他人", type: "T" },
+                    { text: "B. 别人相信在他们有需要时，我会在他们身边", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 喜欢热闹", type: "E" },
+                    { text: "B. 享受独处", type: "I" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 关注自己如何影响外界", type: "I" },
+                    { text: "B. 关注外界对自己的影响", type: "E" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 知识广博", type: "T" },
+                    { text: "B. 善解人意", type: "F" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 容易适应转变", type: "P" },
+                    { text: "B. 不喜欢太多变", type: "J" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 踏实", type: "S" },
+                    { text: "B. 有趣", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 喜欢询问实情", type: "S" },
+                    { text: "B. 喜欢探索感受", type: "N" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 不断接受新意见", type: "N" },
+                    { text: "B. 专注达成目标", type: "S" }
+                ]
+            },
+            {
+                text: "请选择更适合你的描述：",
+                options: [
+                    { text: "A. 实事求是", type: "S" },
+                    { text: "B. 具有远大理想", type: "N" }
+                ]
+            },
+
+            // --------------------------- Sheet2 判断题（60题） ---------------------------
+            {
+                text: "如果你是老板，你会觉得解雇忠诚但绩效不佳的员工是件难事",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "如果有人没立刻回复你的消息，你会担心是不是自己说错了话",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "看到别人哭很容易让你觉得自己也想哭",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "您经常为你的备选方案制定备选方案",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "你通常保持冷静，即使在很大压力的情况下",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "在社交活动中，你很少尝试向新朋友介绍自己，主要是与你的熟人交谈",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "您更喜欢在开始另一个项目之前完全完成上一个项目",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "你经常被人说很难看懂你",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你总是先行动再思考",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你很容易感伤",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "您喜欢使用计划和列表等组织工具",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "只要走到你觉得有趣的人面前，你就会感到很放松，然后开始交谈",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你对讨论艺术作品的各种解释和分析不太感兴趣",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "你更倾向于跟随你的头脑而不是你的心",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "你通常更喜欢在任意时刻做你喜欢的事情，而不是把日常生活全部做好计划",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "您喜欢参加团体活动",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "你喜欢书籍和电影，并对结局做出自己的分析",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "你的幸福感更多地来自帮助别人完成事情，而不是你自己的成就",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "你对很多事情感兴趣，以至于你发现很难选择下一步要尝试什么",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "您避免在小组环境中担任领导角色",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你绝对不是一个艺术类型的人",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "你喜欢学习很多新技能，学会之后又很快厌倦",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "你总是能一眼看到他人的缺点，常批评他人",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "你认为如果人们更多地依赖理性而不是他们的感受，世界会变得更美好",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "你喜欢看别人争论",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "你倾向于避免引起人们对自己的注意",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你的情绪变化很快",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "你对那些不如你效率的人容易失去耐心",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你很快就能适应新环境",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "你一直对死后会发生什么（如果有的话）这个问题着迷",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "对你而言，工作学习是最重要的，休闲玩乐其次",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "你经常习惯性拖延",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你通常更喜欢和别人在一起，而不是一个人",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "当讨论变得高度理想化时，你会感到无聊或失去兴趣",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "你发现很容易同情一个与你经历截然不同的人",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "您通常会尽可能长时间地推迟最终决定",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "经过漫长而疲惫的一周后，一场热闹的社交活动正是您所需要的",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "你喜欢去艺术博物馆",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "你经常很难理解别人的感受",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "你喜欢每天有一个待办事项清单",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "大多数时候，就算你很兴奋，也不会表现出来",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你喜欢往一个方向深度学习进修，而不是一直换",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "您避免拨打电话，下意识会优先考虑微信留言或者发短信",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "您经常花费大量时间试图理解与您自己的观点截然不同的观点",
+                options: [
+                    { text: "A. 是", type: "T" },
+                    { text: "B. 否", type: "F" }
+                ]
+            },
+            {
+                text: "在您的社交圈中，您通常是联系朋友并发起活动的人",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "如果您的计划被打断，您的首要任务是尽快回到正轨",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "你仍然被很久以前犯的错误所困扰",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你很少思考人类存在的原因或生命的意义",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "你的情绪控制你比你控制它们更多",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "你的个人工作风格更接近于突然的能量爆发，而不是持续的计划和努力",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你会喜欢一份大部分时间都需要你独自进行的工作",
+                options: [
+                    { text: "A. 是", type: "I" },
+                    { text: "B. 否", type: "E" }
+                ]
+            },
+            {
+                text: "你认为思考抽象的哲学问题是浪费时间",
+                options: [
+                    { text: "A. 是", type: "S" },
+                    { text: "B. 否", type: "N" }
+                ]
+            },
+            {
+                text: "与安静、私密的地方相比，您更愿意被繁忙、熙熙攘攘的氛围所吸引",
+                options: [
+                    { text: "A. 是", type: "E" },
+                    { text: "B. 否", type: "I" }
+                ]
+            },
+            {
+                text: "看一眼，您就知道某人的感受",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "您可以有条不紊地完成工作，而无需跳过任何步骤",
+                options: [
+                    { text: "A. 是", type: "J" },
+                    { text: "B. 否", type: "P" }
+                ]
+            },
+            {
+                text: "你喜欢赞美他人",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "有压力的时候你才会有动力",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+            {
+                text: "你对被标记为有争议的事情非常感兴趣",
+                options: [
+                    { text: "A. 是", type: "N" },
+                    { text: "B. 否", type: "S" }
+                ]
+            },
+            {
+                text: "你愿意放弃一个好机会，在你认为别人更需要它的时候",
+                options: [
+                    { text: "A. 是", type: "F" },
+                    { text: "B. 否", type: "T" }
+                ]
+            },
+            {
+                text: "你在最后期限中挣扎",
+                options: [
+                    { text: "A. 是", type: "P" },
+                    { text: "B. 否", type: "J" }
+                ]
+            },
+
+            // --------------------------- Sheet3 描述题（90题） ---------------------------
+            {
+                text: "当你尝试了解某些事情时，一般你",
+                options: [
+                    { text: "A. 先要了解细节", type: "S" },
+                    { text: "B. 先了解整体情况，细节容后再谈", type: "N" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 随遇而安，做当时想做的事情", type: "P" },
+                    { text: "B. 为想做的事情订出时间表", type: "J" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 更多时候和别人共度", type: "E" },
+                    { text: "B. 更多时候独处、阅读、散步和发呆", type: "I" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 回你喜欢的地方度假", type: "I" },
+                    { text: "B. 选择去一些您从未去过的地方", type: "E" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 花很多时间处理与工作或者学习有关的事情", type: "I" },
+                    { text: "B. 维护一些对你重要的人际关系", type: "E" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 摈弃其他，专心享乐", type: "P" },
+                    { text: "B. 想着假期过后，要准备的事情", type: "J" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 游玩儿著名或者网红景点", type: "S" },
+                    { text: "B. 花时间逛博物馆或者一些幽静的地方", type: "N" }
+                ]
+            },
+            {
+                text: "当你放假时，你多数会",
+                options: [
+                    { text: "A. 去喜欢的餐厅用餐", type: "S" },
+                    { text: "B. 尝试没吃过的新菜式", type: "N" }
+                ]
+            },
+            {
+                text: "当你遇到新朋友时，你",
+                options: [
+                    { text: "A. 说话比聆听多", type: "E" },
+                    { text: "B. 聆听比说话多", type: "I" }
+                ]
+            },
+            {
+                text: "当您被预定在某个时间内完成某事时，您会觉得:",
+                options: [
+                    { text: "A. 能按计划行事是愉快的", type: "J" },
+                    { text: "B. 因受束缚而有些不愉快", type: "P" }
+                ]
+            },
+            {
+                text: "和一群人在一起，你通常会选",
+                options: [
+                    { text: "A. 跟你很熟悉的个别人谈话", type: "I" },
+                    { text: "B. 参与大伙的谈话", type: "E" }
+                ]
+            },
+            {
+                text: "当我不同意我恋人的想法时：",
+                options: [
+                    { text: "A. 我尽可能的避免伤害对方，如果会伤害对方，我就不说", type: "F" },
+                    { text: "B. 我会直截了当的摆事实、讲道理、因为对的就是对的", type: "T" }
+                ]
+            },
+            {
+                text: "当我参加一个社交聚会时，我一般是这样的状态：",
+                options: [
+                    { text: "A. 夜色越深越有劲，只要我高兴，我就是最晚离开的哪个", type: "E" },
+                    { text: "B. 在夜晚开始的时候，我就疲倦了，并且想回家", type: "I" }
+                ]
+            },
+            {
+                text: "当我在聚会觉得放松时，我倾向谈论：",
+                options: [
+                    { text: "A. 未来，关于改进和发明事物，和生活的种种可能性", type: "N" },
+                    { text: "B. 实际的、具体的，关于此时此地的事物", type: "S" }
+                ]
+            },
+            {
+                text: "当我专注做某件事情时",
+                options: [
+                    { text: "A. 需要不时停下来休息", type: "P" },
+                    { text: "B. 不希望受到任何干扰", type: "J" }
+                ]
+            },
+            {
+                text: "当我作决定的时候",
+                options: [
+                    { text: "A. 我更多考虑正反两面的观点，并且会推理和质证", type: "T" },
+                    { text: "B. 我更多了解其他人的想法，并希望能达成共识", type: "F" }
+                ]
+            },
+            {
+                text: "当与一个人交往时，我倾向于：",
+                options: [
+                    { text: "A. 情感上的兼容，互相关心对方的感受", type: "F" },
+                    { text: "B. 理智上的兼容，沟通想法，客观辩论话题", type: "T" }
+                ]
+            },
+            {
+                text: "当自己和某人分手时",
+                options: [
+                    { text: "A. 情绪深陷其中，很艰难的才能抽身而出", type: "F" },
+                    { text: "B. 虽然很受伤，但是一旦下定决心，我会果断忘记对方", type: "T" }
+                ]
+            },
+            {
+                text: "对你而言，较难适应的是:",
+                options: [
+                    { text: "A. 循规蹈矩、中规中矩", type: "P" },
+                    { text: "B. 不断的变化", type: "J" }
+                ]
+            },
+            {
+                text: "刚认识您的人，对您的兴趣了解程度是:",
+                options: [
+                    { text: "A. 很快就能了解你", type: "E" },
+                    { text: "B. 只有真正和你熟识之后才能了解你", type: "I" }
+                ]
+            },
+            {
+                text: "过去，我的恋人倾向对我说这些：",
+                options: [
+                    { text: "A. 你难道不可以安静一点吗？", type: "E" },
+                    { text: "B. 你可以从自己的世界里面走出来一下吗", type: "I" }
+                ]
+            },
+            {
+                text: "过去，我遇见我喜欢的人（恋人），大部分是：",
+                options: [
+                    { text: "A. 在公共场合，或者通过朋友介绍", type: "E" },
+                    { text: "B. 通过网络等私人方式，或者家人介绍", type: "I" }
+                ]
+            },
+            {
+                text: "假如你是一位老师，你会选教",
+                options: [
+                    { text: "A. 以实践实操为主的课程", type: "S" },
+                    { text: "B. 涉及理论的课程", type: "N" }
+                ]
+            },
+            {
+                text: "哪个是较高的赞誉",
+                options: [
+                    { text: "A. 能干的", type: "T" },
+                    { text: "B. 富有同情心的", type: "F" }
+                ]
+            },
+            {
+                text: "哪个是较高的赞誉",
+                options: [
+                    { text: "A. 一贯感性有情义的", type: "F" },
+                    { text: "B. 一贯理性理智的", type: "T" }
+                ]
+            },
+            {
+                text: "哪些人会更吸引你？",
+                options: [
+                    { text: "A. 思维敏捷及非常聪颖的人", type: "N" },
+                    { text: "B. 实事求是有丰富经验的人", type: "S" }
+                ]
+            },
+            {
+                text: "哪一句较能表达你的看法？",
+                options: [
+                    { text: "A. 感情用事的人较容易犯错", type: "T" },
+                    { text: "B. 总是理智的人容易自以为是，因为容易犯错", type: "F" }
+                ]
+            },
+            {
+                text: "哪一句较能表达你的看法？",
+                options: [
+                    { text: "A. 犹豫就会败北", type: "P" },
+                    { text: "B. 三思而后行", type: "J" }
+                ]
+            },
+            {
+                text: "哪一项较为常见：",
+                options: [
+                    { text: "A. 我先入会场，其他人随后到来", type: "J" },
+                    { text: "B. 大部分人先到，我经常最后一批到来", type: "P" }
+                ]
+            },
+            {
+                text: "你比较喜欢",
+                options: [
+                    { text: "A. 坐观事情发展才做计划", type: "P" },
+                    { text: "B. 很早就做计划", type: "J" }
+                ]
+            },
+            {
+                text: "出去玩，你比较喜欢",
+                options: [
+                    { text: "A. 提前把约会、游玩儿、地点安排好", type: "J" },
+                    { text: "B. 无拘无束，看到什么好玩儿就玩儿什么", type: "P" }
+                ]
+            },
+            {
+                text: "你对下列哪方面较感兴趣？",
+                options: [
+                    { text: "A. 知道别人的想法和行为", type: "T" },
+                    { text: "B. 知道别人的内心感受", type: "F" }
+                ]
+            },
+            {
+                text: "您刚认识的朋友能否说出你的兴趣？",
+                options: [
+                    { text: "A. 马上可以", type: "E" },
+                    { text: "B. 要等他们了解你之后才可以", type: "I" }
+                ]
+            },
+            {
+                text: "你会",
+                options: [
+                    { text: "A. 使用已证明有效的方法解决问题", type: "S" },
+                    { text: "B. 分析还有什么毛病，及针对尚未解决的难题", type: "N" }
+                ]
+            },
+            {
+                text: "你会跟哪些人做朋友？",
+                options: [
+                    { text: "A. 常提出新主意的", type: "N" },
+                    { text: "B. 脚踏实地的", type: "S" }
+                ]
+            },
+            {
+                text: "你会倾向",
+                options: [
+                    { text: "A. 暂时放下不愉快的事情，直到有心情才处理", type: "P" },
+                    { text: "B. 及时处理不愉快的事情，务求把它们抛诸脑后", type: "J" }
+                ]
+            },
+            {
+                text: "你会倾向",
+                options: [
+                    { text: "A. 自己的工作被欣赏，即使你自己并不满意", type: "S" },
+                    { text: "B. 创造一些有长远价值的东西，即使别人不知道是你做的", type: "N" }
+                ]
+            },
+            {
+                text: "你会倾向",
+                options: [
+                    { text: "A. 在自己有兴趣的范畴，积累丰富的经验", type: "S" },
+                    { text: "B. 有各式各样不同的经验", type: "N" }
+                ]
+            },
+            {
+                text: "你较喜欢下列哪项工作",
+                options: [
+                    { text: "A. 能让你迅速和即时做出反应的，刺激和灵活的", type: "P" },
+                    { text: "B. 能让你定出目标，逐步达成目标的", type: "J" }
+                ]
+            },
+            {
+                text: "你能否滔滔不绝地与人聊天",
+                options: [
+                    { text: "A. 只限于跟你有共同兴趣的人", type: "I" },
+                    { text: "B. 几乎跟任何人都可以", type: "E" }
+                ]
+            },
+            {
+                text: "你宁愿被人认为是一个",
+                options: [
+                    { text: "A. 实事求是的人", type: "S" },
+                    { text: "B. 机灵的人", type: "N" }
+                ]
+            },
+            {
+                text: "你认为按照程序表做事",
+                options: [
+                    { text: "A. 偶尔需要，但大多数时候不喜欢这么做", type: "P" },
+                    { text: "B. 大多数时候是有帮助的，而且是你喜欢的方式", type: "J" }
+                ]
+            },
+            {
+                text: "你喜欢自己的哪种性格？",
+                options: [
+                    { text: "A. 冷静而理性", type: "T" },
+                    { text: "B. 热情而感性", type: "F" }
+                ]
+            },
+            {
+                text: "您比较钦羡:",
+                options: [
+                    { text: "A. 循规蹈矩，不引人瞩目的人", type: "S" },
+                    { text: "B. 特立独行，不在乎是否为人注意的人", type: "N" }
+                ]
+            },
+            {
+                text: "您比较擅长于:",
+                options: [
+                    { text: "A. 处理偶发事件，而且很快就知道该如何处理", type: "P" },
+                    { text: "B. 遵循一个经过设计的详细计划行事", type: "J" }
+                ]
+            },
+            {
+                text: "您比较喜欢:",
+                options: [
+                    { text: "A. 支持已经确定可以做好的事情", type: "S" },
+                    { text: "B. 分析尚存的差距以处理剩余的问题", type: "N" }
+                ]
+            },
+            {
+                text: "您比较喜欢被认为是",
+                options: [
+                    { text: "A. 一个讲求实际的人", type: "S" },
+                    { text: "B. 一个才华横溢的人", type: "N" }
+                ]
+            },
+            {
+                text: "您比较在乎:",
+                options: [
+                    { text: "A. 别人的感觉", type: "F" },
+                    { text: "B. 别人的权益", type: "T" }
+                ]
+            },
+            {
+                text: "您觉得较大的错误是:",
+                options: [
+                    { text: "A. 过于热情", type: "E" },
+                    { text: "B. 热情不足", type: "I" }
+                ]
+            },
+            {
+                text: "您觉得较高的赞美是:",
+                options: [
+                    { text: "A. 被称为一个真情流露的人", type: "F" },
+                    { text: "B. 被称为是一个始终理性的人", type: "T" }
+                ]
+            },
+            {
+                text: "您觉得人最糟糕的是:",
+                options: [
+                    { text: "A. 没有同情心", type: "F" },
+                    { text: "B. 不讲理", type: "T" }
+                ]
+            },
+            {
+                text: "您宁可选择和哪一种上司工作？",
+                options: [
+                    { text: "A. 天性纯良，但常常前后不一的", type: "F" },
+                    { text: "B. 言辞尖锐但总是合乎逻辑的", type: "T" }
+                ]
+            },
+            {
+                text: "您倾向于:",
+                options: [
+                    { text: "A. 与少数人建立深厚的友谊", type: "I" },
+                    { text: "B. 与许多人建立广泛的交情", type: "E" }
+                ]
+            },
+            {
+                text: "您认为比较重要的是:",
+                options: [
+                    { text: "A. 能够观察一个情况下的多种可能", type: "N" },
+                    { text: "B. 能适应当时的情况与事实", type: "S" }
+                ]
+            },
+            {
+                text: "您认为跟一般人相比:",
+                options: [
+                    { text: "A. 您对各种事的反应更为热心", type: "F" },
+                    { text: "B. 您对各种事的反应比较不容易兴奋", type: "T" }
+                ]
+            },
+            {
+                text: "您通常:",
+                options: [
+                    { text: "A. 会自然的表露您的感受", type: "E" },
+                    { text: "B. 会将自己的感受隐藏起来", type: "I" }
+                ]
+            },
+            {
+                text: "您通常",
+                options: [
+                    { text: "A. 宁可在最后一刻赶工", type: "P" },
+                    { text: "B. 觉得在最后一刻赶工令自己紧张", type: "J" }
+                ]
+            },
+            {
+                text: "若我有时间和金钱，我的朋友邀请我到国外度假，并且在一天前才通知，我会：",
+                options: [
+                    { text: "A. 必须先检查自己的时间表", type: "J" },
+                    { text: "B. 立即收拾行装", type: "P" }
+                ]
+            },
+            {
+                text: "通常您是:",
+                options: [
+                    { text: "A. 感情支配理智", type: "F" },
+                    { text: "B. 理智支配感情", type: "T" }
+                ]
+            },
+            {
+                text: "我大多会",
+                options: [
+                    { text: "A. 突然尝试做某些事情，看看会有什么事情发生", type: "P" },
+                    { text: "B. 尝试做任何事情前，都想事前知道可能有什么事情发生", type: "J" }
+                ]
+            },
+            {
+                text: "我更有兴趣了解",
+                options: [
+                    { text: "A. 别人的经历，例如他们做过什么，认识什么人", type: "S" },
+                    { text: "B. 别人的计划和梦想，例如想去哪里，想干什么，憧憬什么", type: "N" }
+                ]
+            },
+            {
+                text: "我期待的生活包含着：",
+                options: [
+                    { text: "A. 科学合理的安排和有毅力的执行", type: "J" },
+                    { text: "B. 没什么压力，所有事情自然发生且时间弹性大", type: "P" }
+                ]
+            },
+            {
+                text: "我倾向比较能够察觉到：",
+                options: [
+                    { text: "A. 人们需要情感上支持的时候", type: "F" },
+                    { text: "B. 人们不合逻辑的地方", type: "T" }
+                ]
+            },
+            {
+                text: "我倾向从何处得到动力和信心：",
+                options: [
+                    { text: "A. 别人互动和支持", type: "E" },
+                    { text: "B. 我自己的想法", type: "I" }
+                ]
+            },
+            {
+                text: "我倾向透过以下方式形成脑海中的概念：",
+                options: [
+                    { text: "A. 对事物的观察、总结和理论升华以及感悟", type: "N" },
+                    { text: "B. 对目前状态的实际认知和感受", type: "S" }
+                ]
+            },
+            {
+                text: "我认为自己和很多人的相遇并认识是：",
+                options: [
+                    { text: "A. 随意的、友善的以及重要的", type: "F" },
+                    { text: "B. 经过思考的，或多或少带有一定目的性", type: "T" }
+                ]
+            },
+            {
+                text: "我擅长",
+                options: [
+                    { text: "A. 制订出一些可行的计划", type: "J" },
+                    { text: "B. 促成别人同意一些计划，并衷力合作", type: "P" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 喜欢在一个时间里专心于一件事，直到完成", type: "J" },
+                    { text: "B. 喜欢同时进行好几件事情", type: "P" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 经常边说话、边思考", type: "E" },
+                    { text: "B. 我在说话前，通常会思考要说的话", type: "I" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 环境对我很重要，会影响我的感受", type: "E" },
+                    { text: "B. 如果我做喜欢做的事情，环境和气氛对我而言不那么重要", type: "I" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 我喜欢分析，心思缜密", type: "T" },
+                    { text: "B. 我对人感兴趣，关系他们所发生的事情", type: "F" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 即使已出计划，我也喜欢探讨其他新的方案", type: "P" },
+                    { text: "B. 一旦定出计划，我希望能依照计划行事", type: "J" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 认识我的人，一般都知道我重视什么", type: "E" },
+                    { text: "B. 除了我重视的人，我不会告诉他人我重视什么", type: "I" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 如果我喜欢某种活动，我会经常进行这种活动", type: "S" },
+                    { text: "B. 我一旦熟悉某种活动，便希望转而尝试其他新的活动", type: "N" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 我独处太久，便会感到不安", type: "E" },
+                    { text: "B. 若没有足够的自处时间，我便会感到烦躁不安", type: "I" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 我对一些没有实际用途的幻想不感兴趣", type: "S" },
+                    { text: "B. 我喜欢幻想，并享受幻想的过程", type: "N" }
+                ]
+            },
+            {
+                text: "我是这类型的人：",
+                options: [
+                    { text: "A. 当进行谈判时，我依靠自己的知识和技巧", type: "T" },
+                    { text: "B. 当进行谈判时，我会拉拢其他人至同一战线", type: "F" }
+                ]
+            },
+            {
+                text: "我通常：",
+                options: [
+                    { text: "A. 会自然想象一大堆，关于即将来临之约会的事情", type: "P" },
+                    { text: "B. 会拘谨的想象即将来临的约会，希望不会出现什么纰漏", type: "J" }
+                ]
+            },
+            {
+                text: "我喜欢这样的人，遇事：",
+                options: [
+                    { text: "A. 快刀斩乱麻，能够果断作出决定", type: "P" },
+                    { text: "B. 不立刻做决定，并持续收集信息之后再决定", type: "J" }
+                ]
+            },
+            {
+                text: "下列哪一种是你的一般生活取向？",
+                options: [
+                    { text: "A. 只管去做，踏实肯干", type: "S" },
+                    { text: "B. 找出多种不同选择", type: "N" }
+                ]
+            },
+            {
+                text: "下列哪一种听起来比较吸引人？",
+                options: [
+                    { text: "A. 与恋人到人多且社交活动频繁的地方去", type: "E" },
+                    { text: "B. 待在家中，与恋人做一些日常事情", type: "I" }
+                ]
+            },
+            {
+                text: "选择阅读闲书时，您喜欢:",
+                options: [
+                    { text: "A. 作者古怪、独创、新奇、高深的表达方式", type: "N" },
+                    { text: "B. 作者明确说明他的意思", type: "S" }
+                ]
+            },
+            {
+                text: "在第一次约会中：",
+                options: [
+                    { text: "A. 如果我所约的人来迟了，我心里会不高兴", type: "J" },
+                    { text: "B. 如果我所约的人来迟了，我不放在心上", type: "P" }
+                ]
+            },
+            {
+                text: "在朋友当中，您是:",
+                options: [
+                    { text: "A. 最后知道事情的人之一", type: "I" },
+                    { text: "B. 知道每个人的消息", type: "E" }
+                ]
+            },
+            {
+                text: "在社交聚会上，你会",
+                options: [
+                    { text: "A. 是说话最多的一个", type: "E" },
+                    { text: "B. 让别人多说话", type: "I" }
+                ]
+            },
+            {
+                text: "当您想到您应该做些琐事或买些零碎物品时，您会:",
+                options: [
+                    { text: "A. 常常健忘，到很迟才想起来", type: "P" },
+                    { text: "B. 不需要提醒就能做好", type: "J" }
+                ]
+            },
+            {
+                text: "在我自己的人际关系中，我一般是这样处理的：",
+                options: [
+                    { text: "A. 经常联络，不断加深感情", type: "E" },
+                    { text: "B. 只要关系没有变坏，就没必要主动联系", type: "I" }
+                ]
+            },
+            {
+                text: "在我做分析的时候，首先能意识到的是：",
+                options: [
+                    { text: "A. 我的直觉", type: "N" },
+                    { text: "B. 我直观的观察和现成的经验", type: "S" }
+                ]
+            },
+            {
+                text: "在一大群人当中，通常是",
+                options: [
+                    { text: "A. 你介绍大家认识", type: "E" },
+                    { text: "B. 别人介绍你", type: "I" }
+                ]
+            },
+            {
+                text: "在我内心深处，我认为：",
+                options: [
+                    { text: "A. 与其活在不完美的现实中，我选择活在我的精神世界里", type: "N" },
+                    { text: "B. 与其活在不切实际的精神世界里，我选择活在现实中", type: "S" }
+                ]
+            }
+        ];
+
+
+        // 初始化变量
+        let currentQuestionIndex = 0;
+        let answers = {
+            "E": 0, "I": 0,
+            "S": 0, "N": 0,
+            "T": 0, "F": 0,
+            "J": 0, "P": 0
+        };
+
+        // DOM元素
+        const titleCard = document.getElementById('title-card');
+        const questionsContainer = document.getElementById('questions-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const resultCard = document.getElementById('result-card');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const fireworksContainer = document.getElementById('fireworks-container');
+        const progressContainer = document.getElementById('progress-container');
+
+        // 事件监听器
+        startBtn.addEventListener('click', startTest);
+        restartBtn.addEventListener('click', restartTest);
+
+        // 开始测试
+        function startTest() {
+            titleCard.classList.add('hidden');
+            progressContainer.classList.remove('hidden'); // 显示进度条
+            showQuestion(currentQuestionIndex);
+        }
+
+        // 显示问题
+        function showQuestion(index) {
+            if (index >= questions.length) {
+                calculateResult();
+                return;
+            }
+
+            // 更新进度条
+            const progressPercentage = ((index + 1) / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `${index + 1}/${questions.length}`;
+
+            // 创建问题卡片 - 移除了问题数显示
+            const question = questions[index];
+            const questionCard = document.createElement('div');
+            questionCard.className = 'bg-glass rounded-3xl p-6 md:p-8 mb-6 card-shadow w-full transition-all duration-500';
+            questionCard.innerHTML = `
+                <p class="text-gray-700 mb-8 text-base md:text-lg">${question.text}</p>
+                <div class="space-y-4">
+                    ${question.options.map((option, i) => `
+                        <button class="option-btn w-full bg-white hover:bg-gray-50 text-gray-800 font-bold py-4 px-8 rounded-full text-left btn-hover btn-active transition-all flex items-center" data-type="${option.type}">
+                            <span class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-4">${String.fromCharCode(65 + i)}</span>
+                            ${option.text}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            // 清空问题容器并添加新问题卡片
+            questionsContainer.innerHTML = '';
+            questionsContainer.appendChild(questionCard);
+
+            // 添加选项按钮事件监听器
+            const optionBtns = document.querySelectorAll('.option-btn');
+            optionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const type = btn.getAttribute('data-type');
+                    answers[type]++;
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                });
+            });
+        }
+
+        // 计算结果
+        function calculateResult() {
+            // 计算每个维度的结果
+            const eScore = answers['E'];
+            const iScore = answers['I'];
+            const sScore = answers['S'];
+            const nScore = answers['N'];
+            const tScore = answers['T'];
+            const fScore = answers['F'];
+            const jScore = answers['J'];
+            const pScore = answers['P'];
+
+            // 确定每个维度的类型
+            const eOrI = eScore >= iScore ? 'E' : 'I';
+            const sOrN = sScore >= nScore ? 'S' : 'N';
+            const tOrF = tScore >= fScore ? 'T' : 'F';
+            const jOrP = jScore >= pScore ? 'J' : 'P';
+
+            // 组合成MBTI类型
+            const mbtiType = eOrI + sOrN + tOrF + jOrP;
+
+            // 显示结果
+            showResult(mbtiType);
+            
+            // 显示烟花效果
+            showFireworks();
+        }
+
+        // 显示结果
+        function showResult(mbtiType) {
+            const resultTypeElement = document.getElementById('result-type');
+            const resultDescriptionElement = document.getElementById('result-description');
+            const resultImageElement = document.getElementById('result-image');
+
+            resultTypeElement.innerHTML = mbtiType;
+            resultDescriptionElement.innerHTML = mbtiTypes[mbtiType];
+            // 修改：设置图片的src属性（确保images文件夹中有对应的图片）
+            // 图片在同一文件夹下的images文件夹内，格式为png
+            resultImageElement.src = `https://raw.githubusercontent.com/ChanSingOn/MBTI_test/refs/heads/main/images/%E2%80%8C${mbtiType}.png`; 
+            resultImageElement.alt = `${mbtiType}性格类型图片`;
+            resultImageElement.onerror = function() {
+                // 如果图片加载失败，显示默认图片
+                this.src = `https://picsum.photos/400/300?random=${mbtiType}`;
+                this.alt = `${mbtiType}性格类型默认图片`;
+            };
+
+            // 隐藏题目容器和进度条，显示结果卡片
+            questionsContainer.innerHTML = '';
+            questionsContainer.classList.add('hidden');
+            progressContainer.classList.add('hidden'); // 隐藏进度条
+            resultCard.classList.remove('hidden');
+            
+            // 创建性格维度对比图表
+            createChart();
+        }
+
+        // 创建性格维度对比图表 - 使用两个独立的色块显示比例，左侧暖色系，右侧冷色系
+        function createChart() {
+            const chartContainer = document.getElementById('mbti-chart-container');
+            chartContainer.innerHTML = '';
+            
+            // 计算每个维度的百分比
+            const ePercentage = Math.round((answers['E'] / (answers['E'] + answers['I'])) * 100) || 50;
+            const iPercentage = 100 - ePercentage;
+            const sPercentage = Math.round((answers['S'] / (answers['S'] + answers['N'])) * 100) || 50;
+            const nPercentage = 100 - sPercentage;
+            const tPercentage = Math.round((answers['T'] / (answers['T'] + answers['F'])) * 100) || 50;
+            const fPercentage = 100 - tPercentage;
+            const jPercentage = Math.round((answers['J'] / (answers['J'] + answers['P'])) * 100) || 50;
+            const pPercentage = 100 - jPercentage;
+            
+            // 固定的暖色系和冷色系颜色
+            const warmColors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#FF9AA2'];
+            const coolColors = ['#B5EAD7', '#E2F0CB', '#C7CEEA', '#B5EAD7'];
+            
+            // 创建四个独立的横状占比图
+            createDimensionChart(chartContainer, '注意力方向（能量来源）', ePercentage, iPercentage, warmColors[0], coolColors[0], '外倾', '内倾');
+            createDimensionChart(chartContainer, '认知方式（信息获取）', sPercentage, nPercentage, warmColors[1], coolColors[1], '感觉', '直觉');
+            createDimensionChart(chartContainer, '‌判断方式（决策依据）', tPercentage, fPercentage, warmColors[2], coolColors[2], '思维', '情感');
+            createDimensionChart(chartContainer, '生活方式（行为偏好）', jPercentage, pPercentage, warmColors[3], coolColors[3], '判断', '知觉');
+        }
+
+        // 创建单个维度的横状占比图，使用固定的暖色系和冷色系颜色
+        function createDimensionChart(container, title, leftPercentage, rightPercentage, leftColor, rightColor, leftLabel, rightLabel) {
+            const dimensionDiv = document.createElement('div');
+            dimensionDiv.className = 'space-y-4';
+            
+            // 添加标题
+            dimensionDiv.innerHTML = `
+                <div class="text-white font-medium">${title}</div>
+                <div class="flex justify-between text-white text-sm mb-1">
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${leftColor}; margin-right: 1px;"></span> ${leftLabel} ${leftPercentage}%
+                    </span>
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${rightColor}; margin-right: 1px;"></span> ${rightLabel} ${rightPercentage}%
+                    </span>
+                </div>
+                <div class="mbti-bar flex">
+                    <div class="mbti-bar-fill" style="width: ${leftPercentage}%; background-color: ${leftColor};"></div>
+                    <div class="mbti-bar-fill" style="width: ${rightPercentage}%; background-color: ${rightColor};"></div>
+                </div>
+            `;
+            
+            container.appendChild(dimensionDiv);
+        }
+
+        // 显示烟花效果
+        function showFireworks() {
+            fireworksContainer.classList.remove('hidden');
+            
+            // 创建10个烟花
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    createFirework();
+                }, i * 300);
+            }
+            
+            // 5秒后隐藏烟花容器
+            setTimeout(() => {
+                fireworksContainer.classList.add('hidden');
+                fireworksContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // 创建单个烟花
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            
+            // 随机位置和颜色
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const size = Math.random() * 100 + 50;
+            const colors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            firework.style.left = `${x}%`;
+            firework.style.top = `${y}%`;
+            firework.style.width = `${size}px`;
+            firework.style.height = `${size}px`;
+            firework.style.backgroundColor = color;
+            
+            fireworksContainer.appendChild(firework);
+            
+            // 动画结束后移除元素
+            setTimeout(() => {
+                firework.remove();
+            }, 2000);
+        }
+
+        // 重新开始测试
+        function restartTest() {
+            // 重置变量
+            currentQuestionIndex = 0;
+            answers = {
+                "E": 0, "I": 0,
+                "S": 0, "N": 0,
+                "T": 0, "F": 0,
+                "J": 0, "P": 0
+            };
+            
+            // 隐藏结果卡片，显示标题卡片
+            resultCard.classList.add('hidden');
+            titleCard.classList.remove('hidden');
+            questionsContainer.classList.remove('hidden');
+            progressContainer.classList.add('hidden'); // 确保进度条初始是隐藏的
+            
+            // 重置进度条
+            progressBar.style.width = '0%';
+            progressText.textContent = `1/${questions.length}`;
+            
+            // 清空问题容器
+            questionsContainer.innerHTML = '';
+            
+            // 移除烟花容器内容
+            fireworksContainer.innerHTML = '';
+        }
+    </script>
+</body>
+
+</html>    

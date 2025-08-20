@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBM计算工具 | 体脂率、BMI、基础代谢率计算器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind CSS 配置 -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#FF7D00',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
+            info: '#86909C',
+            light: '#F2F3F5',
+            dark: '#1D2129',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      }
+      .card-shadow-hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .input-focus {
+        @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200;
+      }
+      .tab-active {
+        @apply border-b-2 border-primary text-primary font-medium;
+      }
+      .result-animation {
+        animation: resultFadeIn 0.5s ease-out forwards;
+      }
+      @keyframes resultFadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .chart-container {
+        position: relative;
+        height: 200px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+  <!-- 导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- 左侧 Logo -->
+        <div class="flex items-center">
+          <i class="fa fa-heartbeat text-primary text-2xl mr-2"></i>
+          <span class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">健康计算器</span>
+        </div>
+        
+        <!-- 右侧功能区 -->
+        <div class="flex items-center space-x-4">
+          <!-- 主题切换按钮 -->
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <i class="fa fa-moon-o dark:hidden text-gray-600"></i>
+            <i class="fa fa-sun-o hidden dark:block text-yellow-400"></i>
+          </button>
+          
+          <!-- 分享按钮 -->
+          <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <i class="fa fa-share-alt text-gray-600 dark:text-gray-300"></i>
+          </button>
+          
+          <!-- 关于按钮 -->
+          <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <i class="fa fa-info-circle text-gray-600 dark:text-gray-300"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 介绍卡片 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 transition-all duration-300 transform hover:-translate-y-1">
+      <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">健康计算中心</h1>
+      <p class="text-gray-600 dark:text-gray-300 mb-6">
+        这款多功能健康计算工具可以帮助您计算体脂率、BMI指数和基础代谢率(BMR)，并根据您的身体数据提供专业的健康建议。
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">体脂率计算</span>
+        <span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm">BMI指数</span>
+        <span class="px-3 py-1 bg-success/10 text-success rounded-full text-sm">基础代谢率</span>
+        <span class="px-3 py-1 bg-info/10 text-info rounded-full text-sm">健康建议</span>
+      </div>
+    </div>
+    
+    <!-- 计算卡片 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300">
+      <!-- 选项卡导航 -->
+      <div class="border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-wrap">
+          <button class="tab-btn tab-active px-6 py-4 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors" data-tab="bmi">
+            BMI指数
+          </button>
+          <button class="tab-btn px-6 py-4 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors" data-tab="body-fat">
+            体脂率
+          </button>
+          <button class="tab-btn px-6 py-4 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors" data-tab="bmr">
+            基础代谢率
+          </button>
+        </div>
+      </div>
+      
+      <!-- 选项卡内容 -->
+      <div class="p-6">
+        <!-- BMI计算 -->
+        <div id="bmi" class="tab-content">
+          <h2 class="text-xl font-bold mb-4">BMI指数计算</h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            身体质量指数（BMI）是评估体重与身高比例的常用指标，可帮助判断体重是否健康。
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 输入表单 -->
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label for="weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300">体重 (公斤)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-balance-scale text-gray-400"></i>
+                  </div>
+                  <input type="number" id="weight" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的体重" step="0.1">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="height" class="block text-sm font-medium text-gray-700 dark:text-gray-300">身高 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-v text-gray-400"></i>
+                  </div>
+                  <input type="number" id="height" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的身高" step="0.1">
+                </div>
+              </div>
+              
+              <button id="calculate-bmi" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                <i class="fa fa-calculator mr-2"></i> 计算BMI指数
+              </button>
+            </div>
+            
+            <!-- 结果展示 -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 flex flex-col justify-center">
+              <h3 class="text-lg font-semibold mb-4 text-center">BMI结果</h3>
+              <div id="bmi-result" class="hidden result-animation">
+                <div class="text-center mb-4">
+                  <div id="bmi-value" class="text-4xl font-bold mb-1 text-primary"></div>
+                  <div id="bmi-category" class="text-lg font-medium"></div>
+                </div>
+                
+                <div class="space-y-4">
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">健康建议</h4>
+                    <p id="bmi-advice" class="text-gray-600 dark:text-gray-300 text-sm"></p>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">最佳体重建议</h4>
+                    <div class="flex items-center justify-center">
+                      <div class="text-center">
+                        <div id="ideal-weight" class="text-2xl font-bold text-success"></div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          (BMI=22时的理想体重)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">BMI范围参考</h4>
+                    <div class="space-y-1 text-sm">
+                      <div class="flex justify-between">
+                        <span>偏瘦:</span>
+                        <span class="text-blue-500">BMI < 18.5</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>正常:</span>
+                        <span class="text-green-500">18.5 ≤ BMI < 24</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>超重:</span>
+                        <span class="text-yellow-500">24 ≤ BMI < 28</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>肥胖:</span>
+                        <span class="text-red-500">BMI ≥ 28</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="bmi-placeholder" class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fa fa-calculator text-4xl mb-3 opacity-30"></i>
+                <p>请输入您的体重和身高，然后点击"计算BMI指数"按钮</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 体脂率计算 -->
+        <div id="body-fat" class="tab-content hidden">
+          <h2 class="text-xl font-bold mb-4">体脂率计算</h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            体脂率是指人体内脂肪重量在人体总体重中所占的比例，它比BMI更能准确反映身体脂肪水平。
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 输入表单 -->
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">性别</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="gender" value="male" class="form-radio h-5 w-5 text-primary focus:ring-primary" checked>
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">男</span>
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="gender" value="female" class="form-radio h-5 w-5 text-primary focus:ring-primary">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">女</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300">年龄 (岁)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-birthday-cake text-gray-400"></i>
+                  </div>
+                  <input type="number" id="age" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的年龄" min="18" max="80">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="weight-bf" class="block text-sm font-medium text-gray-700 dark:text-gray-300">体重 (公斤)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-balance-scale text-gray-400"></i>
+                  </div>
+                  <input type="number" id="weight-bf" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的体重" step="0.1">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="height-bf" class="block text-sm font-medium text-gray-700 dark:text-gray-300">身高 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-v text-gray-400"></i>
+                  </div>
+                  <input type="number" id="height-bf" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的身高" step="0.1">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="neck" class="block text-sm font-medium text-gray-700 dark:text-gray-300">颈围 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-h text-gray-400"></i>
+                  </div>
+                  <input type="number" id="neck" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的颈围" step="0.1">
+                </div>
+              </div>
+              
+              <div id="waist-hip-container" class="space-y-2">
+                <label for="waist" class="block text-sm font-medium text-gray-700 dark:text-gray-300">腰围 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-h text-gray-400"></i>
+                  </div>
+                  <input type="number" id="waist" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的腰围" step="0.1">
+                </div>
+              </div>
+              
+              <div id="hip-container" class="space-y-2 hidden">
+                <label for="hip" class="block text-sm font-medium text-gray-700 dark:text-gray-300">臀围 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-h text-gray-400"></i>
+                  </div>
+                  <input type="number" id="hip" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的臀围" step="0.1">
+                </div>
+              </div>
+              
+              <button id="calculate-body-fat" class="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                <i class="fa fa-calculator mr-2"></i> 计算体脂率
+              </button>
+            </div>
+            
+            <!-- 结果展示 -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 flex flex-col justify-center">
+              <h3 class="text-lg font-semibold mb-4 text-center">体脂率结果</h3>
+              <div id="body-fat-result" class="hidden result-animation">
+                <div class="text-center mb-4">
+                  <div id="body-fat-value" class="text-4xl font-bold mb-1 text-secondary"></div>
+                  <div id="body-fat-category" class="text-lg font-medium"></div>
+                </div>
+                
+                <div class="space-y-4">
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">健康建议</h4>
+                    <p id="body-fat-advice" class="text-gray-600 dark:text-gray-300 text-sm"></p>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">体脂率参考范围</h4>
+                    <div class="space-y-1 text-sm">
+                      <div class="flex justify-between">
+                        <span>男性</span>
+                        <span>女性</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-blue-500">运动员: 6-13%</span>
+                        <span class="text-blue-500">运动员: 14-20%</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-green-500">健康: 14-17%</span>
+                        <span class="text-green-500">健康: 21-24%</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-yellow-500">可接受: 18-24%</span>
+                        <span class="text-yellow-500">可接受: 25-31%</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-red-500">肥胖: 25%以上</span>
+                        <span class="text-red-500">肥胖: 32%以上</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="body-fat-placeholder" class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fa fa-calculator text-4xl mb-3 opacity-30"></i>
+                <p>请填写所有必要信息，然后点击"计算体脂率"按钮</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 基础代谢率计算 -->
+        <div id="bmr" class="tab-content hidden">
+          <h2 class="text-xl font-bold mb-4">基础代谢率计算</h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            基础代谢率(BMR)是指人体在清醒而又极端安静的状态下，不受肌肉活动、环境温度、食物及精神紧张等影响时的能量代谢率。
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 输入表单 -->
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">性别</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="gender-bmr" value="male" class="form-radio h-5 w-5 text-primary focus:ring-primary" checked>
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">男</span>
+                  </label>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="gender-bmr" value="female" class="form-radio h-5 w-5 text-primary focus:ring-primary">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">女</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="age-bmr" class="block text-sm font-medium text-gray-700 dark:text-gray-300">年龄 (岁)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-birthday-cake text-gray-400"></i>
+                  </div>
+                  <input type="number" id="age-bmr" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的年龄" min="18" max="80">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="weight-bmr" class="block text-sm font-medium text-gray-700 dark:text-gray-300">体重 (公斤)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-balance-scale text-gray-400"></i>
+                  </div>
+                  <input type="number" id="weight-bmr" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的体重" step="0.1">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="height-bmr" class="block text-sm font-medium text-gray-700 dark:text-gray-300">身高 (厘米)</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-arrows-v text-gray-400"></i>
+                  </div>
+                  <input type="number" id="height-bmr" class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="输入您的身高" step="0.1">
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label for="activity-level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">活动水平</label>
+                <select id="activity-level" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none input-focus bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                  <option value="1.2">久坐不动（几乎不运动）</option>
+                  <option value="1.375">轻度活动（每周1-3天轻度运动）</option>
+                  <option value="1.55" selected>中度活动（每周3-5天中度运动）</option>
+                  <option value="1.725">高度活动（每周6-7天剧烈运动）</option>
+                  <option value="1.9">极高度活动（每天剧烈运动或体力劳动）</option>
+                </select>
+              </div>
+              
+              <button id="calculate-bmr" class="w-full bg-success hover:bg-success/90 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                <i class="fa fa-calculator mr-2"></i> 计算基础代谢率
+              </button>
+            </div>
+            
+            <!-- 结果展示 -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 flex flex-col justify-center">
+              <h3 class="text-lg font-semibold mb-4 text-center">基础代谢率结果</h3>
+              <div id="bmr-result" class="hidden result-animation">
+                <div class="text-center mb-4">
+                  <div id="bmr-value" class="text-4xl font-bold mb-1 text-success"></div>
+                  <div class="text-lg font-medium">卡路里/天</div>
+                </div>
+                
+                <div class="space-y-4">
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">每日卡路里需求</h4>
+                    <div class="space-y-2 text-sm">
+                      <div class="flex justify-between">
+                        <span>基础代谢率 (BMR):</span>
+                        <span id="bmr-base" class="font-medium"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>日常活动消耗:</span>
+                        <span id="bmr-activity" class="font-medium"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>总卡路里需求:</span>
+                        <span id="bmr-total" class="font-medium text-lg"></span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">健康建议</h4>
+                    <p id="bmr-advice" class="text-gray-600 dark:text-gray-300 text-sm"></p>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <h4 class="font-medium mb-2">卡路里参考</h4>
+                    <div class="space-y-1 text-sm">
+                      <div class="flex justify-between">
+                        <span>减重 (每周减0.5kg):</span>
+                        <span id="bmr-weight-loss" class="font-medium text-red-500"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>维持体重:</span>
+                        <span id="bmr-maintain" class="font-medium text-green-500"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>增重 (每周增0.5kg):</span>
+                        <span id="bmr-weight-gain" class="font-medium text-blue-500"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="bmr-placeholder" class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fa fa-calculator text-4xl mb-3 opacity-30"></i>
+                <p>请填写所有必要信息，然后点击"计算基础代谢率"按钮</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 健康小贴士卡片 -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl">
+        <div class="flex items-start">
+          <div class="bg-primary/10 p-3 rounded-lg mr-4">
+            <i class="fa fa-leaf text-primary text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-2">均衡饮食</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">
+              保持均衡的饮食是健康生活的基础，应包含足够的蛋白质、碳水化合物、脂肪、维生素和矿物质。
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl">
+        <div class="flex items-start">
+          <div class="bg-secondary/10 p-3 rounded-lg mr-4">
+            <i class="fa fa-heartbeat text-secondary text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-2">定期运动</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">
+              每周至少进行150分钟的中等强度有氧运动，如快走、跑步、游泳等，有助于维持健康体重。
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl">
+        <div class="flex items-start">
+          <div class="bg-success/10 p-3 rounded-lg mr-4">
+            <i class="fa fa-bed text-success text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg mb-2">充足睡眠</h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">
+              成年人每天应保证7-9小时的高质量睡眠，良好的睡眠对身体恢复和新陈代谢至关重要。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center">
+            <i class="fa fa-heartbeat text-primary text-xl mr-2"></i>
+            <span class="text-xl font-bold">健康计算器</span>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">
+            提供专业的健康计算工具和建议
+          </p>
+        </div>
+        
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+            <i class="fa fa-facebook"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+            <i class="fa fa-twitter"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+            <i class="fa fa-instagram"></i>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors">
+            <i class="fa fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+        <p>&copy; 2025 健康计算器 | 保留所有权利 | 陈省安制作</p>
+        <div class="flex justify-center space-x-4 mt-2">
+          <a href="#" class="hover:text-primary dark:hover:text-primary transition-colors">隐私政策</a>
+          <a href="#" class="hover:text-primary dark:hover:text-primary transition-colors">使用条款</a>
+          <a href="#" class="hover:text-primary dark:hover:text-primary transition-colors">联系我们</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 主题切换
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+    
+    // 检查用户偏好
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+    
+    // 切换主题
+    themeToggle.addEventListener('click', () => {
+      htmlElement.classList.toggle('dark');
+      if (htmlElement.classList.contains('dark')) {
+        localStorage.theme = 'dark';
+      } else {
+        localStorage.theme = 'light';
+      }
+    });
+    
+    // 选项卡切换
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 移除所有选项卡的活动状态
+        tabBtns.forEach(b => b.classList.remove('tab-active'));
+        
+        // 添加当前选项卡的活动状态
+        btn.classList.add('tab-active');
+        
+        // 隐藏所有内容
+        tabContents.forEach(content => content.classList.add('hidden'));
+        
+        // 显示当前内容
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(tabId).classList.remove('hidden');
+      });
+    });
+    
+    // 性别切换 - 体脂率计算
+    const genderRadios = document.querySelectorAll('input[name="gender"]');
+    const hipContainer = document.getElementById('hip-container');
+    
+    genderRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'female') {
+          hipContainer.classList.remove('hidden');
+        } else {
+          hipContainer.classList.add('hidden');
+        }
+      });
+    });
+    
+    // BMI计算
+    document.getElementById('calculate-bmi').addEventListener('click', () => {
+      const weight = parseFloat(document.getElementById('weight').value);
+      const height = parseFloat(document.getElementById('height').value);
+      
+      if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+        alert('请输入有效的体重和身高');
+        return;
+      }
+      
+      // 计算BMI
+      const bmi = weight / ((height / 100) * (height / 100));
+      const bmiRounded = Math.round(bmi * 10) / 10;
+      
+      // 计算最佳体重 (BMI=22时)
+      const idealWeight = 22 * ((height / 100) * (height / 100));
+      const idealWeightRounded = Math.round(idealWeight * 10) / 10;
+      
+      // 确定BMI类别
+      let category, color, advice;
+      
+      if (bmi < 18.5) {
+        category = '偏瘦';
+        color = 'text-blue-500';
+        advice = '您的BMI指数低于正常范围，建议增加营养摄入，适量增加体重。可选择高蛋白、高热量的食物，如坚果、肉类、鱼类等，并配合适当的力量训练。';
+      } else if (bmi < 24) {
+        category = '正常';
+        color = 'text-green-500';
+        advice = '您的BMI指数在正常范围内，继续保持均衡的饮食和适量的运动。建议每周进行至少150分钟的中等强度有氧运动，如快走、跑步或游泳。';
+      } else if (bmi < 28) {
+        category = '超重';
+        color = 'text-yellow-500';
+        advice = '您的BMI指数略高于正常范围，建议控制饮食，减少高热量、高脂肪食物的摄入，增加蔬菜和水果的比例。同时，每周进行至少150分钟的中等强度运动。';
+      } else {
+        category = '肥胖';
+        color = 'text-red-500';
+        advice = '您的BMI指数高于正常范围，建议采取健康的饮食和运动计划来减轻体重。减少糖分和精制碳水化合物的摄入，增加蔬菜、水果和全谷物的摄入。每周进行至少150分钟的中等强度运动，并考虑增加力量训练。';
+      }
+      
+      // 显示结果
+      document.getElementById('bmi-placeholder').classList.add('hidden');
+      document.getElementById('bmi-result').classList.remove('hidden');
+      
+      document.getElementById('bmi-value').textContent = bmiRounded;
+      document.getElementById('bmi-category').textContent = category;
+      document.getElementById('bmi-category').className = `text-lg font-medium ${color}`;
+      document.getElementById('bmi-advice').textContent = advice;
+      document.getElementById('ideal-weight').textContent = `${idealWeightRounded} 公斤`;
+    });
+    
+    // 体脂率计算
+    document.getElementById('calculate-body-fat').addEventListener('click', () => {
+      const gender = document.querySelector('input[name="gender"]:checked').value;
+      const age = parseFloat(document.getElementById('age').value);
+      const weight = parseFloat(document.getElementById('weight-bf').value);
+      const height = parseFloat(document.getElementById('height-bf').value);
+      const neck = parseFloat(document.getElementById('neck').value);
+      const waist = parseFloat(document.getElementById('waist').value);
+      const hip = gender === 'female' ? parseFloat(document.getElementById('hip').value) : 0;
+      
+      if (isNaN(age) || isNaN(weight) || isNaN(height) || isNaN(neck) || isNaN(waist) || 
+          (gender === 'female' && isNaN(hip)) || age <= 0 || weight <= 0 || height <= 0 || neck <= 0 || waist <= 0 || 
+          (gender === 'female' && hip <= 0)) {
+        alert('请输入所有必要的有效信息');
+        return;
+      }
+      
+      // 计算体脂率
+      let bodyFat;
+      
+      if (gender === 'male') {
+        bodyFat = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+      } else {
+        bodyFat = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+      }
+      
+      const bodyFatRounded = Math.round(bodyFat * 10) / 10;
+      
+      // 确定体脂率类别
+      let category, color, advice;
+      
+      if (gender === 'male') {
+        if (bodyFat < 6) {
+          category = '极低 (运动员水平)';
+          color = 'text-blue-500';
+          advice = '您的体脂率非常低，接近运动员水平。请确保摄入足够的营养以维持健康，尤其是蛋白质和健康脂肪。过度低的体脂率可能会影响免疫系统和激素水平。';
+        } else if (bodyFat < 14) {
+          category = '低 (健康)';
+          color = 'text-green-500';
+          advice = '您的体脂率处于健康范围内，继续保持均衡的饮食和规律的运动。建议保持足够的蛋白质摄入，以维持肌肉质量。';
+        } else if (bodyFat < 18) {
+          category = '正常 (可接受)';
+          color = 'text-yellow-500';
+          advice = '您的体脂率在可接受范围内，但可以考虑通过增加有氧运动和控制饮食来降低体脂率。减少精制糖和加工食品的摄入，增加蔬菜和瘦肉的摄入。';
+        } else {
+          category = '高 (需要关注)';
+          color = 'text-red-500';
+          advice = '您的体脂率高于健康范围，建议采取措施降低体脂率。增加每周的有氧运动时间，如快走、跑步或游泳，同时控制热量摄入，减少高热量、高脂肪食物的摄入。';
+        }
+      } else {
+        if (bodyFat < 14) {
+          category = '极低 (运动员水平)';
+          color = 'text-blue-500';
+          advice = '您的体脂率非常低，接近运动员水平。请确保摄入足够的营养以维持健康，尤其是蛋白质和健康脂肪。过度低的体脂率可能会影响月经周期和激素水平。';
+        } else if (bodyFat < 21) {
+          category = '低 (健康)';
+          color = 'text-green-500';
+          advice = '您的体脂率处于健康范围内，继续保持均衡的饮食和规律的运动。建议保持足够的蛋白质摄入，以维持肌肉质量。';
+        } else if (bodyFat < 25) {
+          category = '正常 (可接受)';
+          color = 'text-yellow-500';
+          advice = '您的体脂率在可接受范围内，但可以考虑通过增加有氧运动和控制饮食来降低体脂率。减少精制糖和加工食品的摄入，增加蔬菜和瘦肉的摄入。';
+        } else {
+          category = '高 (需要关注)';
+          color = 'text-red-500';
+          advice = '您的体脂率高于健康范围，建议采取措施降低体脂率。增加每周的有氧运动时间，如快走、跑步或游泳，同时控制热量摄入，减少高热量、高脂肪食物的摄入。';
+        }
+      }
+      
+      // 显示结果
+      document.getElementById('body-fat-placeholder').classList.add('hidden');
+      document.getElementById('body-fat-result').classList.remove('hidden');
+      
+      document.getElementById('body-fat-value').textContent = `${bodyFatRounded}%`;
+      document.getElementById('body-fat-category').textContent = category;
+      document.getElementById('body-fat-category').className = `text-lg font-medium ${color}`;
+      document.getElementById('body-fat-advice').textContent = advice;
+    });
+    
+    // 基础代谢率计算
+    document.getElementById('calculate-bmr').addEventListener('click', () => {
+      const gender = document.querySelector('input[name="gender-bmr"]:checked').value;
+      const age = parseFloat(document.getElementById('age-bmr').value);
+      const weight = parseFloat(document.getElementById('weight-bmr').value);
+      const height = parseFloat(document.getElementById('height-bmr').value);
+      const activityLevel = parseFloat(document.getElementById('activity-level').value);
+      
+      if (isNaN(age) || isNaN(weight) || isNaN(height) || age <= 0 || weight <= 0 || height <= 0) {
+        alert('请输入有效的年龄、体重和身高');
+        return;
+      }
+      
+      // 计算基础代谢率 (Mifflin-St Jeor方程)
+      let bmr;
+      
+      if (gender === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      }
+      
+      const bmrRounded = Math.round(bmr);
+      
+      // 计算总卡路里需求
+      const totalCalories = Math.round(bmr * activityLevel);
+      
+      // 确定活动水平描述
+      let activityDescription;
+      
+      switch (activityLevel) {
+        case 1.2:
+          activityDescription = '久坐不动（几乎不运动）';
+          break;
+        case 1.375:
+          activityDescription = '轻度活动（每周1-3天轻度运动）';
+          break;
+        case 1.55:
+          activityDescription = '中度活动（每周3-5天中度运动）';
+          break;
+        case 1.725:
+          activityDescription = '高度活动（每周6-7天剧烈运动）';
+          break;
+        case 1.9:
+          activityDescription = '极高度活动（每天剧烈运动或体力劳动）';
+          break;
+        default:
+          activityDescription = '中度活动（每周3-5天中度运动）';
+      }
+      
+      // 计算减重、维持和增重所需的卡路里
+      const weightLossCalories = Math.round(totalCalories - 500);
+      const weightGainCalories = Math.round(totalCalories + 500);
+      
+      // 生成建议
+      let advice;
+      
+      if (weightLossCalories < 1200) {
+        advice = '您的减重卡路里需求低于1200千卡/天，这可能过低，建议咨询营养师或医生制定更安全的减重计划。';
+      } else {
+        advice = `根据您的基础代谢率和活动水平，您的总卡路里需求为${totalCalories}千卡/天。如果您想减重，建议每天摄入${weightLossCalories}千卡；如果想维持体重，保持当前摄入量；如果想增重，建议每天摄入${weightGainCalories}千卡。记得保持均衡饮食，包含足够的蛋白质、碳水化合物和健康脂肪。`;
+      }
+      
+      // 显示结果
+      document.getElementById('bmr-placeholder').classList.add('hidden');
+      document.getElementById('bmr-result').classList.remove('hidden');
+      
+      document.getElementById('bmr-value').textContent = bmrRounded;
+      document.getElementById('bmr-base').textContent = `${bmrRounded} 千卡/天`;
+      document.getElementById('bmr-activity').textContent = `${Math.round(bmr * (activityLevel - 1))} 千卡/天 (${activityDescription})`;
+      document.getElementById('bmr-total').textContent = `${totalCalories} 千卡/天`;
+      document.getElementById('bmr-advice').textContent = advice;
+      document.getElementById('bmr-weight-loss').textContent = `${weightLossCalories} 千卡/天`;
+      document.getElementById('bmr-maintain').textContent = `${totalCalories} 千卡/天`;
+      document.getElementById('bmr-weight-gain').textContent = `${weightGainCalories} 千卡/天`;
+    });
+  </script>
+</body>
+</html>

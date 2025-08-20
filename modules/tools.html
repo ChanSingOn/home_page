@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实用工具 | 个人网站</title>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* 移除默认边距确保无空隙 */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* 统一模块页面样式 - 调整内容区域上边距 */
+        .module-container {
+            padding-top: 250px; /* 增加上边距，确保不被标题栏和导航栏遮挡 */
+            padding-bottom: 60px;
+        }
+        
+        /* 固定标题栏样式 - 完全置顶 */
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 900;
+            padding: 15px 0;
+        }
+        
+        /* 导航栏样式 - 位于标题栏下方 */
+        .navbar {
+            position: fixed;
+            top: 135px; /* 标题栏高度 */
+            left: 0;
+            right: 0;
+            height: 50px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 800;
+        }
+        
+        /* 工具类卡片专属颜色 */
+        .tools .card-icon-container {
+            background-color: #eff6ff;
+        }
+        
+        .tools .card-icon {
+            color: #3b82f6;
+        }
+        
+        .tools .category-badge {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+        
+        .tools .action-link {
+            color: #3b82f6;
+        }
+        
+        .tools .action-link:hover {
+            color: #2563eb;
+        }
+        
+        /* 通用卡片元素样式（与tests保持一致） */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .category-filter {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-filter.active {
+            background-color: #6366f1;
+            color: white;
+            border-color: #6366f1;
+            font-weight: 500;
+        }
+        
+        .category-filter:hover:not(.active) {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .module-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+            border-color: #e2e8f0;
+        }
+        
+        .card-icon-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        
+        .card-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .card-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-link {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .action-link i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .load-more {
+            margin: 30px auto 0;
+            display: block;
+            padding: 8px 24px;
+            background-color: white;
+            color: #6366f1;
+            border: 1px solid #6366f1;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .load-more:hover {
+            background-color: #f5f3ff;
+        }
+        
+        .back-link {
+            display: inline-flex;
+	    align-items: center;
+            color: white !important;
+            background-color: #6366f1;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 30px;
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 15px !important;
+        }
+        
+        .back-link i {
+            margin-right: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .back-link:hover {
+            color: #4f46e5;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .page-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            max-width: 800px;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .navbar {
+                top: 125px; /* 移动端标题栏高度 */
+                height: 46px;
+            }
+            
+            .fixed-header {
+                padding: 12px 0;
+            }
+            
+            .module-container {
+                padding-top: 171px; /* 移动端标题栏+导航栏总高度 */
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 固定标题栏 - 完全置顶 -->
+    <div class="fixed-header">
+        <div class="container">
+            <a href="../index.html" class="back-link">
+                <i class="fa fa-arrow-left"></i> 返回首页
+            </a>
+            <h1 class="page-title">实用工具</h1>
+            <p class="page-description">精选各类实用工具，帮助你更高效地完成工作和日常任务</p>
+            
+            <!-- 工具分类 -->
+            <div class="category-filters">
+                <button class="category-filter active">全部工具</button>
+                <button class="category-filter">计算工具</button>
+                <button class="category-filter">文本工具</button>
+                <button class="category-filter">图像工具</button>
+                <button class="category-filter">转换工具</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航栏 - 位于标题栏下方 -->
+    <div class="navbar" id="navbar-container"></div>
+
+    <!-- 内容区域 - 已调整上边距避免被遮挡 -->
+    <div class="module-container tools">
+        <div class="container">
+            <div class="content-grid">
+                <!-- 工具卡片内容（保持原工具内容） -->
+                <!-- 工具1：文本工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/OyHE/1328X1328/lock.png/webp" 
+     alt="锁相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">文本工具</span>
+                        <h3 class="card-title">文本格式化工具</h3>
+                        <p class="card-description">快速格式化文本，支持大小写转换、去除空行、文本对齐等功能</p>
+                        <a href="#" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <!-- 工具2：图像工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/OyHE/1328X1328/lock.png/webp" 
+     alt="锁相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">图像工具</span>
+                        <h3 class="card-title">图像压缩工具</h3>
+                        <p class="card-description">压缩图片文件大小，保持图像质量，支持批量处理和多种格式</p>
+                        <a href="#" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- 工具3：开发工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/OyHE/1328X1328/lock.png/webp" 
+     alt="锁相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">开发工具</span>
+                        <h3 class="card-title">JSON格式化工具</h3>
+                        <p class="card-description">格式化JSON数据，使其更易读，支持语法高亮和错误提示</p>
+                        <a href="#" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- 工具4：转换工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/fPJL/1328X1328/Units.png/webp" 
+     alt="单位转换相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">转换工具</span>
+                        <h3 class="card-title">单位转换工具</h3>
+                        <p class="card-description">支持长度、重量、面积、体积、温度等多种单位的快速转换</p>
+                        <a href="tools/Units.html" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- 工具5：计算工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/yCF1/1328X1328/BMI_calculator.png/webp" 
+     alt="BMI计算器相关图片" 
+     style="max-width: 100%; height: auto;">
+		     </div> 
+                    <div class="card-content">
+                        <span class="card-category category-tools">计算工具</span>
+                        <h3 class="card-title">BMI计算器</h3>
+                        <p class="card-description">根据身高和体重计算身体质量指数(BMI)，评估健康状况</p>
+                        <a href="tools/BMI_calculator.html" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- 工具6：文本工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/OyHE/1328X1328/lock.png/webp" 
+     alt="锁相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">文本工具</span>
+                        <h3 class="card-title">密码生成器</h3>
+                        <p class="card-description">生成高强度随机密码，可自定义长度和字符类型，保障账户安全</p>
+                        <a href="#" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <!-- 工具7：记录工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/KLvs/1328X1328/todo_management.png/webp" 
+     alt="待办事项管理相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">记录工具</span>
+                        <h3 class="card-title">待办事项管理器</h3>
+                        <p class="card-description">高效管理待办事项，可自定义分类标签、提醒时间与优先级，助力高效规划日常，杜绝遗漏</p>
+                        <a href="tools/todo_management.html" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <!-- 工具8：转换工具 -->
+                <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250821/Z5Es/1328X1328/Dato.png/webp" 
+     alt="数据可视化相关图片" 
+     style="max-width: 100%; height: auto;">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">记录工具</span>
+                        <h3 class="card-title">数据可视化工具</h3>
+                        <p class="card-description">将复杂数据转化为直观可视化内容，可自定义图表类型和配色方案，助力高效分析数据
+</p>
+                        <a href="tools/Dato.html" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="load-more">
+                加载更多工具 <i class="fa fa-refresh ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+<!-- 页脚组件 -->
+<footer style="position: fixed; bottom: 0; left: 0; right: 0; height: 30px; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; border-top: 1px solid #eee;">
+    <p style="margin: 0; color: #666; font-size: 12px; text-align: center;">
+        &copy; 2025 个人网站 | 陈省安制作 | 保留版权所有
+    </p>
+</footer>
+
+<!-- 同时需要在页面主容器添加样式（通常在页面顶部） -->
+<style>
+    /* 为页面主体内容底部添加与页脚等高的间距，防止内容被遮挡 */
+    body {
+        padding-bottom: 30px;
+    }
+</style>
+
+    <script src="../script.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人网站 | 工具、游戏与测试</title>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div id="navbar-container"></div>
+
+    <!-- 头部区域 -->
+    <header class="header optimized-header">
+        <div class="header-content">
+            <h1>欢迎来到我的个人网站</h1>
+            <p>这里有实用的工具、有趣的游戏和各种测试，希望能给你带来帮助和乐趣</p>
+            <a href="#modules" class="btn btn-primary">开始探索 <i class="fa fa-compass ml-2"></i></a>
+        </div>
+    </header>
+
+    <!-- 模块区域 - 减少图片版本 -->
+    <section id="modules" class="cards-section optimized-cards">
+        <div class="container">
+            <div class="section-title">
+                <h2>探索模块</h2>
+                <p>选择你感兴趣的模块，开始你的探索之旅</p>
+            </div>
+
+            <div class="cards-grid optimized-grid">
+                <!-- 工具模块 - 无大图，使用图标 -->
+                <div class="card home-card optimized-card tools-card fade-in">
+                    <div class="card-icon tools-icon">
+                        <i class="fa fa-wrench"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tools">实用工具</span>
+                        <h3 class="card-title"><a href="modules/tools.html">工具集</a></h3>
+                        <p class="card-description">
+                            包含文本处理、图像编辑、单位转换等多种实用工具，<a href="modules/tools.html">点击查看全部工具</a>
+                        </p>
+                        <a href="modules/tools.html" class="card-link">浏览工具 <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏模块 - 无大图，使用图标 -->
+                <div class="card home-card optimized-card games-card fade-in">
+                    <div class="card-icon games-icon">
+                        <i class="fa fa-gamepad"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-games">休闲娱乐</span>
+                        <h3 class="card-title"><a href="modules/games.html">小游戏</a></h3>
+                        <p class="card-description">
+                            多款休闲益智小游戏，包括记忆卡片、贪吃蛇、五子棋等，<a href="modules/games.html">开始游戏</a>
+                        </p>
+                        <a href="modules/games.html" class="card-link">开始游玩 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 测试模块 - 无大图，使用图标 -->
+                <div class="card home-card optimized-card tests-card fade-in">
+                    <div class="card-icon tests-icon">
+                        <i class="fa fa-question-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category category-tests">自我探索</span>
+                        <h3 class="card-title"><a href="modules/tests.html">趣味测试</a></h3>
+                        <p class="card-description">
+                            多种性格测试、知识问答和趣味测试，<a href="modules/tests.html">了解更多关于自己</a>
+                        </p>
+                        <a href="modules/tests.html" class="card-link">开始测试 <i class="fa fa-question-circle"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+<!-- 页脚组件 -->
+<footer style="position: fixed; bottom: 0; left: 0; right: 0; height: 30px; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; border-top: 1px solid #eee;">
+    <p style="margin: 0; color: #666; font-size: 12px; text-align: center;">
+        &copy; 2025 个人网站 | 陈省安制作 | 保留版权所有
+    </p>
+</footer>
+
+<!-- 同时需要在页面主容器添加样式（通常在页面顶部） -->
+<style>
+    /* 为页面主体内容底部添加与页脚等高的间距，防止内容被遮挡 */
+    body {
+        padding-bottom: 30px;
+    }
+</style>
+    
+		
+
+    <script src="script.js"></script>
+</body>
+</html>
