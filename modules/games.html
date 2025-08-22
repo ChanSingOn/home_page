@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏 | 摸鱼空间</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind配置 - 与index保持一致 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // 主色调：靛蓝色，用于测试按钮
+                        secondary: '#EC4899', // 辅助色：粉色，用于游戏按钮
+                        accent: '#3B82F6', // 强调色：亮蓝色，用于工具按钮
+                        dark: '#1E293B', // 深色背景
+                        light: '#F8FAFC', // 浅色背景
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 - 与index保持一致 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+            }
+            .gradient-bg {
+                @apply bg-gradient-to-br from-primary/90 to-secondary/90;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .action-btn {
+                @apply inline-flex items-center font-medium rounded-full transition-all duration-300 px-4 py-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 统一模块页面样式 - 确保内容不被遮挡 */
+        .module-container {
+            padding-top: 20px; /* 与卡片间距一致 */
+            padding-bottom: 80px;
+            margin-top: 20px; /* 调整顶部距离 */
+        }
+        
+        /* 主导航栏样式 - 不再固定，与下方内容合并 */
+        #navbar.navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px 0;
+        }
+        
+        /* 固定标题栏样式 - 调整位置，不再固定在顶部 */
+        .fixed-header {
+            background-color: #ffffff;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        /* 标题栏内容容器 - 用于布局标题 */
+        .header-content {
+            margin-bottom: 15px;
+        }
+        
+        .header-text {
+            width: 100%;
+        }
+        
+        /* 游戏类卡片使用辅助色（粉色）- 与index保持一致 */
+        .games .category-badge {
+            background-color: rgba(236, 72, 153, 0.1);
+            color: #EC4899;
+        }
+        
+        .games .action-link {
+            color: #EC4899;
+        }
+        
+        .games .action-link:hover {
+            color: #d94680;
+        }
+        
+        /* 通用卡片元素样式 - 增强圆角和筛选功能支持 */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .category-filter {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-filter.active {
+            background-color: #EC4899;
+            color: white;
+            border-color: #EC4899;
+            font-weight: 500;
+        }
+        
+        .category-filter:hover:not(.active) {
+            border-color: #EC4899;
+            color: #EC4899;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px; /* 卡片间距 */
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 1.5rem; /* 增强圆角效果 */
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .card.hidden {
+            display: none; /* 用于筛选隐藏 */
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+       .card-img {
+        width: 100%;
+        /* 使用padding-bottom创建1:1的正方形比例 */
+        padding-bottom: 100%;
+        height: 0;
+        overflow: hidden;
+        border-top-left-radius: 1.5rem;
+        border-top-right-radius: 1.5rem;
+        position: relative;
+    }
+    
+    .card-img img {
+        /* 绝对定位使图片填满容器 */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 保持图片比例并覆盖整个容器 */
+        transition: transform 0.5s ease;
+    }
+        
+        .card-img:hover img {
+            transform: scale(1.08);
+        }
+        
+        .card-content {
+            padding: 20px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        
+        .card-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            background-color: rgba(236, 72, 153, 0.1);
+            color: #EC4899;
+        }
+        
+        .card-link:hover {
+            background-color: #EC4899;
+            color: white;
+            box-shadow: 0 3px 10px rgba(236, 72, 153, 0.2);
+        }
+        
+        .card-link i {
+            margin-left: 6px;
+        }
+        
+        .load-more {
+            margin: 40px auto 0;
+            display: block;
+            padding: 10px 28px;
+            background-color: white;
+            color: #EC4899;
+            border: 1px solid #EC4899;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .load-more:hover {
+            background-color: #EC4899;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+        }
+        
+        .page-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .page-description {
+            font-size: 0.95rem;
+            color: #64748b;
+            max-width: 800px;
+            margin-bottom: 0;
+        }
+        
+        /* 加载动画 - 与index保持一致 */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: #EC4899;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal.active {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .fixed-header {
+                padding: 15px 0;
+            }
+            
+            .module-container {
+                margin-top: 10px;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-text {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 加载遮罩 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="loader mx-auto mb-4"></div>
+            <p class="text-gray-500">加载中...</p>
+        </div>
+    </div>
+
+    <!-- 主导航栏 - 不再固定在顶部，与下方内容合并 -->
+    <nav id="navbar" class="navbar w-full py-4 px-6 md:px-12">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent flex items-center">
+                <i class="fa fa-compass mr-2"></i>
+                <span>我的小站</span>
+            </a>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="tests.html" class="text-dark hover:text-primary transition-colors duration-200 font-medium">
+                    <i class="fa fa-heart-o mr-1"></i>趣味测试
+                </a>
+                <a href="games.html" class="text-dark hover:text-secondary transition-colors duration-200 font-medium">
+                    <i class="fa fa-gamepad mr-1"></i>小游戏
+                </a>
+                <a href="tools.html" class="text-dark hover:text-accent transition-colors duration-200 font-medium">
+                    <i class="fa fa-wrench mr-1"></i>工具
+                </a>
+            </div>
+        </div>
+       </div>
+    </nav>
+
+    <!-- 固定标题栏 - 不再固定，成为内容的一部分 -->
+    <div class="fixed-header">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1 class="page-title">小游戏</h1>
+                    <p class="page-description">休闲益智的小游戏集合，让你在闲暇时间放松心情，锻炼思维</p>
+                </div>
+            </div>
+            
+            <!-- 游戏分类 - 只保留这一行筛选按钮 -->
+            <div class="category-filters">
+                <button class="category-filter active" data-category="all">全部游戏</button>
+                <button class="category-filter" data-category="puzzle">益智游戏</button>
+                <button class="category-filter" data-category="casual">休闲游戏</button>
+                <button class="category-filter" data-category="strategy">策略游戏</button>
+                <button class="category-filter" data-category="action">动作游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="module-container games">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="content-grid">
+                <!-- 游戏1：益智游戏 -->
+                <div class="card" data-category="puzzle">
+                    <div class="card-img">
+                        <img src="https://tc.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/XKWZ/1328X1328/memory.png/webp" 
+     alt="记忆游戏相关图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">益智游戏</span>
+                        <h3 class="card-title">记忆卡片</h3>
+                        <p class="card-description">翻转卡片找到相同的图案，锻炼记忆力和注意力，有多个难度级别</p>
+                        <a href="games/memory_game.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏2：休闲游戏 -->
+                <div class="card" data-category="casual">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/W77z/2432X2432/snake_logo.jpg/webp" 
+     alt="蛇形标志图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">休闲游戏</span>
+                        <h3 class="card-title">经典贪吃蛇</h3>
+                        <p class="card-description">控制蛇吃食物，让它变得更长，但不要撞到墙壁或自己的身体</p>
+                        <a href="games/snake_game.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏3：策略游戏 -->
+                <div class="card" data-category="strategy">
+                    <div class="card-img">
+                        <img src="https://tc.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/aS6a/1328X1328/gobang.png/webp" 
+     alt="五子棋相关图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">策略游戏</span>
+                        <h3 class="card-title">五子棋</h3>
+                        <p class="card-description">经典的策略棋盘游戏，先在一条直线上连成五子者获胜</p>
+                        <a href="games/gobang.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏4：动作游戏 -->
+                <div class="card" data-category="action">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/0sss/1328X1328/Breakout.png/webp" 
+     alt="打砖块游戏相关图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">动作游戏</span>
+                        <h3 class="card-title">打砖块</h3>
+                        <p class="card-description">控制挡板接住小球，打碎所有砖块，有多种关卡和难度</p>
+                        <a href="#" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏5：益智游戏 -->
+                <div class="card" data-category="puzzle">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/Mi8X/1328X1328/sudoku.png/webp" 
+     alt="数独游戏相关图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">益智游戏</span>
+                        <h3 class="card-title">数独挑战</h3>
+                        <p class="card-description">经典的数字逻辑游戏，填写数字1-9，每行每列每个小九宫格都不能重复</p>
+                        <a href="games/sudoku.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+
+                <!-- 游戏6：休闲游戏 -->
+                <div class="card" data-category="casual">
+                    <div class="card-img">
+                        <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/PLyu/256X256/2048_logo.jpg/webp" 
+     alt="2048游戏标志图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">休闲游戏</span>
+                        <h3 class="card-title">2048</h3>
+                        <p class="card-description">滑动方块合并相同数字，直到得到2048方块，考验策略和运气</p>
+                        <a href="games/2048_game.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+                
+                <!-- 游戏7：益智游戏 -->
+                <div class="card" data-category="puzzle">
+                    <div class="card-img">
+                        <img src="https://tc.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250820/yEOX/256X256/Tetris_logo.jpg/webp" 
+     alt="俄罗斯方块游戏标志图片">
+                    </div>
+                    <div class="card-content">
+                        <span class="category-badge">益智游戏</span>
+                        <h3 class="card-title">俄罗斯方块</h3>
+                        <p class="card-description">移动旋转方块填满一行消除，不断累积高分，考验反应和布局</p>
+                        <a href="games/tetris.html" class="card-link">开始游戏 <i class="fa fa-gamepad"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <button class="load-more">
+                更多游戏 <i class="fa fa-gamepad ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 探索空间 -->
+                <div>
+                    <h3 class="text-xl font-bold mb-3 flex items-center">
+                        <i class="fa fa-compass mr-2"></i>
+                        摸鱼空间
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-3">
+                        一个集趣味测试、小游戏和实用工具于一体的探索平台，帮助你了解自己，放松心情，提升效率。
+                    </p>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-2">快速链接</h3>
+                    <ul class="space-y-1">
+                        <li><a href="../index.html#psychological" class="text-gray-400 hover:text-primary transition-colors text-sm">趣味测试</a></li>
+                        <li><a href="../index.html#games" class="text-gray-400 hover:text-secondary transition-colors text-sm">小游戏</a></li>
+                        <li><a href="../index.html#tools" class="text-gray-400 hover:text-accent transition-colors text-sm">工具</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 关于我 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-2">关于我</h3>
+                    <p class="text-gray-400 text-sm mb-2">
+                        自媒体人一名，致力于提供优质的趣味测试、有趣的小游戏和实用工具，帮助用户了解自己，放松心情。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 整合二维码图标和版权信息 -->
+            <div class="border-t border-gray-800 mt-6 pt-6 flex flex-col items-center">
+                <button id="contact-us-btn" class="text-gray-400 hover:text-white transition-colors mb-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary/20 transition-colors">
+                        <i class="fa fa-qrcode text-base"></i>
+                    </div>
+                </button>
+                <p class="text-gray-500 text-sm mb-1">
+                    页面维护：陈省安
+                </p>
+                <p class="text-gray-500 text-sm">
+                    &copy; 2025 保留所有权利 
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 二维码模态框 -->
+    <div id="contact-us-modal" class="modal fixed inset-0 z-50 flex items-center justify-center">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('contact-us-modal')"></div>
+        <div class="bg-white rounded-2xl shadow-2xl p-4 max-w-md relative z-10">
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onclick="closeModal('contact-us-modal')">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+            <div class="flex justify-center mt-4 mb-2">
+                <h3 class="text-base font-bold text-gray-800">关注我</h3>
+            </div>
+            <div class="flex justify-center mt-2">
+                <img src="https://tc-new.z.wiki/autoupload/f/4gVCXLD06v4FDvRxp0GO2pbh0mf7yn3AEFgSJ35zDWSyl5f0KlZfm6UsKj-HyTuv/20250822/kFAO/430X430/qr.jpg/webp" 
+     alt="二维码图片" 
+     style="max-width: 100%; height: auto;">
+            </div>
+            <p class="text-gray-600 text-center text-sm mt-2">扫码或在微信中搜索: 陈省安</p>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        window.addEventListener('load', function() {
+            // 隐藏加载遮罩
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+            
+            // 卡片滚动动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.card').forEach((card, index) => {
+                // 错开动画时间，创造更自然的效果
+                card.style.transition = `transform 0.6s ease ${index * 0.1}s, opacity 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+            
+            // 分类筛选功能实现
+            function filterGames(category) {
+                const cards = document.querySelectorAll('.card');
+                const filterButtons = document.querySelectorAll('.category-filter');
+                
+                // 更新活跃状态
+                filterButtons.forEach(btn => {
+                    if (btn.getAttribute('data-category') === category) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // 筛选卡片
+                cards.forEach(card => {
+                    if (category === 'all' || card.getAttribute('data-category') === category) {
+                        card.classList.remove('hidden');
+                        // 重新触发动画
+                        setTimeout(() => {
+                            card.style.opacity = '0';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                            }, 50);
+                        }, 100);
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // 分类按钮点击事件
+            document.querySelectorAll('.category-filter').forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    filterGames(category);
+                });
+            });
+            
+            // 模态框控制
+            window.openModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+            
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+            
+            document.getElementById('contact-us-btn').addEventListener('click', function() {
+                openModal('contact-us-modal');
+            });
+            
+            // 为模态框背景添加关闭事件
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                backdrop.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        const modalId = this.parentElement.id;
+                        closeModal(modalId);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+    

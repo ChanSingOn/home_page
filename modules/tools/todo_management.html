@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4A90E2',
+                        secondary: '#6BBBF7',
+                        accent: '#E53E3E',
+                        dark: {
+                            100: '#E5E7EB',
+                            200: '#9CA3AF',
+                            300: '#6B7280',
+                            400: '#4B5563',
+                            500: '#374151',
+                            600: '#1F2937',
+                            700: '#111827',
+                            800: '#0F172A',
+                            900: '#030712',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .task-complete {
+                @apply line-through text-gray-400 dark:text-dark-400;
+            }
+            .task-incomplete::before {
+                content: '';
+                @apply inline-block w-2 h-2 bg-accent rounded-full mr-2;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #E6F4FF 0%, #FFFFFF 100%);
+            }
+            .dark .gradient-bg {
+                background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            }
+            .modal-backdrop {
+                @apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300;
+            }
+            .modal-backdrop.active {
+                @apply opacity-100 pointer-events-auto;
+            }
+            .modal-content {
+                @apply bg-white dark:bg-dark-800 rounded-xl shadow-lg max-w-md w-full mx-4 transform translate-y-8 transition-transform duration-300;
+            }
+            .modal-backdrop.active .modal-content {
+                @apply translate-y-0;
+            }
+            .success-feedback {
+                @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 p-3 rounded-lg mb-4 text-sm;
+            }
+            .search-input {
+                @apply px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-700 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200;
+            }
+            .panel-transition {
+                @apply transition-all duration-300 ease-in-out overflow-hidden;
+            }
+            .delete-btn {
+                @apply text-gray-400 hover:text-accent focus:outline-none transition-colors;
+            }
+            .delete-btn:hover {
+                transform: scale(1.1);
+            }
+            .theme-toggle {
+                @apply p-2 rounded-full bg-gray-100 dark:bg-dark-600 text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-dark-500 transition-colors duration-200;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter min-h-screen gradient-bg text-gray-800 dark:text-gray-100 transition-colors duration-300 flex flex-col">
+    <header class="w-full py-6 px-4 md:px-8 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-sm sticky top-0 z-10 transition-all duration-300">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold">
+                <i class="fa fa-check-square-o mr-2 text-primary"></i>待办事项管理
+            </h1>
+            <!-- 暗色模式切换按钮 -->
+            <button id="themeToggle" class="theme-toggle" aria-label="切换暗色模式">
+                <i class="fa fa-moon-o dark:hidden"></i>
+                <i class="fa fa-sun-o hidden dark:inline-block"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full px-4 md:px-8 py-6">
+        <div class="max-w-6xl mx-auto bg-white dark:bg-dark-800 rounded-xl shadow-md overflow-hidden transition-colors duration-300">
+            <div class="p-6 md:p-8 flex flex-col" id="mainContent">
+                <!-- 功能按钮区 - 固定 -->
+                <div class="flex flex-wrap gap-3 mb-4">
+                    <button id="toggleAddTaskBtn" 
+                        class="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fa fa-plus mr-2"></i>新建任务
+                    </button>
+                    <button id="toggleSearchBtn" 
+                        class="bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500 text-gray-800 dark:text-gray-100 font-medium py-2.5 px-6 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fa fa-search mr-2"></i>搜索任务
+                    </button>
+                    <div class="flex-grow"></div>
+                    <div class="flex space-x-2">
+                        <button id="filterAll" class="filter-btn px-3 py-1 rounded-md text-sm bg-primary text-white">全部</button>
+                        <button id="filterActive" class="filter-btn px-3 py-1 rounded-md text-sm bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500">未完成</button>
+                        <button id="filterCompleted" class="filter-btn px-3 py-1 rounded-md text-sm bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500">已完成</button>
+                    </div>
+                </div>
+
+                <!-- 新建任务面板 (默认隐藏) -->
+                <div id="addTaskPanel" class="panel-transition h-0 opacity-0 mb-4">
+                    <div class="p-6 bg-gray-50 dark:bg-dark-700 rounded-lg transition-colors duration-300">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+                            <i class="fa fa-plus-circle text-primary mr-2"></i>添加新任务
+                        </h2>
+                        <form id="addTaskForm" class="space-y-4">
+                            <div>
+                                <label for="taskTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">任务标题</label>
+                                <input type="text" id="taskTitle" 
+                                    class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                                    placeholder="输入任务标题..." required>
+                            </div>
+                            <div>
+                                <label for="taskDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">任务描述</label>
+                                <textarea id="taskDescription" rows="3" 
+                                    class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                                    placeholder="输入任务描述..."></textarea>
+                            </div>
+                            <div>
+                                <label for="taskDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">截止日期</label>
+                                <input type="date" id="taskDueDate" 
+                                    class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                            </div>
+                            <button type="submit" id="addTaskButton"
+                                class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center">
+                                <i class="fa fa-plus mr-2"></i>添加任务
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 搜索任务面板 (默认隐藏) -->
+                <div id="searchPanel" class="panel-transition h-0 opacity-0 mb-4">
+                    <div class="bg-gray-50 dark:bg-dark-700 p-6 rounded-lg transition-colors duration-300">
+                        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+                            <i class="fa fa-search text-primary mr-2"></i>搜索任务
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="flex-1">
+                                    <label for="searchKeyword" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">关键词</label>
+                                    <input type="text" id="searchKeyword" 
+                                        class="w-full search-input"
+                                        placeholder="搜索标题或描述...">
+                                </div>
+                                <div class="w-full sm:w-40">
+                                    <label for="searchField" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">搜索范围</label>
+                                    <select id="searchField" class="w-full search-input">
+                                        <option value="all">全部内容</option>
+                                        <option value="title">仅标题</option>
+                                        <option value="description">仅描述</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 新建日期范围 -->
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="w-full">
+                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">新建日期范围</label>
+                                    <div class="flex gap-3">
+                                        <div class="flex-1">
+                                            <input type="date" id="searchCreatedFrom" class="w-full search-input" placeholder="从">
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" id="searchCreatedTo" class="w-full search-input" placeholder="至">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 截止日期范围 -->
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="w-full">
+                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">截止日期范围</label>
+                                    <div class="flex gap-3">
+                                        <div class="flex-1">
+                                            <input type="date" id="searchDateFrom" class="w-full search-input" placeholder="从">
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="date" id="searchDateTo" class="w-full search-input" placeholder="至">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button type="button" id="searchButton" 
+                                    class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa fa-search mr-2"></i>搜索
+                                </button>
+                                <button type="button" id="clearSearchButton" 
+                                    class="flex-1 bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa fa-refresh mr-2"></i>清除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务统计 - 固定 -->
+                <div class="bg-gray-50 dark:bg-dark-700 rounded-lg p-4 mb-4 transition-colors duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">总任务数</p>
+                            <p class="text-2xl font-bold text-gray-800 dark:text-gray-100" id="totalTasks">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">已完成</p>
+                            <p class="text-2xl font-bold text-green-500" id="completedTasks">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">未完成</p>
+                            <p class="text-2xl font-bold text-accent" id="pendingTasks">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表容器 - 可滚动 -->
+                <div class="overflow-hidden flex-grow" style="min-height: 200px;">
+                    <div id="taskList" class="space-y-3 h-full overflow-y-auto pr-2 max-h-[calc(100vh-320px)]">
+                        <!-- 任务项会通过JavaScript动态添加 -->
+                        <div class="text-center text-gray-400 dark:text-dark-400 py-10" id="emptyTaskList">
+                            <i class="fa fa-inbox text-4xl mb-3 block"></i>
+                            <p>暂无任务，请添加新任务</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 编辑任务模态框 -->
+    <div id="editModal" class="modal-backdrop">
+        <div class="modal-content p-6">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">编辑任务</h3>
+            <div id="editSuccessMessage" class="success-feedback hidden">
+                任务已成功更新！
+            </div>
+            <form id="editTaskForm" class="space-y-4">
+                <input type="hidden" id="editTaskId">
+                <div>
+                    <label for="editTaskTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">任务标题</label>
+                    <input type="text" id="editTaskTitle" 
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                        placeholder="输入任务标题..." required>
+                </div>
+                <div>
+                    <label for="editTaskDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">任务描述</label>
+                    <textarea id="editTaskDescription" rows="3" 
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                        placeholder="输入任务描述..."></textarea>
+                </div>
+                <div>
+                    <label for="editTaskDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">截止日期</label>
+                    <input type="date" id="editTaskDueDate" 
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-dark-500 bg-white dark:bg-dark-600 text-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                </div>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" id="cancelEditButton"
+                        class="flex-1 bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500 text-gray-800 dark:text-gray-100 font-medium py-2.5 px-4 rounded-lg transition-all duration-200">
+                        取消
+                    </button>
+                    <button type="submit" id="saveEditButton"
+                        class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200">
+                        保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal-backdrop">
+        <div class="modal-content p-6 max-w-md">
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">确认删除</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">您确定要删除这个任务吗？此操作无法撤销。</p>
+            <input type="hidden" id="deleteTaskId">
+            <div class="flex space-x-3">
+                <button type="button" id="cancelDeleteButton"
+                    class="flex-1 bg-gray-100 dark:bg-dark-600 hover:bg-gray-200 dark:hover:bg-dark-500 text-gray-800 dark:text-gray-100 font-medium py-2.5 px-4 rounded-lg transition-all duration-200">
+                    取消
+                </button>
+                <button type="button" id="confirmDeleteButton"
+                    class="flex-1 bg-accent hover:bg-accent/90 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200">
+                    确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="w-full py-4 px-4 md:px-8 bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm shadow-inner transition-colors duration-300">
+        <div class="max-w-6xl mx-auto text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>© 2025 待办事项管理应用 | 陈省安制作 | 保持高效，轻松生活</p>
+        </div>
+    </footer>
+
+    <script>
+        // 任务数据存储
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let currentFilter = 'all';
+        let searchParams = {
+            keyword: '',
+            field: 'all',
+            dateFrom: '',
+            dateTo: '',
+            createdFrom: '',
+            createdTo: ''
+        };
+        // 面板显示状态
+        let addTaskVisible = false;
+        let searchVisible = false;
+
+        // DOM元素
+        const addTaskForm = document.getElementById('addTaskForm');
+        const taskList = document.getElementById('taskList');
+        const emptyTaskList = document.getElementById('emptyTaskList');
+        const totalTasksElement = document.getElementById('totalTasks');
+        const completedTasksElement = document.getElementById('completedTasks');
+        const pendingTasksElement = document.getElementById('pendingTasks');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const addTaskButton = document.getElementById('addTaskButton');
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const editTaskForm = document.getElementById('editTaskForm');
+        const cancelEditButton = document.getElementById('cancelEditButton');
+        const saveEditButton = document.getElementById('saveEditButton');
+        const editSuccessMessage = document.getElementById('editSuccessMessage');
+        const cancelDeleteButton = document.getElementById('cancelDeleteButton');
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        const deleteTaskIdInput = document.getElementById('deleteTaskId');
+        const themeToggle = document.getElementById('themeToggle');
+        // 面板和按钮
+        const addTaskPanel = document.getElementById('addTaskPanel');
+        const searchPanel = document.getElementById('searchPanel');
+        const toggleAddTaskBtn = document.getElementById('toggleAddTaskBtn');
+        const toggleSearchBtn = document.getElementById('toggleSearchBtn');
+        const mainContent = document.getElementById('mainContent');
+        
+        // 搜索相关元素
+        const searchKeyword = document.getElementById('searchKeyword');
+        const searchField = document.getElementById('searchField');
+        const searchDateFrom = document.getElementById('searchDateFrom');
+        const searchDateTo = document.getElementById('searchDateTo');
+        const searchCreatedFrom = document.getElementById('searchCreatedFrom');
+        const searchCreatedTo = document.getElementById('searchCreatedTo');
+        const searchButton = document.getElementById('searchButton');
+        const clearSearchButton = document.getElementById('clearSearchButton');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化主题
+            initTheme();
+            
+            renderTasks();
+            updateTaskStats();
+            adjustTaskListHeight();
+            
+            // 监听窗口大小变化，实时调整高度
+            window.addEventListener('resize', adjustTaskListHeight);
+            // 监听面板展开/折叠动画结束事件
+            addTaskPanel.addEventListener('transitionend', adjustTaskListHeight);
+            searchPanel.addEventListener('transitionend', adjustTaskListHeight);
+            
+            // 过滤按钮事件
+            document.getElementById('filterAll').addEventListener('click', () => setFilter('all'));
+            document.getElementById('filterActive').addEventListener('click', () => setFilter('active'));
+            document.getElementById('filterCompleted').addEventListener('click', () => setFilter('completed'));
+            
+            // 添加任务表单提交
+            addTaskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addTask();
+            });
+            
+            // 添加按钮点击事件
+            addTaskButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                addTask();
+            });
+            
+            // 编辑任务表单提交
+            saveEditButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                saveEditedTask();
+            });
+            
+            // 取消编辑
+            cancelEditButton.addEventListener('click', closeEditModal);
+            
+            // 点击模态框背景关闭
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    closeEditModal();
+                }
+            });
+            
+            // 删除相关事件
+            cancelDeleteButton.addEventListener('click', closeDeleteModal);
+            confirmDeleteButton.addEventListener('click', confirmDelete);
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    closeDeleteModal();
+                }
+            });
+            
+            // 搜索相关事件
+            searchButton.addEventListener('click', performSearch);
+            clearSearchButton.addEventListener('click', clearSearch);
+            searchKeyword.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+            
+            // 面板切换事件
+            toggleAddTaskBtn.addEventListener('click', toggleAddTaskPanel);
+            toggleSearchBtn.addEventListener('click', toggleSearchPanel);
+            
+            // 主题切换事件
+            themeToggle.addEventListener('click', toggleTheme);
+        });
+
+        // 初始化主题
+        function initTheme() {
+            // 检查本地存储中的主题设置，默认为亮色模式
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        // 设置主题
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            // 保存主题设置
+            localStorage.setItem('theme', theme);
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'light' : 'dark');
+        }
+
+        // 调整任务列表高度以最大化利用页面空间
+        function adjustTaskListHeight() {
+            // 移除body的overflow-hidden限制
+            document.body.style.overflow = '';
+            
+            // 计算视口高度
+            const viewportHeight = window.innerHeight;
+            
+            // 获取固定元素的总高度
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const footerHeight = document.querySelector('footer').offsetHeight;
+            const controlsHeight = mainContent.offsetHeight - taskList.parentElement.offsetHeight;
+            
+            // 计算可用高度
+            const availableHeight = viewportHeight - headerHeight - footerHeight - 40; // 减去一些边距
+            
+            // 设置任务列表最大高度
+            taskList.style.maxHeight = `${Math.max(200, availableHeight - controlsHeight)}px`;
+        }
+
+        // 切换新建任务面板显示/隐藏
+        function toggleAddTaskPanel() {
+            addTaskVisible = !addTaskVisible;
+            
+            if (addTaskVisible) {
+                // 显示面板
+                addTaskPanel.style.height = 'auto';
+                const height = addTaskPanel.offsetHeight + 'px';
+                addTaskPanel.style.height = '0';
+                setTimeout(() => {
+                    addTaskPanel.style.height = height;
+                    addTaskPanel.style.opacity = '1';
+                }, 10);
+                
+                // 隐藏搜索面板
+                if (searchVisible) {
+                    toggleSearchPanel();
+                }
+            } else {
+                // 隐藏面板
+                addTaskPanel.style.height = '0';
+                addTaskPanel.style.opacity = '0';
+            }
+        }
+
+        // 切换搜索任务面板显示/隐藏
+        function toggleSearchPanel() {
+            searchVisible = !searchVisible;
+            
+            if (searchVisible) {
+                // 显示面板
+                searchPanel.style.height = 'auto';
+                const height = searchPanel.offsetHeight + 'px';
+                searchPanel.style.height = '0';
+                setTimeout(() => {
+                    searchPanel.style.height = height;
+                    searchPanel.style.opacity = '1';
+                }, 10);
+                
+                // 隐藏新建任务面板
+                if (addTaskVisible) {
+                    toggleAddTaskPanel();
+                }
+            } else {
+                // 隐藏面板
+                searchPanel.style.height = '0';
+                searchPanel.style.opacity = '0';
+            }
+        }
+
+        // 设置过滤器
+        function setFilter(filter) {
+            currentFilter = filter;
+            filterButtons.forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('bg-gray-100', 'dark:bg-dark-600', 'hover:bg-gray-200', 'dark:hover:bg-dark-500');
+            });
+            
+            const activeBtn = document.getElementById(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
+            activeBtn.classList.remove('bg-gray-100', 'dark:bg-dark-600', 'hover:bg-gray-200', 'dark:hover:bg-dark-500');
+            activeBtn.classList.add('bg-primary', 'text-white');
+            
+            renderTasks();
+        }
+
+        // 执行搜索
+        function performSearch() {
+            searchParams = {
+                keyword: searchKeyword.value.trim().toLowerCase(),
+                field: searchField.value,
+                dateFrom: searchDateFrom.value,
+                dateTo: searchDateTo.value,
+                createdFrom: searchCreatedFrom.value,
+                createdTo: searchCreatedTo.value
+            };
+            renderTasks();
+        }
+
+        // 清除搜索条件
+        function clearSearch() {
+            searchKeyword.value = '';
+            searchField.value = 'all';
+            searchDateFrom.value = '';
+            searchDateTo.value = '';
+            searchCreatedFrom.value = '';
+            searchCreatedTo.value = '';
+            
+            searchParams = {
+                keyword: '',
+                field: 'all',
+                dateFrom: '',
+                dateTo: '',
+                createdFrom: '',
+                createdTo: ''
+            };
+            
+            renderTasks();
+        }
+
+        // 添加新任务
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const dueDate = document.getElementById('taskDueDate').value;
+            
+            if (!title) return;
+            
+            const newTask = {
+                id: Date.now().toString(),
+                title,
+                description,
+                dueDate,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            tasks.unshift(newTask); // 添加到数组开头
+            saveTasks();
+            renderTasks();
+            updateTaskStats();
+            
+            // 重置表单并隐藏面板
+            addTaskForm.reset();
+            toggleAddTaskPanel();
+            
+            // 添加成功动画效果
+            addTaskButton.classList.add('bg-green-500');
+            setTimeout(() => {
+                addTaskButton.classList.remove('bg-green-500');
+            }, 300);
+        }
+
+        // 打开编辑模态框
+        function openEditModal(taskId) {
+            // 隐藏成功消息
+            editSuccessMessage.classList.add('hidden');
+            
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            // 确保正确设置任务ID
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('editTaskTitle').value = task.title;
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskDueDate').value = task.dueDate || '';
+            
+            editModal.classList.add('active');
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭编辑模态框
+        function closeEditModal() {
+            editModal.classList.remove('active');
+            // 恢复背景滚动
+            document.body.style.overflow = '';
+        }
+
+        // 保存编辑后的任务
+        function saveEditedTask() {
+            const taskId = document.getElementById('editTaskId').value;
+            const title = document.getElementById('editTaskTitle').value.trim();
+            const description = document.getElementById('editTaskDescription').value.trim();
+            const dueDate = document.getElementById('editTaskDueDate').value;
+            
+            // 验证输入
+            if (!title || !taskId) {
+                alert('请输入任务标题');
+                return;
+            }
+            
+            // 查找任务索引
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex === -1) {
+                alert('未找到该任务');
+                return;
+            }
+            
+            // 更新任务 - 注意：不修改创建日期
+            tasks[taskIndex] = {
+                ...tasks[taskIndex],
+                title,
+                description,
+                dueDate
+            };
+            
+            // 保存并更新界面
+            saveTasks();
+            renderTasks();
+            updateTaskStats();
+            
+            // 显示成功消息
+            editSuccessMessage.classList.remove('hidden');
+            
+            // 2秒后自动关闭模态框
+            setTimeout(() => {
+                closeEditModal();
+            }, 1000);
+        }
+
+        // 打开删除确认模态框
+        function openDeleteModal(taskId) {
+            deleteTaskIdInput.value = taskId;
+            deleteModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭删除确认模态框
+        function closeDeleteModal() {
+            deleteModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 确认删除任务
+        function confirmDelete() {
+            const taskId = deleteTaskIdInput.value;
+            if (!taskId) return;
+            
+            // 从任务列表中删除
+            tasks = tasks.filter(task => task.id !== taskId);
+            saveTasks();
+            renderTasks();
+            updateTaskStats();
+            
+            // 关闭模态框
+            closeDeleteModal();
+        }
+
+        // 切换任务完成状态
+        function toggleTaskStatus(taskId) {
+            tasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    return { ...task, completed: !task.completed };
+                }
+                return task;
+            });
+            
+            saveTasks();
+            renderTasks();
+            updateTaskStats();
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '无';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // 保存任务到本地存储
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // 更新任务统计
+        function updateTaskStats() {
+            // 先应用搜索过滤
+            const filteredBySearch = applySearchFilter([...tasks]);
+            // 再应用状态过滤
+            let filteredTasks = [...filteredBySearch];
+            if (currentFilter === 'active') {
+                filteredTasks = filteredBySearch.filter(task => !task.completed);
+            } else if (currentFilter === 'completed') {
+                filteredTasks = filteredBySearch.filter(task => task.completed);
+            }
+            
+            const total = filteredTasks.length;
+            const completed = filteredTasks.filter(task => task.completed).length;
+            const pending = total - completed;
+            
+            totalTasksElement.textContent = total;
+            completedTasksElement.textContent = completed;
+            pendingTasksElement.textContent = pending;
+        }
+
+        // 应用搜索过滤
+        function applySearchFilter(taskList) {
+            return taskList.filter(task => {
+                // 关键词过滤
+                if (searchParams.keyword) {
+                    const keyword = searchParams.keyword;
+                    const matchesTitle = task.title.toLowerCase().includes(keyword);
+                    const matchesDescription = task.description && task.description.toLowerCase().includes(keyword);
+                    
+                    if (searchParams.field === 'title' && !matchesTitle) return false;
+                    if (searchParams.field === 'description' && !matchesDescription) return false;
+                    if (searchParams.field === 'all' && !matchesTitle && !matchesDescription) return false;
+                }
+                
+                // 截止日期范围过滤
+                if (searchParams.dateFrom || searchParams.dateTo) {
+                    if (!task.dueDate) return false;
+                    
+                    const taskDate = new Date(task.dueDate);
+                    if (searchParams.dateFrom && new Date(searchParams.dateFrom) > taskDate) return false;
+                    if (searchParams.dateTo && new Date(searchParams.dateTo) < taskDate) return false;
+                }
+                
+                // 新建日期范围过滤
+                if (searchParams.createdFrom || searchParams.createdTo) {
+                    const taskCreatedDate = new Date(task.createdAt);
+                    
+                    if (searchParams.createdFrom && new Date(searchParams.createdFrom) > taskCreatedDate) return false;
+                    if (searchParams.createdTo && new Date(searchParams.createdTo) < taskCreatedDate) return false;
+                }
+                
+                return true;
+            });
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            // 先应用搜索过滤
+            const filteredBySearch = applySearchFilter([...tasks]);
+            
+            // 再应用状态过滤
+            let filteredTasks = [...filteredBySearch];
+            if (currentFilter === 'active') {
+                filteredTasks = filteredBySearch.filter(task => !task.completed);
+            } else if (currentFilter === 'completed') {
+                filteredTasks = filteredBySearch.filter(task => task.completed);
+            }
+            
+            // 清空列表
+            taskList.innerHTML = '';
+            
+            // 检查是否有任务
+            if (filteredTasks.length === 0) {
+                taskList.appendChild(emptyTaskList);
+                return;
+            }
+            
+            // 添加任务项
+            filteredTasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item p-4 bg-white dark:bg-dark-700 rounded-lg shadow-sm border-l-4 ${task.completed ? 'border-green-500' : 'border-primary'} transition-all duration-200 hover:shadow-md`;
+                
+                // 任务项内容
+                taskElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} 
+                                    class="mt-1 h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-dark-500 rounded cursor-pointer transition-colors">
+                                <label for="task-${task.id}" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-200 ${task.completed ? 'task-complete' : 'task-incomplete'}">
+                                    ${task.title}
+                                </label>
+                            </div>
+                            ${task.description ? `
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 ${task.completed ? 'task-complete' : ''}">
+                                    ${task.description}
+                                </p>
+                            ` : ''}
+                            <div class="mt-2 flex flex-wrap items-center text-xs text-gray-500 dark:text-gray-400 gap-x-3 gap-y-1">
+                                <span class="flex items-center">
+                                    <i class="fa fa-calendar-o mr-1 ${task.completed ? 'text-gray-400 dark:text-dark-500' : 'text-primary'}"></i>
+                                    截止: ${formatDate(task.dueDate)}
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fa fa-clock-o mr-1 ${task.completed ? 'text-gray-400 dark:text-dark-500' : 'text-primary'}"></i>
+                                    创建: ${formatDate(task.createdAt)}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex space-x-2">
+                            <!-- 编辑按钮 -->
+                            <button onclick="openEditModal('${task.id}')" class="text-gray-400 hover:text-primary focus:outline-none transition-colors">
+                                <span class="sr-only">编辑任务</span>
+                                <i class="fa fa-pencil text-lg"></i>
+                            </button>
+                            <!-- 删除按钮 -->
+                            <button onclick="openDeleteModal('${task.id}')" class="delete-btn">
+                                <span class="sr-only">删除任务</span>
+                                <i class="fa fa-trash-o text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // 添加复选框事件
+                const checkbox = taskElement.querySelector(`#task-${task.id}`);
+                checkbox.addEventListener('change', () => toggleTaskStatus(task.id));
+                
+                taskList.appendChild(taskElement);
+            });
+        }
+    </script>
+</body>
+</html>
+    
