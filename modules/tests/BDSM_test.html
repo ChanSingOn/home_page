@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亲密关系倾向测试</title>
+    <style>
+        :root {
+            --bg: #f7f3f0;
+            --card-bg: #ffffff;
+            --primary: #b85c5c;
+            --primary-dark: #9d4a4a;
+            --text: #3d2f2f;
+            --text-light: #6b5959;
+            --border: #e2d5d5;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+            --transition: all 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 24px 16px 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 680px;
+            width: 100%;
+        }
+
+        /* 首页样式 */
+        .home-page {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .home-page h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .home-page .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 32px;
+        }
+        .home-page .disclaimer {
+            background: #fdf6f0;
+            border-left: 4px solid #d4a373;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #7a5c4a;
+            margin-bottom: 32px;
+            text-align: left;
+            line-height: 1.7;
+        }
+        .home-page .start-btn {
+            display: inline-block;
+            padding: 16px 48px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(184, 92, 92, 0.3);
+        }
+        .home-page .start-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 12px 28px rgba(184, 92, 92, 0.4);
+            transform: translateY(-2px);
+        }
+        .home-page .start-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(184, 92, 92, 0.3);
+        }
+
+        /* 测试页样式 */
+        .test-page {
+            display: none;
+        }
+        .test-page .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .test-page .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+        }
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #e8dddd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .test-reminder {
+            background: #fdf9f0;
+            border-left: 3px solid #e6c07a;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #8a6d4a;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .question-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px 24px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            animation: fadeIn 0.25s ease;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        .question-number {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #3d2f2f;
+            line-height: 1.7;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: auto;
+        }
+        .option-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 12px 18px;
+            border-radius: 30px;
+            background: #faf5f5;
+            border: 1.5px solid #e2d5d5;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            flex: 1 0 calc(20% - 10px);
+            min-width: 100px;
+            text-align: center;
+        }
+        .option-label:hover {
+            background: #f0e4e4;
+            border-color: #cfa7a7;
+        }
+        .option-label input[type="radio"] {
+            display: none;
+        }
+        .option-label.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(184, 92, 92, 0.25);
+        }
+        .result-card {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px 24px;
+            margin-top: 28px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            display: none;
+        }
+        .result-card.show {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .result-attribute {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+        }
+        .result-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto 24px;
+            text-align: left;
+            line-height: 1.8;
+        }
+        .result-desc p {
+            margin-bottom: 12px;
+        }
+        .result-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .result-btn {
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            letter-spacing: 0.5px;
+            min-width: 140px;
+        }
+        .share-btn {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(184, 92, 92, 0.25);
+        }
+        .share-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 6px 16px rgba(184, 92, 92, 0.35);
+        }
+        .retake-btn {
+            background: #fff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .retake-btn:hover {
+            background: #fdf0f0;
+            box-shadow: 0 4px 12px rgba(184, 92, 92, 0.15);
+        }
+        .result-disclaimer {
+            font-size: 0.75rem;
+            color: #a08c8c;
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.6;
+            border-top: 1px dashed #e2d5d5;
+            padding-top: 16px;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 600px) {
+            .home-page h1 {
+                font-size: 2rem;
+            }
+            .test-page .header h1 {
+                font-size: 1.5rem;
+            }
+            .question-card {
+                padding: 20px 16px;
+                min-height: 240px;
+            }
+            .option-label {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+                flex: 1 0 calc(33% - 10px);
+                min-width: 80px;
+            }
+            .result-attribute {
+                font-size: 1.6rem;
+            }
+            .result-btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+            .result-disclaimer {
+                font-size: 0.7rem;
+            }
+            .test-reminder {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页 -->
+        <div class="home-page" id="homePage">
+            <h1>🕊️ 亲密关系倾向测试</h1>
+            <p class="subtitle">探索你在亲密关系中的角色倾向 · 单一属性判定</p>
+            <div class="disclaimer">
+                ⚠️ <strong>免责声明：</strong>本测试仅供自我探索与娱乐参考，不构成专业心理诊断或建议。BDSM 相关实践必须基于<strong>成年、自愿、清醒、安全、理智、知情同意</strong>的原则，并充分沟通边界与安全词。
+            </div>
+            <button class="start-btn" id="startBtn">开始测试</button>
+        </div>
+
+        <!-- 测试页 -->
+        <div class="test-page" id="testPage">
+            <div class="header">
+                <h1>🕊️ 亲密关系倾向测试</h1>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">1 / 40</span>
+            </div>
+
+            <!-- 做题提醒 -->
+            <div class="test-reminder" id="testReminder">
+                请跟随内心的真实感受作答，选项没有对错之分，也无需在意他人的眼光。诚实地面对自己，才能获得最准确的结果。
+            </div>
+
+            <!-- 当前题目容器 -->
+            <div id="questionContainer"></div>
+
+            <!-- 结果卡片 -->
+            <div class="result-card" id="resultCard">
+                <div class="result-label">你的主要属性</div>
+                <div class="result-attribute" id="resultAttribute"></div>
+                <div class="result-desc" id="resultDesc"></div>
+                <div class="result-buttons">
+                    <button class="result-btn share-btn" id="shareBtn">分享结果</button>
+                    <button class="result-btn retake-btn" id="retakeBtn">重新测试</button>
+                </div>
+                <div class="result-disclaimer">
+                    本测试结果仅供娱乐与自我探索参考，不构成任何专业心理评估或建议。BDSM 相关实践请务必遵循成年、自愿、清醒、安全、理智、知情同意的原则，与伴侣充分沟通并尊重彼此的边界。如对自身偏好或关系有困惑，建议寻求专业心理咨询师的帮助。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ======================== 题目数据（每个属性4题，角度各异） ========================
+            const allQuestions = [
+                // 支配者 (Dom) 4题
+                { attribute: 'dom', text: '在关系里，重要决定通常由我来拍板。' },
+                { attribute: 'dom', text: '我喜欢给伴侣下达具体的小指令（比如穿什么、吃什么）。' },
+                { attribute: 'dom', text: '当伴侣用顺从或尊敬的姿态对待我时，我会感到满足。' },
+                { attribute: 'dom', text: '在性爱中，我习惯主动设定节奏和动作。' },
+                // 顺从者 (Sub) 4题
+                { attribute: 'sub', text: '我喜欢把决定权交给伴侣，自己不用操心。' },
+                { attribute: 'sub', text: '我喜欢完成伴侣交代给我的任务或要求。' },
+                { attribute: 'sub', text: '伴侣用命令的语气对我说话，会让我心跳加速。' },
+                { attribute: 'sub', text: '在性爱中，我更喜欢让对方主导一切。' },
+                // 施虐者 (Sadist) 4题
+                { attribute: 'sadist', text: '我喜欢在性爱中用手掌拍打伴侣的臀部。' },
+                { attribute: 'sadist', text: '我喜欢在性爱中给伴侣一些“惩罚”的暗示，让ta紧张。' },
+                { attribute: 'sadist', text: '看到伴侣因为我的动作而求饶，会让我非常兴奋。' },
+                { attribute: 'sadist', text: '在双方同意的范围内，我喜欢用语言羞辱伴侣。' },
+                // 受虐者 (Masochist) 4题
+                { attribute: 'masochist', text: '我喜欢在性爱中被拍打或咬。' },
+                { attribute: 'masochist', text: '我喜欢伴侣用严厉的语气命令我。' },
+                { attribute: 'masochist', text: '在同意的前提下，被伴侣用言语羞辱会让我感到兴奋。' },
+                { attribute: 'masochist', text: '我喜欢在承受疼痛后得到伴侣的安抚，这种对比让我沉迷。' },
+                // 束缚实施者 (Rigger/Top) 4题
+                { attribute: 'rigger', text: '我对学习如何打绳结很感兴趣。' },
+                { attribute: 'rigger', text: '我喜欢在性爱中用手按住伴侣的手腕或身体。' },
+                { attribute: 'rigger', text: '我喜欢使用眼罩、手铐等道具增强控制感。' },
+                { attribute: 'rigger', text: '我会提前规划一个束缚场景，包括步骤和工具。' },
+                // 被束缚者 (Rope Bunny/Bottom) 4题
+                { attribute: 'ropeBunny', text: '我喜欢手腕被束缚住的感觉。' },
+                { attribute: 'ropeBunny', text: '被伴侣绑住时，我会感到一种奇妙的放松和信任。' },
+                { attribute: 'ropeBunny', text: '我喜欢在性爱中身体完全无法动弹，只能任对方摆布。' },
+                { attribute: 'ropeBunny', text: '我喜欢伴侣使用丝巾或手铐来限制我的行动。' },
+                // 照顾者 (Caregiver) 4题
+                { attribute: 'caregiver', text: '我喜欢为伴侣做饭、整理衣物等日常照顾。' },
+                { attribute: 'caregiver', text: '伴侣难过时，我喜欢把ta搂在怀里安慰。' },
+                { attribute: 'caregiver', text: '我喜欢在伴侣迷茫时给出建议和方向。' },
+                { attribute: 'caregiver', text: '我喜欢伴侣用“爸爸/妈妈”之类的称呼叫我（或类似的照顾者称呼）。' },
+                // 被照顾者 (Little/Dependent) 4题
+                { attribute: 'little', text: '我喜欢伴侣帮我做决定，比如今天穿什么。' },
+                { attribute: 'little', text: '我喜欢对伴侣撒娇，让ta哄我。' },
+                { attribute: 'little', text: '遇到困难时，我喜欢躲在伴侣身后，让ta处理。' },
+                { attribute: 'little', text: '我喜欢叫伴侣“爸爸/妈妈”之类的称呼（或类似依赖者称呼）。' },
+                // 驯服型支配者 (Brat Tamer) 4题
+                { attribute: 'bratTamer', text: '伴侣故意顶嘴时，我会觉得很有趣，想要“收拾”ta。' },
+                { attribute: 'bratTamer', text: '我喜欢在伴侣不听话时给予适度的惩罚（比如打屁股）。' },
+                { attribute: 'bratTamer', text: '我喜欢为关系设立规则，并监督伴侣遵守。' },
+                { attribute: 'bratTamer', text: '当顽皮的伴侣最终屈服时，我会感到强烈的成就感。' },
+                // 顽皮型顺从者 (Brat) 4题
+                { attribute: 'brat', text: '我有时会故意不听话，想看看伴侣的反应。' },
+                { attribute: 'brat', text: '我喜欢因为调皮而被伴侣“惩罚”。' },
+                { attribute: 'brat', text: '我喜欢试探伴侣的底线，看ta会不会生气。' },
+                { attribute: 'brat', text: '当伴侣最终“制服”我时，我会感到兴奋和满足。' }
+            ];
+
+            const totalQuestions = allQuestions.length; // 40
+            let currentIndex = 0;
+            const answers = new Array(totalQuestions).fill(null);
+
+            // 选项定义：将“无所谓”改为“不确定”
+            const options = [
+                { value: 5, label: '完全同意' },
+                { value: 4, label: '比较同意' },
+                { value: 3, label: '不确定' },
+                { value: 2, label: '比较反对' },
+                { value: 1, label: '完全反对' }
+            ];
+
+            // ======================== 详细的属性说明（核心特质和常见表现更详细） ========================
+            const attributeMeta = {
+                dom: {
+                    name: '支配者（Dom）',
+                    desc: '<p><strong>核心特质：</strong>你天生具有掌控欲，享受在关系中占据主导地位，从伴侣的服从和依赖中获得安全感和满足感。你喜欢制定规则、发出指令，并看到对方心甘情愿地执行。你的快乐来源于权力的流动和被认可的权威感。你擅长做决定，喜欢为关系定调，并期望伴侣跟随你的节奏。对你来说，掌控不仅是一种习惯，更是一种表达爱意和关心的方式——你通过为对方负责来体现自己的价值。</p>' +
+                          '<p><strong>常见表现：</strong>在生活决策中，你习惯主动提出方案并希望对方跟随，比如选择约会地点、规划周末活动；在性爱中，你喜欢设定节奏、主导动作，甚至加入一些命令和角色扮演。你可能会对伴侣说“听我的”“乖一点”之类的话，并且享受对方顺从的眼神和姿态。你也会在伴侣迷茫时给予指引，但本质上是希望对方依赖你的判断。你享受被伴侣尊敬、崇拜的感觉，对方的依赖会让你更有动力去保护和照顾ta。</p>' +
+                          '<p><strong>偏好场景：</strong>角色扮演、权力交换、规则制定、领导与服从关系。</p>' +
+                          '<p><strong>注意事项：</strong>请始终尊重伴侣的意愿与边界，确保权力交换是双方自愿且可随时停止的。控制欲过强可能会伤害关系，需保持沟通与同理心。</p>'
+                },
+                sub: {
+                    name: '顺从者（Sub）',
+                    desc: '<p><strong>核心特质：</strong>你享受在关系中交出控制权，被引导、被照顾或被管教，服从让你感到安心或兴奋。你可能在日常生活中很有主见，但在亲密关系中却渴望放下决策负担，把主导权交给信任的伴侣。对你来说，服从不是软弱，而是一种深度的信任和情感连接。你从被需要、被保护、被引领中获得安全感，伴侣的坚定和掌控会让你感到被爱和被重视。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢让对方做决定，从“今晚吃什么”到更重要的生活选择，你都倾向于听从伴侣的安排；你愿意完成伴侣交代的任务或要求，并从中获得满足感。伴侣用命令的语气对你说话会让你心跳加速，你甚至会主动寻求被支配的感觉。在性爱中，你更享受被主导的过程，喜欢伴侣设定节奏、发出指令，你只需要沉浸其中。你也可能在生活中表现出一定的服务倾向，喜欢照顾伴侣的日常需求。</p>' +
+                          '<p><strong>偏好场景：</strong>被支配、被照顾、被管教、服从与臣服关系。</p>' +
+                          '<p><strong>注意事项：</strong>请确保你交出的控制权是出于自愿，并保留随时收回的权利。选择值得信赖的伴侣，明确自己的硬限制和软限制，保护自己的身心健康。</p>'
+                },
+                sadist: {
+                    name: '施虐者（Sadist）',
+                    desc: '<p><strong>核心特质：</strong>你在双方同意的前提下，享受施加轻微疼痛、羞辱或控制感，通过对方的反应获得愉悦。你并非喜欢伤害他人，而是享受那种由你掌控对方感受、引发强烈情绪反应的过程。对方的“受苦”表情、求饶或颤抖，对你而言是一种强烈的心理刺激和权力确认。你通常具有较高的自信和掌控力，喜欢在安全范围内探索感官的边界。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢在性爱中加入拍打、咬、掐等轻微疼痛元素，并观察伴侣的反应；你可能喜欢用语言羞辱或下达惩罚性指令，享受对方既紧张又兴奋的样子。你会精心设计“惩罚”场景，让伴侣在期待和恐惧中体验刺激。在事前和事后，你通常愿意花时间与伴侣沟通，确保一切在可控范围内。你的快乐很大程度来源于伴侣的信任和自愿交付，而非真正的伤害。</p>' +
+                          '<p><strong>偏好场景：</strong>击打、羞辱、惩罚、控制游戏。</p>' +
+                          '<p><strong>注意事项：</strong>必须严格遵循同意原则，充分了解伴侣的身体与心理承受范围。学习安全的施虐技巧（如避开危险部位），并时刻关注伴侣的状态，事后进行安抚。</p>'
+                },
+                masochist: {
+                    name: '受虐者（Masochist）',
+                    desc: '<p><strong>核心特质：</strong>你在双方同意的前提下，享受承受轻微疼痛、羞辱或被控制的感觉，这是一种特定的感官偏好。对你来说，疼痛或羞辱并非痛苦，而是一种强烈的刺激，能够带来快感和心理上的释放。你可能在日常生活中是独立、强势的人，但在亲密关系中渴望暂时放下防御，体验被完全掌控的感觉。疼痛后的安抚和温柔对待，会让你感受到强烈的被爱和被珍视。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢被拍打、被咬，或者被伴侣用严厉的语气命令，这些都会让你感到兴奋；被羞辱或控制会让你产生一种“被占有”的满足感。你可能会主动要求伴侣施加疼痛，或者在性爱中表现出对疼痛的期待和享受。在结束后，你特别喜欢伴侣的安抚和拥抱，那种从疼痛到温柔的对比让你沉迷。你也可能对某些特定部位或方式的刺激有特别偏好。</p>' +
+                          '<p><strong>偏好场景：</strong>被击打、被羞辱、被控制、被惩罚。</p>' +
+                          '<p><strong>注意事项：</strong>请与伴侣明确可承受的强度范围，使用安全词，并确保对方尊重你的界限。疼痛游戏需建立在充分信任的基础上，避免身体或心理受到伤害。</p>'
+                },
+                rigger: {
+                    name: '束缚实施者（Rigger/Top）',
+                    desc: '<p><strong>核心特质：</strong>你对绳缚、束缚技巧有浓厚兴趣，喜欢通过控制伴侣的身体活动来创造美感或权力交换。你享受那种将伴侣置于无法动弹的状态，从而完全掌控局面的感觉。对你来说，束缚不仅是一种性游戏，更是一种艺术表达和信任的体现。你通常具有耐心和细致的性格，喜欢学习各种绳结和技巧，并享受设计场景的过程。</p>' +
+                          '<p><strong>常见表现：</strong>你可能会主动学习绳缚知识，研究不同绳结的绑法；在性爱中，你喜欢用手按住伴侣的手腕、使用眼罩或手铐等道具限制对方活动。你会提前规划束缚场景，考虑步骤、工具和可能的风险。你享受伴侣被束缚后那种无助又信任的眼神，也喜欢通过调整束缚的松紧和姿态来增强控制感。事后你通常会仔细检查伴侣的身体状况，并给予安抚。</p>' +
+                          '<p><strong>偏好场景：</strong>绳缚、手铐、身体控制、束缚场景。</p>' +
+                          '<p><strong>注意事项：</strong>学习绳缚安全知识（如避开神经和血管），始终准备安全剪刀。束缚过程中保持沟通，关注伴侣的呼吸和血液循环，事后进行安抚。</p>'
+                },
+                ropeBunny: {
+                    name: '被束缚者（Rope Bunny/Bottom）',
+                    desc: '<p><strong>核心特质：</strong>你享受被束缚时的无助感、信任感和身体受限的体验，被缚可以带来放松、专注或兴奋。你愿意把身体的控制权完全交给伴侣，这种极致的信任让你感到安心和自由。你可能在忙碌的生活中渴望那种“什么都不用做、什么也做不了”的状态，被束缚反而让你从日常压力中解脱出来。你通常对伴侣有很高的信任度，并享受那种被珍视和保护的感觉。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢手腕被束缚、身体被固定的感觉，甚至可能主动要求伴侣使用绳索或手铐；被绑住时，你会感到一种奇妙的放松和幸福感，仿佛世界都安静下来。你喜欢在性爱中身体完全无法动弹，只能任对方摆布，这让你产生强烈的被占有感。你也可能对绳痕、束缚的紧度或特定姿势有特别的感受，事后喜欢与伴侣分享体验。</p>' +
+                          '<p><strong>偏好场景：</strong>被绳缚、被手铐限制、身体控制。</p>' +
+                          '<p><strong>注意事项：</strong>请选择技术可靠、尊重边界的伴侣，沟通好任何身体不适或情绪反应。被束缚时务必保持清醒，确保安全词可以被有效使用。</p>'
+                },
+                caregiver: {
+                    name: '照顾者（Caregiver/Daddy/Mommy）',
+                    desc: '<p><strong>核心特质：</strong>你倾向于在关系中扮演照顾、保护、引导的角色，享受被伴侣依赖和信任。你天生具有关怀他人的本能，喜欢通过照顾伴侣的日常起居、提供情绪支持和人生指导来表达爱意。对你来说，被需要是一种幸福，伴侣的依赖会让你感到自己的价值和重要性。你可能在关系中表现出家长式的温柔和权威，希望对方在你的羽翼下感到安全和快乐。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢为伴侣做饭、整理衣物、安排生活细节，甚至管理对方的作息和健康；当伴侣难过时，你会耐心倾听并给予拥抱和安慰。你享受在伴侣迷茫时给出建议和方向，并看到ta因此成长。你可能喜欢伴侣用“爸爸/妈妈”之类的称呼叫你，或者喜欢你称呼对方为“宝贝”“小朋友”等。在性爱中，你倾向于温柔主导，注重对方的感受和体验。</p>' +
+                          '<p><strong>偏好场景：</strong>日常照顾、情绪支持、角色扮演（如家长/导师）。</p>' +
+                          '<p><strong>注意事项：</strong>注意区分控制与关怀，避免过度干涉伴侣的独立性。保持健康的权力平衡，确保照顾行为不会演变为情感操控。</p>'
+                },
+                little: {
+                    name: '被照顾者（Little/Dependent）',
+                    desc: '<p><strong>核心特质：</strong>你倾向于在关系中扮演被照顾、依赖的角色，享受被呵护、引导和管教的感觉。你可能在成年生活中承担着很多责任，但在亲密关系中渴望暂时放下成熟的面具，回归一种更简单、更被保护的状态。你从伴侣的照顾和关心中获得安全感和幸福感，享受那种“什么都不用操心”的轻松。你通常对伴侣有很强的信任和依恋，愿意在对方面前展露脆弱的一面。</p>' +
+                          '<p><strong>常见表现：</strong>你喜欢伴侣帮你做决定，从穿什么衣服到吃什么，你都愿意听从安排；你喜欢对伴侣撒娇，让对方哄你、宠你。遇到困难时，你倾向于躲在伴侣身后，让ta来处理。你可能喜欢叫伴侣“爸爸/妈妈”之类的称呼，或者享受伴侣叫你“宝宝”“小朋友”。在性爱中，你喜欢被温柔对待和引导，享受被照顾的感觉。</p>' +
+                          '<p><strong>偏好场景：</strong>被照顾、被呵护、依赖关系、角色扮演。</p>' +
+                          '<p><strong>注意事项：</strong>确保自己保持成年人的独立能力，依赖关系应是选择而非必需。与伴侣明确边界，避免失去自我或过度依赖。</p>'
+                },
+                bratTamer: {
+                    name: '驯服型支配者（Brat Tamer）',
+                    desc: '<p><strong>核心特质：</strong>你喜欢应对顽皮、挑战权威的伴侣，并通过管教、设定界限来获得成就感。你享受那种“征服”的过程，伴侣的调皮和反抗对你而言不是麻烦，而是乐趣和刺激。你通常具有强大的耐心和幽默感，能够欣赏伴侣的活泼和狡黠，同时也享受最终让对方屈服、顺从的胜利感。你的支配风格更倾向于“驯服”而非“压制”。</p>' +
+                          '<p><strong>常见表现：</strong>当伴侣故意顶嘴、不听话时，你会觉得很有趣，并想要“收拾”ta；你可能喜欢用打屁股、罚站、剥夺某种特权等方式进行适度惩罚。你喜欢为关系设立明确的规则，并监督伴侣遵守，一旦对方越界，你会享受纠正的过程。当顽皮的伴侣最终屈服、变得乖巧时，你会感到强烈的成就感和满足。在性爱中，你可能喜欢角色扮演“严厉的家长”或“驯兽师”。</p>' +
+                          '<p><strong>偏好场景：</strong>管教、规则制定、惩罚游戏、权力交换。</p>' +
+                          '<p><strong>注意事项：</strong>确保管教是双方同意的游戏，而非真正的冲突或控制。管教行为需在伴侣可接受的范围内，并随时关注对方的情绪反应。</p>'
+                },
+                brat: {
+                    name: '顽皮型顺从者（Brat）',
+                    desc: '<p><strong>核心特质：</strong>你虽然是顺从者，但喜欢通过调皮、顶嘴、挑战权威来引起对方的注意和管教。你并不是真正的反抗者，而是享受那种“被征服”的过程。你的顽皮是一种邀请，希望伴侣能够坚定地回应你、管教你，从而让你感受到对方的强大和关心。你通常性格活泼、聪明，喜欢用幽默和挑衅来试探关系的边界。</p>' +
+                          '<p><strong>常见表现：</strong>你有时会故意不听话、顶嘴或做出一些出格的小动作，想看看伴侣的反应；你可能喜欢因为调皮而被伴侣“惩罚”，比如打屁股、罚跪等。你喜欢试探伴侣的底线，看ta会不会生气，并期待对方坚定地纠正你。当伴侣最终“制服”你、让你屈服时，你会感到兴奋和满足。你享受那种被管教后又被安抚的循环，这让你感受到被重视和被爱。</p>' +
+                          '<p><strong>偏好场景：</strong>挑衅、被管教、被惩罚、权力交换。</p>' +
+                          '<p><strong>注意事项：</strong>与伴侣明确“顽皮”的边界，确保管教是双方同意的游戏，而非真正的冲突。顽皮行为不应伤害对方或破坏信任。</p>'
+                }
+            };
+
+            // 传统型/探索中的详细说明
+            const vanillaDesc = '<p><strong>核心特质：</strong>你对 BDSM 相关角色的认同感较低，或仍在探索中，偏好可能更加多元和流动。你或许更倾向于平等、传统的亲密关系模式，也可能对不同角色都有一定兴趣但尚未形成明显倾向。这完全正常，性偏好没有高低之分，重要的是找到让自己和伴侣都舒适的方式。</p>' +
+                                '<p><strong>常见表现：</strong>你可能对权力交换、疼痛游戏、束缚等没有特别强烈的兴趣，或者在尝试后发现自己并不特别执着于某一角色。你更看重情感连接、沟通和互相尊重，性爱中的角色扮演对你来说可能是偶尔的调剂而非核心。你也可能在不同时期或不同伴侣面前表现出不同的偏好。</p>' +
+                                '<p><strong>建议：</strong>保持开放的心态，根据自己的真实感受去探索和沟通。不要因为好奇而勉强自己或伴侣，安全、自愿和舒适永远是最重要的。</p>';
+
+            const attributePriority = [
+                'dom', 'sub', 'sadist', 'masochist', 'rigger', 'ropeBunny', 'caregiver', 'little', 'bratTamer', 'brat'
+            ];
+
+            // DOM元素
+            const homePage = document.getElementById('homePage');
+            const testPage = document.getElementById('testPage');
+            const startBtn = document.getElementById('startBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const questionContainer = document.getElementById('questionContainer');
+            const resultCard = document.getElementById('resultCard');
+            const resultAttribute = document.getElementById('resultAttribute');
+            const resultDesc = document.getElementById('resultDesc');
+            const shareBtn = document.getElementById('shareBtn');
+            const retakeBtn = document.getElementById('retakeBtn');
+            const testReminder = document.getElementById('testReminder');
+
+            // 当前结果信息
+            let currentResultName = '';
+
+            // 开始测试按钮
+            startBtn.addEventListener('click', function() {
+                homePage.style.display = 'none';
+                testPage.style.display = 'block';
+                currentIndex = 0;
+                answers.fill(null);
+                resultCard.classList.remove('show');
+                progressContainer.style.display = 'flex';
+                testReminder.style.display = 'block';
+                questionContainer.innerHTML = '';
+                renderQuestion();
+            });
+
+            function renderQuestion() {
+                const q = allQuestions[currentIndex];
+                questionContainer.innerHTML = '';
+
+                const card = document.createElement('div');
+                card.className = 'question-card';
+
+                const number = document.createElement('div');
+                number.className = 'question-number';
+                number.textContent = `第 ${currentIndex + 1} / ${totalQuestions} 题`;
+                card.appendChild(number);
+
+                const text = document.createElement('div');
+                text.className = 'question-text';
+                text.textContent = q.text;
+                card.appendChild(text);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options';
+
+                options.forEach((opt) => {
+                    const label = document.createElement('label');
+                    label.className = 'option-label';
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `question-${currentIndex}`;
+                    radio.value = opt.value;
+                    label.appendChild(radio);
+                    label.append(opt.label);
+
+                    label.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        answers[currentIndex] = opt.value;
+                        const radios = document.getElementsByName(`question-${currentIndex}`);
+                        radios.forEach(r => {
+                            r.closest('.option-label').classList.remove('selected');
+                        });
+                        label.classList.add('selected');
+                        radio.checked = true;
+
+                        setTimeout(() => {
+                            if (currentIndex < totalQuestions - 1) {
+                                currentIndex++;
+                                renderQuestion();
+                                updateProgress();
+                            } else {
+                                showResult();
+                            }
+                        }, 150);
+                    });
+
+                    optionsContainer.appendChild(label);
+                });
+
+                card.appendChild(optionsContainer);
+                questionContainer.appendChild(card);
+                updateProgress();
+            }
+
+            function updateProgress() {
+                const percent = (currentIndex / totalQuestions) * 100;
+                progressFill.style.width = percent + '%';
+                progressText.textContent = `${currentIndex + 1} / ${totalQuestions}`;
+            }
+
+            function showResult() {
+                questionContainer.innerHTML = '';
+                progressContainer.style.display = 'none';
+                testReminder.style.display = 'none'; // 结果页面隐藏提醒
+
+                const scores = {};
+                const counts = {};
+                attributePriority.forEach(attr => {
+                    scores[attr] = 0;
+                    counts[attr] = 0;
+                });
+
+                allQuestions.forEach((q, idx) => {
+                    const val = answers[idx];
+                    if (val !== null) {
+                        scores[q.attribute] += val;
+                        counts[q.attribute] += 1;
+                    }
+                });
+
+                const avgScores = {};
+                attributePriority.forEach(attr => {
+                    if (counts[attr] > 0) {
+                        avgScores[attr] = scores[attr] / counts[attr];
+                    } else {
+                        avgScores[attr] = 3;
+                    }
+                });
+
+                let maxScore = -Infinity;
+                let topAttribute = null;
+                attributePriority.forEach(attr => {
+                    if (avgScores[attr] > maxScore) {
+                        maxScore = avgScores[attr];
+                        topAttribute = attr;
+                    }
+                });
+
+                const allBelowNeutral = attributePriority.every(attr => avgScores[attr] <= 3.0);
+                let resultAttr, resultDescText;
+                if (allBelowNeutral) {
+                    resultAttr = '传统型 / 探索中';
+                    resultDescText = vanillaDesc;
+                } else {
+                    const meta = attributeMeta[topAttribute];
+                    resultAttr = meta.name;
+                    resultDescText = meta.desc;
+                }
+
+                currentResultName = resultAttr;
+                resultAttribute.textContent = resultAttr;
+                resultDesc.innerHTML = resultDescText;
+                resultCard.classList.add('show');
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // 分享结果按钮
+            shareBtn.addEventListener('click', function() {
+                const shareText = `我在「亲密关系倾向测试」中的结果是：${currentResultName}。快来测测你的角色倾向吧！`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: '亲密关系倾向测试',
+                        text: shareText,
+                        url: window.location.href
+                    }).catch(err => {
+                        console.log('分享取消或失败', err);
+                    });
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        alert('结果已复制到剪贴板，快去分享吧！');
+                    }).catch(() => {
+                        alert('分享失败，请手动复制结果内容。');
+                    });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = shareText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('结果已复制到剪贴板，快去分享吧！');
+                }
+            });
+
+            // 重新测试按钮
+            retakeBtn.addEventListener('click', function() {
+                currentIndex = 0;
+                answers.fill(null);
+                resultCard.classList.remove('show');
+                questionContainer.innerHTML = '';
+                progressContainer.style.display = 'flex';
+                testReminder.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressText.textContent = `1 / ${totalQuestions}`;
+
+                homePage.style.display = 'none';
+                testPage.style.display = 'block';
+                renderQuestion();
+            });
+        })();
+    </script>
+</body>
+</html>
