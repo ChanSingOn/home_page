@@ -43,7 +43,6 @@
                 radial-gradient(ellipse at 80% 50%, rgba(108, 99, 255, 0.06) 0%, transparent 60%);
         }
 
-        /* ===== Container ===== */
         .app {
             max-width: 820px;
             width: 100%;
@@ -57,7 +56,6 @@
             margin: 8px 0;
         }
 
-        /* ===== Page ===== */
         .page {
             display: none;
             animation: fadeSlide 0.35s ease forwards;
@@ -207,7 +205,6 @@
             flex-direction: column;
             gap: 10px;
             margin-bottom: 24px;
-            /* 移除固定高度限制，让页面自然滚动 */
             max-height: none;
             overflow: visible;
             padding-right: 0;
@@ -270,10 +267,6 @@
         .q-options button:active {
             transform: scale(0.94);
         }
-        .q-options button:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
         .q-options button.active-yes {
             background: var(--primary);
             border-color: var(--primary);
@@ -283,10 +276,6 @@
             background: #E74C5E;
             border-color: #E74C5E;
             color: #fff;
-        }
-        .q-options button.active-yes:active,
-        .q-options button.active-no:active {
-            opacity: 0.8;
         }
 
         .test-footer {
@@ -317,9 +306,6 @@
             background: #E8EDF5;
             color: var(--text-light);
         }
-        .btn-prev:active:not(:disabled) {
-            background: #D5DDEA;
-        }
         .btn-prev:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -329,10 +315,6 @@
             background: var(--primary);
             color: #fff;
             box-shadow: 0 4px 14px rgba(74, 108, 247, 0.3);
-        }
-        .btn-next:active:not(:disabled) {
-            transform: scale(0.96);
-            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.25);
         }
         .btn-next:disabled {
             opacity: 0.4;
@@ -353,6 +335,52 @@
             color: var(--text-light);
             font-size: 16px;
             margin-bottom: 24px;
+        }
+
+        /* ===== 新增：最终结论核心卡片 ===== */
+        .final-verdict {
+            background: linear-gradient(135deg, #EEF3FF, #FFFFFF);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            padding: 22px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 16px rgba(74, 108, 247, 0.10);
+            text-align: center;
+        }
+        .final-verdict .verdict-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .final-verdict .verdict-code {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+        .final-verdict .verdict-code span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .final-verdict .verdict-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text);
+            background: rgba(255,255,255,0.6);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 6px;
+            text-align: left;
+        }
+        .final-verdict .verdict-text strong {
+            color: var(--primary-dark);
+            font-weight: 700;
         }
 
         .result-code {
@@ -508,11 +536,7 @@
             transform: scale(0.97);
         }
 
-        /* ============================================================ */
-        /* ===== 移动端专项优化 (Mobile First) ===== */
-        /* ============================================================ */
-
-        /* 小屏手机 (<= 480px) 及 平板竖屏 (<= 640px) */
+        /* ===== 移动端专项优化 ===== */
         @media (max-width: 640px) {
             body {
                 padding: 8px;
@@ -525,8 +549,6 @@
                 margin: 4px 0;
                 box-shadow: 0 6px 24px rgba(74, 108, 247, 0.10);
             }
-
-            /* 欢迎页 */
             .welcome h1 {
                 font-size: 26px;
             }
@@ -543,8 +565,6 @@
                 font-size: 17px;
                 padding: 16px;
             }
-
-            /* 测试页 */
             .test-header .section-label {
                 font-size: 18px;
             }
@@ -556,7 +576,6 @@
                 padding: 2px 12px;
             }
 
-            /* 题目卡片 - 移动端专属布局 */
             .q-item {
                 flex-direction: column;
                 align-items: stretch;
@@ -589,7 +608,6 @@
                 border-radius: 30px;
             }
 
-            /* 导航按钮 - 移动端纵向堆叠 */
             .test-footer {
                 flex-direction: column;
                 gap: 10px;
@@ -602,7 +620,6 @@
                 font-size: 16px;
                 border-radius: var(--radius-sm);
             }
-            /* 让“下一部分”按钮在顶部，更符合操作流 */
             .btn-prev {
                 order: 1;
             }
@@ -610,15 +627,24 @@
                 order: 0;
             }
 
-            /* 移除列表滚动限制，保证自然滚动 */
             .question-list {
                 gap: 8px;
                 margin-bottom: 18px;
             }
 
-            /* 结果页 */
             .result h2 {
                 font-size: 24px;
+            }
+            .final-verdict {
+                padding: 16px 16px;
+                margin-bottom: 20px;
+            }
+            .final-verdict .verdict-code {
+                font-size: 30px;
+            }
+            .final-verdict .verdict-text {
+                font-size: 15px;
+                padding: 10px 12px;
             }
             .result-code .code-letter {
                 width: 56px;
@@ -668,7 +694,6 @@
             }
         }
 
-        /* 超小屏手机 (<= 380px) 进一步微调 */
         @media (max-width: 380px) {
             .app {
                 padding: 14px 10px;
@@ -700,7 +725,6 @@
             }
         }
 
-        /* 横屏手机提示 (可选) */
         @media (max-height: 500px) and (orientation: landscape) {
             .app {
                 padding: 12px 16px;
@@ -781,6 +805,13 @@
             <h2>📊 你的测试结果</h2>
             <p class="result-sub">以下是你六个维度的兴趣倾向得分</p>
 
+            <!-- ★★★ 最终结论核心卡片 ★★★ -->
+            <div class="final-verdict" id="finalVerdict">
+                <div class="verdict-label">🎯 你的最终结论</div>
+                <div class="verdict-code" id="verdictCode"><span>---</span></div>
+                <div class="verdict-text" id="verdictText">加载中...</div>
+            </div>
+
             <div class="result-code" id="resultCode"></div>
 
             <div class="chart-wrap">
@@ -795,7 +826,7 @@
 
     <script>
         // ================================================================
-        // DATA
+        // DATA (霍兰德六型)
         // ================================================================
         const SECTIONS = [{
             id: 'R',
@@ -966,6 +997,9 @@
         const chartContainer = $('chartContainer');
         const resultDetails = $('resultDetails');
         const btnRestart = $('btnRestart');
+        const finalVerdict = $('finalVerdict');
+        const verdictCode = $('verdictCode');
+        const verdictText = $('verdictText');
 
         // ================================================================
         // HELPERS
@@ -1080,25 +1114,42 @@
                 btnNext.textContent = '下一部分 →';
             }
             btnPrev.disabled = (si === 0);
-
-            // 滚动到题目列表顶部
-            if (questionList.scrollTop > 0) {
-                questionList.scrollTop = 0;
-            }
-            // 在移动端，平滑滚动到测试区域顶部
-            const testEl = document.getElementById('page-test');
-            if (testEl && window.innerWidth <= 640) {
-                // 仅在点击选项后轻微滚动，确保按钮可见
-            }
         }
 
         // ================================================================
-        // RENDER: RESULT
+        // RENDER: RESULT (包含“最终结论”增强)
         // ================================================================
         function renderResult() {
             const scores = getScores();
             const top3 = getTopThree();
 
+            // --- 1. 生成最终结论 ---
+            if (top3.length >= 3) {
+                const p = top3[0];
+                const s = top3[1];
+                const t = top3[2];
+                const pInfo = TYPE_INFO[p.id];
+                const sInfo = TYPE_INFO[s.id];
+                const tInfo = TYPE_INFO[t.id];
+                const codeStr = `${p.id}${s.id}${t.id}`;
+
+                // 格式化职业推荐（取前3个）
+                const jobList = pInfo.jobs.split('、').slice(0, 3).join('、');
+
+                // 构建人性化结论
+                let text = `你的核心职业兴趣代码是 <strong>${codeStr}</strong>，以 <strong>${pInfo.name}</strong> 为主导。`;
+                text += ` 你兼具 <strong>${sInfo.name}</strong> 和 <strong>${tInfo.name}</strong> 的特质，`;
+                text += `最适合从事需要「<strong>${pInfo.desc.split('，')[0] || pInfo.desc}</strong>」的工作。`;
+                text += ` 建议优先考虑：<strong>${jobList}</strong> 等方向。`;
+
+                verdictCode.innerHTML = `<span>${codeStr}</span>`;
+                verdictText.innerHTML = text;
+            } else {
+                verdictCode.innerHTML = `<span>---</span>`;
+                verdictText.innerHTML = '请完成所有题目以获取准确的职业建议。';
+            }
+
+            // --- 2. 三码展示 ---
             let codeHtml = '';
             top3.forEach((item, idx) => {
                 const sec = SECTIONS[item.idx];
@@ -1107,6 +1158,7 @@
             });
             resultCode.innerHTML = codeHtml;
 
+            // --- 3. 图表 ---
             const maxScore = 10;
             const colors = ['#4A6CF7', '#6C63FF', '#FF6B8A', '#4ECDC4', '#FFB347', '#A8A8A8'];
             let chartHtml = '';
@@ -1127,6 +1179,7 @@
             });
             chartContainer.innerHTML = chartHtml;
 
+            // --- 4. 详细维度卡片 ---
             let detailHtml = '';
             SECTIONS.forEach((sec, i) => {
                 const info = TYPE_INFO[sec.id];
@@ -1152,7 +1205,6 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const el = document.getElementById(id);
             if (el) el.classList.add('active');
-            // 滚动到顶部
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1195,11 +1247,9 @@
             currentSection = 0;
             showPage('page-welcome');
             document.querySelectorAll('.chart-bar').forEach(el => el.classList.remove('anim'));
-            // 重置进度条
             progressFill.style.width = '0%';
         });
 
-        // 键盘支持 (桌面端)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === 'Enter') {
                 if (pageTest.classList.contains('active') && !btnNext.disabled) {
@@ -1217,8 +1267,7 @@
         // INIT
         // ================================================================
         showPage('page-welcome');
-        console.log('🧭 职业兴趣测试已加载 (移动端优化版)');
-        console.log(`📚 共 ${getTotalQuestions()} 题，${SECTIONS.length} 个维度`);
+        console.log('🧭 职业兴趣测试已加载 (含最终结论)');
     </script>
 
 </body>
