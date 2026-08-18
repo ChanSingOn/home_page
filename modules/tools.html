@@ -502,39 +502,75 @@
         </div>
     </div>
 
-    <!-- 页脚 - 与其他页面保持一致 -->
-    <footer class="bg-dark text-white py-8">
-        <div class="container mx-auto px-6 md:px-12">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- 探索空间 -->
-                <div>
-                    <h3 class="text-xl font-bold mb-3 flex items-center">
-                        <i class="fa fa-compass mr-2"></i>
-                        摸鱼空间
-                    </h3>
-                    <p class="text-gray-400 text-sm mb-3">
-                        一个集趣味测试、小游戏和实用工具于一体的探索平台，帮助你了解自己，放松心情，提升效率。
-                    </p>
-                </div>
-                
-                <!-- 快速链接 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-2">快速链接</h3>
-                    <ul class="space-y-1">
-                        <li><a href="../index.html#psychological" class="text-gray-400 hover:text-primary transition-colors text-sm">趣味测试</a></li>
-                        <li><a href="../index.html#games" class="text-gray-400 hover:text-secondary transition-colors text-sm">小游戏</a></li>
-                        <li><a href="../index.html#tools" class="text-gray-400 hover:text-accent transition-colors text-sm">工具</a></li>
-                    </ul>
-                </div>
-                
-                <!-- 关于我 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-2">关于我</h3>
-                    <!-- 此处可添加关于信息 -->
-                </div>
-            </div>
+    <!-- 页脚 -->
+  <footer class="bg-dark text-white py-10">
+    <div class="container mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 立创社小站 -->
+        <div>
+          <h3 class="text-xl font-bold mb-3 flex items-center">
+            <i class="fa fa-compass mr-2"></i>
+            立创社小站
+          </h3>
+          <p class="text-gray-400 text-sm mb-3">
+            一个集趣味测试、小游戏和实用工具于一体的探索平台，帮助你了解自己，放松心情，提升效率。
+          </p>
         </div>
-    </footer>
+        
+        <!-- 快速链接 -->
+        <div>
+          <h3 class="text-lg font-bold mb-2">快速链接</h3>
+          <ul class="space-y-1">
+            <li><a href="#psychological" class="text-gray-400 hover:text-primary transition-colors text-sm">趣味测试</a></li>
+            <li><a href="#games" class="text-gray-400 hover:text-secondary transition-colors text-sm">小游戏</a></li>
+            <li><a href="#tools" class="text-gray-400 hover:text-accent transition-colors text-sm">工具</a></li>
+          </ul>
+        </div>
+        
+        <!-- 关于我 -->
+        <div>
+          <h3 class="text-lg font-bold mb-2">关于我</h3>
+          <p class="text-gray-400 text-sm mb-2">
+            立创社，由陈省安创立的独立工作室，立创社小站是工作室开设的小网站，致力于提供优质的趣味测试、有趣的小游戏和实用工具，帮助用户了解自己，放松心情。
+          </p>
+        </div>
+      </div>
+      
+      <!-- 整合二维码图标和版权信息 -->
+      <div class="border-t border-gray-800 mt-3 pt-3 flex flex-col items-center">
+        <button id="contact-us-btn" class="text-gray-400 hover:text-white transition-colors">
+          <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary/20 transition-colors">
+            <i class="fa fa-qrcode text-base"></i>
+          </div>
+        </button>
+        <p class="text-gray-500 text-sm mb-1">
+          页面维护：立创社工作室
+        </p>
+        <p class="text-gray-500 text-sm mb-1">
+          &copy; 2025 保留所有权利 
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 二维码模态框 -->
+  <div id="contact-us-modal" class="modal fixed inset-0 z-50 flex items-center justify-center">
+    <div class="modal-backdrop absolute inset-0" onclick="closeModal('contact-us-modal')"></div>
+    <div class="bg-white rounded-2xl shadow-2xl p-4 max-w-md relative z-10">
+      <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onclick="closeModal('contact-us-modal')">
+        <i class="fa fa-times text-lg"></i>
+      </button>
+      <div class="flex justify-center mt-4 mb-2">
+        <h3 class="text-base font-bold text-gray-800">关注我</h3>
+      </div>
+      <div class="flex justify-center mt-2">
+        <img src="https://img.tofaka.com/autoupload/f/v3dac/20260818/mTkU/430X430/2cf27e9c2373aa1919007ed6dfbeb132.jpg/webp" 
+     alt="二维码图片" 
+     style="max-width: 100%; height: auto;">
+      </div>
+      <p class="text-gray-600 text-center text-sm mt-2">扫码或在微信中搜索: 陈省安</p>
+    </div>
+  </div>
 
     <script>
         // 页面加载完成后隐藏加载遮罩
