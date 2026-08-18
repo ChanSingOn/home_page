@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>实用工具 | 立创社小站</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
     <!-- Tailwind配置 - 与games、tests保持一致 -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#4F46E5', // 测试按钮色
-                        secondary: '#EC4899', // 游戏按钮色
-                        accent: '#3B82F6', // 工具按钮色
-                        dark: '#1E293B', // 深色背景
-                        light: '#F8FAFC', // 浅色背景
+                        primary: '#4F46E5',
+                        secondary: '#EC4899',
+                        accent: '#3B82F6',
+                        dark: '#1E293B',
+                        light: '#F8FAFC',
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                 },
-            }
+            },
         }
     </script>
-    
+
     <!-- 自定义工具类 - 与其他页面保持一致 -->
     <style type="text/tailwindcss">
         @layer utilities {
@@ -43,59 +44,58 @@
                 @apply bg-gradient-to-br from-primary/90 to-secondary/90;
             }
             .text-shadow {
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             .action-btn {
                 @apply inline-flex items-center font-medium rounded-full transition-all duration-300 px-4 py-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
             }
         }
     </style>
-    
+
     <style>
         /* 统一模块页面样式 - 确保内容不被遮挡 */
         .module-container {
-            padding-top: 20px; /* 与卡片间距一致 */
+            padding-top: 20px;
             padding-bottom: 80px;
-            margin-top: 20px; /* 调整顶部距离 */
+            margin-top: 20px;
         }
-        
+
         /* 主导航栏样式 - 不再固定，与下方内容合并 */
         #navbar.navbar {
             background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             padding: 15px 0;
         }
-        
+
         /* 固定标题栏样式 - 调整位置，不再固定在顶部 */
         .fixed-header {
             background-color: #ffffff;
             padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
-        
-        /* 标题栏内容容器 - 用于布局标题 */
+
         .header-content {
             margin-bottom: 15px;
         }
-        
+
         .header-text {
             width: 100%;
         }
-        
-        /* 工具类卡片使用强调色（亮蓝色）- 与其他页面保持一致的设计模式 */
+
+        /* 工具类卡片使用强调色（亮蓝色） */
         .tools .category-badge {
             background-color: rgba(59, 130, 246, 0.1);
             color: #3B82F6;
         }
-        
+
         .tools .action-link {
             color: #3B82F6;
         }
-        
+
         .tools .action-link:hover {
             color: #2563eb;
         }
-        
+
         /* 通用卡片元素样式 - 增强圆角和筛选功能支持 */
         .category-filters {
             display: flex;
@@ -103,7 +103,7 @@
             gap: 8px;
             margin-top: 12px;
         }
-        
+
         .category-filter {
             padding: 6px 16px;
             border-radius: 20px;
@@ -114,65 +114,65 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .category-filter.active {
             background-color: #3B82F6;
             color: white;
             border-color: #3B82F6;
             font-weight: 500;
         }
-        
+
         .category-filter:hover:not(.active) {
             border-color: #3B82F6;
             color: #3B82F6;
         }
-        
+
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
-        
+
         .card {
             background-color: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
             transition: all 0.3s ease;
         }
-        
+
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
-        
+
         /* 关键修改：将图片容器改为1:1正方形 */
         .card-img {
             width: 100%;
-            padding-bottom: 100%; /* 使用padding创建1:1的比例 */
+            padding-bottom: 100%;
             position: relative;
             overflow: hidden;
         }
-        
+
         .card-img img {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 保持比例并裁剪以填充容器 */
+            object-fit: cover;
             transition: transform 0.5s ease;
         }
-        
+
         .card:hover .card-img img {
             transform: scale(1.05);
         }
-        
+
         .card-content {
             padding: 16px;
         }
-        
+
         .category-badge {
             display: inline-block;
             padding: 3px 10px;
@@ -181,21 +181,21 @@
             font-weight: 500;
             margin-bottom: 8px;
         }
-        
+
         .card-title {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 8px;
             color: #1e293b;
         }
-        
+
         .card-description {
             font-size: 0.9rem;
             color: #64748b;
             margin-bottom: 16px;
             line-height: 1.5;
         }
-        
+
         .card-link {
             display: inline-flex;
             align-items: center;
@@ -207,17 +207,17 @@
             background-color: rgba(59, 130, 246, 0.1);
             color: #3B82F6;
         }
-        
+
         .card-link:hover {
             background-color: #3B82F6;
             color: white;
             box-shadow: 0 3px 10px rgba(59, 130, 246, 0.2);
         }
-        
+
         .card-link i {
             margin-left: 6px;
         }
-        
+
         .load-more {
             margin: 40px auto 0;
             display: block;
@@ -231,28 +231,28 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .load-more:hover {
             background-color: #3B82F6;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
         }
-        
+
         .page-title {
             font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 700;
             color: #1e293b;
             margin-bottom: 8px;
         }
-        
+
         .page-description {
             font-size: 0.95rem;
             color: #64748b;
             max-width: 800px;
             margin-bottom: 0;
         }
-        
+
         /* 加载动画 - 与其他页面保持一致，使用工具类颜色 */
         .loader {
             width: 48px;
@@ -262,12 +262,16 @@
             border-radius: 50%;
             animation: rotation 1s linear infinite;
         }
-        
+
         @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         /* 模态框样式 */
         .modal {
             display: none;
@@ -275,48 +279,48 @@
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        
+
         .modal.active {
             display: flex;
             opacity: 1;
             visibility: visible;
         }
-        
+
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
         }
-        
+
         /* 加载遮罩动画 */
         #loading-overlay {
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        
+
         #loading-overlay.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-        
+
         /* 响应式调整 - 与其他页面保持一致 */
         @media (max-width: 768px) {
             .fixed-header {
                 padding: 15px 0;
             }
-            
+
             .module-container {
                 margin-top: 10px;
             }
-            
+
             .content-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header-content {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .header-text {
                 max-width: 100%;
                 width: 100%;
@@ -324,6 +328,7 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-50 font-sans">
     <!-- 加载遮罩 -->
     <div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
@@ -336,13 +341,13 @@
     <!-- 主导航栏 - 与其他页面保持一致 -->
     <nav id="navbar" class="navbar w-full py-4 px-6 md:px-12">
         <div class="container mx-auto flex justify-between items-center">
-              <a href="#" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent flex items-center">
-                <img src=https://img.tofaka.com/autoupload/f/v3dac/20260818/Bs72/2048X2048/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260331222609_335_34_1.png?imageMogr2/thumbnail/600x" 
-                 alt="立创社图标" 
-                   class="w-6 h-6 md:w-7 md:h-7 object-contain mr-2">
+            <a href="#" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent flex items-center">
+                <img src="https://img.tofaka.com/autoupload/f/v3dac/20260818/Bs72/2048X2048/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260331222609_335_34_1.png?imageMogr2/thumbnail/600x"
+                alt="立创社图标"
+                class="w-6 h-6 md:w-7 md:h-7 object-contain mr-2" />
                 <span>立创社小站</span>
-              </a>
-            
+            </a>
+
             <div class="hidden md:flex space-x-8">
                 <a href="tests.html" class="text-dark hover:text-primary transition-colors duration-200 font-medium">
                     <i class="fa fa-heart-o mr-1"></i>趣味测试
@@ -366,7 +371,7 @@
                     <p class="page-description">精选各类实用工具，帮助你更高效地完成工作和日常任务</p>
                 </div>
             </div>
-            
+
             <!-- 工具分类 - 筛选按钮样式统一 -->
             <div class="category-filters">
                 <button class="category-filter active" data-category="all">全部工具</button>
@@ -387,8 +392,8 @@
                 <!-- 工具1：文本工具 -->
                 <div class="card" data-category="文本工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="文本工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="文本工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">文本工具</span>
@@ -401,8 +406,8 @@
                 <!-- 工具2：图像工具 -->
                 <div class="card" data-category="图像工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="图像工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="图像工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">图像工具</span>
@@ -415,8 +420,8 @@
                 <!-- 工具3：开发工具 -->
                 <div class="card" data-category="开发工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="开发工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="开发工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">开发工具</span>
@@ -429,8 +434,8 @@
                 <!-- 工具4：转换工具 -->
                 <div class="card" data-category="转换工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="转换工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="转换工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">转换工具</span>
@@ -443,8 +448,8 @@
                 <!-- 工具5：计算工具 -->
                 <div class="card" data-category="计算工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="计算工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="计算工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">计算工具</span>
@@ -457,8 +462,8 @@
                 <!-- 工具6：文本工具 -->
                 <div class="card" data-category="文本工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="密码生成器图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="密码生成器图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">文本工具</span>
@@ -471,8 +476,8 @@
                 <!-- 工具7：记录工具 -->
                 <div class="card" data-category="记录工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/QQjP/1328X1328/todo_management.png/webp" 
-                             alt="待办事项管理器图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/QQjP/1328X1328/todo_management.png/webp"
+                        alt="待办事项管理器图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">记录工具</span>
@@ -485,8 +490,8 @@
                 <!-- 工具8：记录工具 -->
                 <div class="card" data-category="记录工具">
                     <div class="card-img">
-                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp" 
-                             alt="数据可视化工具图标" >
+                        <img src="https://test.fukit.cn/autoupload/f/dXVp9EHQNn4O7zH9Ob2FJCfNcKcqEnRmcljopnyJoMs/20260301/DtvK/1328X1328/lock.png/webp"
+                        alt="数据可视化工具图标" />
                     </div>
                     <div class="card-content">
                         <span class="category-badge">记录工具</span>
@@ -495,7 +500,6 @@
                         <a href="tools/Dato.html" class="card-link">使用工具 <i class="fa fa-arrow-right"></i></a>
                     </div>
                 </div>
-
             </div>
 
             <button class="load-more">
@@ -505,99 +509,95 @@
     </div>
 
     <!-- 页脚 -->
-  <footer class="bg-dark text-white py-10">
-    <div class="container mx-auto px-6 md:px-12">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- 立创社小站 -->
-        <div>
-          <h3 class="text-xl font-bold mb-3 flex items-center">
-            <i class="fa fa-compass mr-2"></i>
-            立创社小站
-          </h3>
-          <p class="text-gray-400 text-sm mb-3">
-            一个集趣味测试、小游戏和实用工具于一体的探索平台，帮助你了解自己，放松心情，提升效率。
-          </p>
-        </div>
-        
-        <!-- 快速链接 -->
-        <div>
-          <h3 class="text-lg font-bold mb-2">快速链接</h3>
-          <ul class="space-y-1">
-            <li><a href="#psychological" class="text-gray-400 hover:text-primary transition-colors text-sm">趣味测试</a></li>
-            <li><a href="#games" class="text-gray-400 hover:text-secondary transition-colors text-sm">小游戏</a></li>
-            <li><a href="#tools" class="text-gray-400 hover:text-accent transition-colors text-sm">工具</a></li>
-          </ul>
-        </div>
-        
-        <!-- 关于我 -->
-        <div>
-          <h3 class="text-lg font-bold mb-2">关于我</h3>
-          <p class="text-gray-400 text-sm mb-2">
-            立创社，由陈省安创立的独立工作室，立创社小站是工作室开设的小网站，致力于提供优质的趣味测试、有趣的小游戏和实用工具，帮助用户了解自己，放松心情。
-          </p>
-        </div>
-      </div>
-      
-      <!-- 整合二维码图标和版权信息 -->
-      <div class="border-t border-gray-800 mt-3 pt-3 flex flex-col items-center">
-        <button id="contact-us-btn" class="text-gray-400 hover:text-white transition-colors">
-          <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary/20 transition-colors">
-            <i class="fa fa-qrcode text-base"></i>
-          </div>
-        </button>
-        <p class="text-gray-500 text-sm mb-1">
-          页面维护：立创社工作室
-        </p>
-        <p class="text-gray-500 text-sm mb-1">
-          &copy; 2025 保留所有权利 
-        </p>
-      </div>
-    </div>
-  </footer>
+    <footer class="bg-dark text-white py-10">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 立创社小站 -->
+                <div>
+                    <h3 class="text-xl font-bold mb-3 flex items-center">
+                        <i class="fa fa-compass mr-2"></i>
+                        立创社小站
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-3">
+                        一个集趣味测试、小游戏和实用工具于一体的探索平台，帮助你了解自己，放松心情，提升效率。
+                    </p>
+                </div>
 
-  <!-- 二维码模态框 -->
-  <div id="contact-us-modal" class="modal fixed inset-0 z-50 flex items-center justify-center">
-    <div class="modal-backdrop absolute inset-0" onclick="closeModal('contact-us-modal')"></div>
-    <div class="bg-white rounded-2xl shadow-2xl p-4 max-w-md relative z-10">
-      <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onclick="closeModal('contact-us-modal')">
-        <i class="fa fa-times text-lg"></i>
-      </button>
-      <div class="flex justify-center mt-4 mb-2">
-        <h3 class="text-base font-bold text-gray-800">关注我</h3>
-      </div>
-      <div class="flex justify-center mt-2">
-        <img src="https://img.tofaka.com/autoupload/f/v3dac/20260818/mTkU/430X430/2cf27e9c2373aa1919007ed6dfbeb132.jpg/webp" 
-     alt="二维码图片" 
-     style="max-width: 100%; height: auto;">
-      </div>
-      <p class="text-gray-600 text-center text-sm mt-2">扫码或在微信中搜索: 陈省安</p>
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-2">快速链接</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#psychological" class="text-gray-400 hover:text-primary transition-colors text-sm">趣味测试</a></li>
+                        <li><a href="#games" class="text-gray-400 hover:text-secondary transition-colors text-sm">小游戏</a></li>
+                        <li><a href="#tools" class="text-gray-400 hover:text-accent transition-colors text-sm">工具</a></li>
+                    </ul>
+                </div>
+
+                <!-- 关于我 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-2">关于我</h3>
+                    <p class="text-gray-400 text-sm mb-2">
+                        立创社，由陈省安创立的独立工作室，立创社小站是工作室开设的小网站，致力于提供优质的趣味测试、有趣的小游戏和实用工具，帮助用户了解自己，放松心情。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 整合二维码图标和版权信息 -->
+            <div class="border-t border-gray-800 mt-3 pt-3 flex flex-col items-center">
+                <!-- 二维码按钮 - 点击弹出模态框 -->
+                <button id="contact-us-btn" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary/20 transition-colors">
+                        <i class="fa fa-qrcode text-base"></i>
+                    </div>
+                </button>
+                <p class="text-gray-500 text-sm mb-1">
+                    页面维护：立创社工作室
+                </p>
+                <p class="text-gray-500 text-sm mb-1">
+                    &copy; 2025 保留所有权利
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 二维码模态框 -->
+    <div id="contact-us-modal" class="modal fixed inset-0 z-50 flex items-center justify-center">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('contact-us-modal')"></div>
+        <div class="bg-white rounded-2xl shadow-2xl p-4 max-w-md relative z-10">
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onclick="closeModal('contact-us-modal')">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+            <div class="flex justify-center mt-4 mb-2">
+                <h3 class="text-base font-bold text-gray-800">关注我</h3>
+            </div>
+            <div class="flex justify-center mt-2">
+                <img src="https://img.tofaka.com/autoupload/f/v3dac/20260818/mTkU/430X430/2cf27e9c2373aa1919007ed6dfbeb132.jpg/webp"
+                alt="二维码图片"
+                style="max-width: 100%; height: auto;" />
+            </div>
+            <p class="text-gray-600 text-center text-sm mt-2">扫码或在微信中搜索: 陈省安</p>
+        </div>
     </div>
-  </div>
 
     <script>
-        // 页面加载完成后隐藏加载遮罩
+        // ========== 页面加载完成后隐藏加载遮罩 ==========
         window.addEventListener('load', function() {
             const loadingOverlay = document.getElementById('loading-overlay');
-            // 添加短暂延迟以展示加载动画
             setTimeout(function() {
                 loadingOverlay.classList.add('hidden');
             }, 500);
         });
 
-        // 分类筛选功能
+        // ========== 分类筛选功能 ==========
         const filterButtons = document.querySelectorAll('.category-filter');
         const cards = document.querySelectorAll('.card');
 
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // 移除所有按钮的active类
                 filterButtons.forEach(btn => btn.classList.remove('active'));
-                // 给当前点击的按钮添加active类
                 button.classList.add('active');
-                
+
                 const category = button.getAttribute('data-category');
-                
-                // 筛选卡片
                 cards.forEach(card => {
                     if (category === 'all' || card.getAttribute('data-category') === category) {
                         card.style.display = 'block';
@@ -607,9 +607,35 @@
                 });
             });
         });
+
+        // ========== 二维码模态框控制（修复：点击按钮弹出） ==========
+        // 全局函数，供 HTML onclick 调用
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // 禁止背景滚动
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // 恢复滚动
+            }
+        }
+
+        // DOM 加载完成后绑定二维码按钮的点击事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactBtn = document.getElementById('contact-us-btn');
+            if (contactBtn) {
+                contactBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openModal('contact-us-modal');
+                });
+            }
+        });
     </script>
 </body>
 </html>
-
-
-
