@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 灵魂室友 · 20种宠物全面测试</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(145deg, #f9f3e8 0%, #ffe9d6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 760px;
+            width: 100%;
+            background: rgba(255, 248, 240, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 30px 28px 40px;
+            box-shadow: 0 20px 60px rgba(180, 100, 50, 0.15), 0 8px 24px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255, 215, 180, 0.3);
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4d2e1b;
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        h1 .paw {
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .subhead {
+            color: #7d5a44;
+            font-size: 16px;
+            margin-bottom: 24px;
+            border-left: 4px solid #e8b89d;
+            padding-left: 16px;
+            background: #fcf3ea;
+            border-radius: 0 20px 20px 0;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .progress-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; font-size: 15px; color: #6a4c38; font-weight: 500; background: #f5e3d6; padding: 8px 16px; border-radius: 60px; }
+        .progress-bar { flex: 1; height: 6px; background: #e6cdbb; border-radius: 10px; margin: 0 16px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #f5a97f, #e07c4f); border-radius: 10px; transition: width 0.3s ease; }
+        .question-box { background: #fffbf8; border-radius: 32px; padding: 28px 24px 20px; box-shadow: inset 0 1px 4px rgba(255,255,255,0.8), 0 8px 24px rgba(140, 80, 40, 0.08); margin-bottom: 16px; }
+        .question-text { font-size: 22px; font-weight: 600; color: #3f281c; line-height: 1.4; margin-bottom: 28px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn {
+            display: block; width: 100%; text-align: left; padding: 16px 20px; font-size: 17px; font-weight: 500;
+            background: #fef9f4; border: 2px solid #f0dfd2; border-radius: 60px; color: #3f2c1f; cursor: pointer;
+            transition: all 0.15s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); line-height: 1.4;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .option-btn:hover:not(.disabled) { background: #fcf0e6; border-color: #dbb8a0; transform: scale(1.01); }
+        .option-btn .letter { display: inline-block; width: 30px; height: 30px; border-radius: 50%; background: #efe2d7; color: #5a3e2d; text-align: center; line-height: 30px; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+        .option-btn.selected { border-color: #cb8a6b; background: #faeedf; box-shadow: 0 0 0 4px rgba(203, 138, 107, 0.15); }
+        .option-btn.selected .letter { background: #cb8a6b; color: white; }
+        .option-btn.disabled { cursor: default; opacity: 0.9; }
+        .nav-area { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 12px; }
+        .btn { padding: 12px 28px; border: none; border-radius: 60px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.15s; background: #f0e0d3; color: #4d3425; box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
+        .btn-primary { background: #cb8a6b; color: white; box-shadow: 0 6px 14px rgba(203, 138, 107, 0.25); }
+        .btn-primary:hover { background: #b87758; transform: translateY(-2px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: #efe2d7; color: #4d3425; }
+        .btn-secondary:hover { background: #e5d4c5; }
+        .result-page { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-title { font-size: 28px; font-weight: 700; color: #3f281c; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+        .result-sub { color: #6a4c38; font-size: 16px; margin-bottom: 24px; border-bottom: 2px dashed #ecd5c4; padding-bottom: 16px; }
+        .podium { display: flex; flex-direction: column; gap: 20px; margin: 20px 0 30px; }
+        .podium-item { background: #fffbf8; border-radius: 28px; padding: 18px 22px; box-shadow: 0 6px 18px rgba(140, 80, 40, 0.08); border-left: 8px solid #cb8a6b; }
+        .podium-item.first { border-left-color: #f5b78e; background: #fff5ed; }
+        .podium-item.second { border-left-color: #b8c4c9; }
+        .podium-item.third { border-left-color: #dbb394; }
+        .podium-rank { font-size: 14px; font-weight: 700; color: #8c6b57; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .podium-name { font-size: 22px; font-weight: 700; color: #2e1e14; display: flex; align-items: center; gap: 10px; }
+        .podium-desc { font-size: 15px; color: #5d4233; margin-top: 8px; line-height: 1.6; background: #fcf3ea; padding: 12px 16px; border-radius: 20px; }
+        .podium-desc strong { color: #a55f3f; }
+        .score-chart { margin: 30px 0 20px; background: #fffbf8; border-radius: 28px; padding: 20px 20px 14px; }
+        .chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .chart-label { width: 100px; font-weight: 600; color: #4d3425; font-size: 13px; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .chart-bar-bg { flex: 1; height: 18px; background: #f0e4da; border-radius: 40px; overflow: hidden; }
+        .chart-bar { height: 100%; border-radius: 40px; width: 0%; transition: width 0.6s ease; }
+        .chart-score { width: 28px; text-align: right; font-weight: 700; color: #3f281c; font-size: 14px; flex-shrink: 0; }
+        .footer-actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+        .hidden { display: none; }
+        @media (max-width: 500px) {
+            .container { padding: 20px 16px; }
+            .question-text { font-size: 19px; }
+            .option-btn { font-size: 15px; padding: 14px 16px; }
+            .chart-label { width: 80px; font-size: 12px; }
+            .podium-name { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>
+        <span class="paw">🐾</span> 灵魂室友
+    </h1>
+    <div class="subhead">
+        🌱 请根据内心的第一直觉作答，无需过多思虑，答案没有对错。
+    </div>
+
+    <div class="progress-area">
+        <span id="progressText">1 / 40</span>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span id="progressPercent">3%</span>
+    </div>
+
+    <div id="questionArea">
+        <div class="question-box">
+            <div class="question-text" id="questionText">加载题目...</div>
+            <div class="options" id="optionsContainer"></div>
+        </div>
+        <div class="nav-area">
+            <button class="btn btn-secondary" id="prevBtn" disabled>← 上一题</button>
+            <button class="btn btn-primary" id="nextBtn">下一题 →</button>
+        </div>
+    </div>
+
+    <div class="result-page" id="resultArea">
+        <div class="result-title">🏆 你的灵魂室友是...</div>
+        <div class="result-sub">根据你的选择，以下宠物与你的契合度最高：</div>
+        <div id="podiumContainer" class="podium"></div>
+        <div class="score-chart" id="chartContainer"></div>
+        <div class="footer-actions">
+            <button class="btn btn-secondary" onclick="location.reload()">🔄 重新测试</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 动物列表（20种） ----------
+    const ANIMALS = [
+        { id: 'dog', name: '狗', emoji: '🐶', color: '#e07c4f' },
+        { id: 'cat', name: '猫', emoji: '🐱', color: '#7c9eb2' },
+        { id: 'rabbit', name: '兔', emoji: '🐰', color: '#d9a6b0' },
+        { id: 'hamster', name: '仓鼠', emoji: '🐹', color: '#c9a87c' },
+        { id: 'chinchilla', name: '龙猫', emoji: '🐭', color: '#9e8b7a' },
+        { id: 'guineaPig', name: '荷兰猪', emoji: '🐽', color: '#c4a87a' },
+        { id: 'parrot', name: '鹦鹉', emoji: '🦜', color: '#68a87a' },
+        { id: 'goldfish', name: '观赏鱼', emoji: '🐟', color: '#e8b84a' },
+        { id: 'snake', name: '蛇', emoji: '🐍', color: '#5d8a6c' },
+        { id: 'spider', name: '蜘蛛', emoji: '🕷️', color: '#6a4e3a' },
+        { id: 'gecko', name: '守宫', emoji: '🦎', color: '#b58a5a' },
+        { id: 'turtle', name: '乌龟', emoji: '🐢', color: '#5b7a5a' },
+        { id: 'chicken', name: '鸡', emoji: '🐔', color: '#d6a86a' },
+        { id: 'duck', name: '鸭', emoji: '🦆', color: '#b8b87a' },
+        { id: 'pig', name: '小香猪', emoji: '🐷', color: '#e8a8a0' },
+        { id: 'lizard', name: '蜥蜴', emoji: '🦎', color: '#7d9b6a' },
+        { id: 'hedgehog', name: '刺猬', emoji: '🦔', color: '#b8a08a' },
+        { id: 'sugarGlider', name: '蜜袋鼬', emoji: '🐿️', color: '#8a8a9a' },
+        { id: 'ferret', name: '貂', emoji: '🦡', color: '#a08a7a' },
+        { id: 'fox', name: '狐', emoji: '🦊', color: '#d98a5a' }
+    ];
+
+    // ---------- 推荐文案 ----------
+    const DESCRIPTIONS = {
+        dog: { good: '你精力充沛、热爱户外、渴望被需要。🐶 狗是无条件忠诚的伙伴，能陪你跑步、爬山、发呆。', bad: '⚠️ 你需要固定遛狗时间，且不介意掉毛、流口水。' },
+        cat: { good: '你独立、享受安静、喜欢有边界感的陪伴。🐱 猫会和你同步作息，偶尔撒娇但绝不黏人。', bad: '⚠️ 你需忍受家具被抓，且猫生病时花费不低。' },
+        rabbit: { good: '你温柔、细致、喜欢温顺的毛球。🐰 兔安静、能定点如厕，适合公寓饲养。', bad: '⚠️ 兔需要大量干草，且怕热怕湿，寿命约8-12年。' },
+        hamster: { good: '你生活忙碌但想有小生命陪伴。🐹 仓鼠占地小、成本低，夜间活跃，适合晚睡族。', bad: '⚠️ 它白天睡觉，晚上跑轮，且寿命仅2-3年。' },
+        chinchilla: { good: '你爱安静、喜欢毛绒触感，且愿意花时间做清洁。🐭 龙猫软萌、跳跃可爱，寿命长达15年。', bad: '⚠️ 对温度极度敏感（需空调），且爱啃东西，需要大笼子。' },
+        guineaPig: { good: '你友善、爱热闹，喜欢群居互动。🐽 荷兰猪亲人、会叫唤互动，适合家庭饲养。', bad: '⚠️ 必须成对养（否则抑郁），食量较大，排泄物多。' },
+        parrot: { good: '你活泼、爱说话、享受智力挑战。🦜 鹦鹉聪明、会学舌，能玩小把戏，互动感强。', bad: '⚠️ 早起大叫，需要每天放风，且寿命可达20年。' },
+        goldfish: { good: '你偏好观赏性、低维护、不占空间。🐟 观赏鱼是禅意享受，换水喂食即可。', bad: '⚠️ 需要循环过滤系统，定期换水，且鱼病治疗较难。' },
+        snake: { good: '你冷静、独特、喜欢安静且有神秘感的伙伴。🐍 蛇无需遛，喂食频率低，适合喜欢低互动却愿意观察的人。', bad: '⚠️ 需要恒温箱和活食（鼠类），部分人可能害怕。' },
+        spider: { good: '你充满好奇心、喜欢小众事物。🕷️ 蜘蛛饲养简单，占地极小，观察结网捕食充满趣味。', bad: '⚠️ 可能需要喂活虫，且部分人恐蛛。' },
+        gecko: { good: '你细致、喜欢异宠的独特魅力。🦎 守宫可爱、容易上手，花色多样，饲养成本中等。', bad: '⚠️ 需要加热垫和活食（蟋蟀），且对环境湿度有要求。' },
+        turtle: { good: '你沉稳、有耐心，喜欢长情陪伴。🐢 乌龟寿命长，饲养简单，适合喜欢安静的观赏型主人。', bad: '⚠️ 需要大缸和过滤，部分品种冬眠，需提前了解。' },
+        chicken: { good: '你热爱田园生活，喜欢活泼有产出的伙伴。🐔 鸡能提供新鲜鸡蛋，性格亲人，适合有院子的人。', bad: '⚠️ 需要户外空间，粪便有气味，且早晨打鸣。' },
+        duck: { good: '你乐观、喜欢水禽的憨态。🦆 鸭性格温顺，能互动，且会捉虫，适合有水池或大阳台的饲养环境。', bad: '⚠️ 需要大量水活动，排便量大，且叫声洪亮。' },
+        pig: { good: '你聪明、爱笑、喜欢高智商伙伴。🐷 小香猪很聪明，可训练定点如厕，性格粘人，像狗狗一样忠诚。', bad: '⚠️ 会长得较大（虽称小香猪但仍有几十斤），食量惊人，且需要足够活动空间。' },
+        lizard: { good: '你喜欢冷血动物的独特魅力，热爱观察和造景。🦎 蜥蜴需要UVB灯和特定温湿度，食虫或杂食，互动观赏两相宜。', bad: '⚠️ 需专业设备（加热灯、UVB），部分品种需活食，且对温湿度敏感。' },
+        hedgehog: { good: '你安静、细心，喜欢夜行小宠。🦔 刺猬以昆虫和猫粮为主食，互动温和，适合喜欢安静陪伴的人。', bad: '⚠️ 需要保暖设备，夜行性可能与你作息相反，且刺会扎手。' },
+        sugarGlider: { good: '你活泼、爱互动，喜欢会滑翔的小精灵。🐿️ 蜜袋鼬群居、需要攀爬空间和大量互动，食蜜和昆虫。', bad: '⚠️ 需要大笼子和攀爬物，必须成对养，且饮食特殊（需要蜜和蛋白质）。' },
+        ferret: { good: '你好奇心强、爱玩，喜欢聪明调皮的小伙伴。🦡 貂活泼好动，需要大空间和玩具，食肉，互动性极强。', bad: '⚠️ 有异味（需除臭腺），需要大量活动时间，且可能咬人。' },
+        fox: { good: '你独特、大胆，喜欢高智商且带点野性的伙伴。🦊 狐聪明、好奇心强，需要户外空间，互动有趣。', bad: '⚠️ 需要特殊饲养许可，有异味，且需要大空间和丰富环境。' }
+    };
+
+    // ---------- 40道情景题库 ----------
+    const QUESTIONS = [
+        // 1
+        { question: '周末清晨，你醒来后通常会怎么做？',
+          options: [
+              { text: '立刻起床，推开窗户感受新鲜空气，计划一天的外出活动。', animalIndex: 0 },
+              { text: '翻个身继续眯一会儿，享受被窝的舒适，慢慢苏醒。', animalIndex: 1 },
+              { text: '先安静地躺着听听窗外的鸟鸣，再慢慢起身。', animalIndex: 2 },
+              { text: '赖床到最后一刻，直到肚子饿了才不得不起来。', animalIndex: 3 }
+          ] },
+        // 2
+        { question: '朋友临时约你晚上聚餐，你的第一反应是？',
+          options: [
+              { text: '兴奋地答应，并主动提议去哪里吃，顺便张罗其他朋友。', animalIndex: 6 },
+              { text: '有点犹豫，询问还有谁去，再决定是否参加。', animalIndex: 1 },
+              { text: '基本会去，但希望早点结束，回家享受独处。', animalIndex: 4 },
+              { text: '婉拒，因为早已计划好晚上要追剧或看书。', animalIndex: 8 }
+          ] },
+        // 3
+        { question: '你更享受哪种周末午后时光？',
+          options: [
+              { text: '和朋友们在户外野餐、踢球，尽情挥洒汗水。', animalIndex: 0 },
+              { text: '窝在沙发里看一部老电影，手边有零食和热茶。', animalIndex: 1 },
+              { text: '整理房间、给植物浇水，享受整洁带来的平静。', animalIndex: 2 },
+              { text: '在小阳台或窗台上发呆，看着楼下人来人往。', animalIndex: 7 }
+          ] },
+        // 4
+        { question: '当你发现家里的电线被咬坏时，你的第一反应是？',
+          options: [
+              { text: '哭笑不得，心想这又是哪个小捣蛋干的，然后默默修好。', animalIndex: 2 },
+              { text: '有点生气，但觉得是自己没放好，以后会更注意收纳。', animalIndex: 4 },
+              { text: '无奈地叹口气，然后迅速换新，免得影响使用。', animalIndex: 3 },
+              { text: '完全不在意，反正也经常换新，生活就是这样。', animalIndex: 6 }
+          ] },
+        // 5
+        { question: '你对自己居住环境的“气味”有什么要求？',
+          options: [
+              { text: '喜欢自然通风，有淡淡花草香，不太在意动物体味。', animalIndex: 0 },
+              { text: '偏好无味清爽，会经常使用空气清新剂。', animalIndex: 7 },
+              { text: '能接受有生命气息的淡淡味道，只要不太浓烈。', animalIndex: 2 },
+              { text: '无所谓，只要不刺鼻都能适应。', animalIndex: 5 }
+          ] },
+        // 6
+        { question: '你更喜欢哪种互动方式？',
+          options: [
+              { text: '热情拥抱，亲密无间，肢体接触越多越好。', animalIndex: 0 },
+              { text: '偶尔碰碰肩膀，眼神交流，不用太多言语。', animalIndex: 1 },
+              { text: '互相追逐、玩闹，像小孩子一样嬉戏。', animalIndex: 6 },
+              { text: '安静的陪伴，各做各的事，但知道对方在那里。', animalIndex: 4 }
+          ] },
+        // 7
+        { question: '你每天愿意花多少时间打理家务或照顾他人？',
+          options: [
+              { text: '两小时以上，我很享受这种付出。', animalIndex: 0 },
+              { text: '一小时左右，保持基本整洁就好。', animalIndex: 1 },
+              { text: '半小时以内，能省事就省事。', animalIndex: 3 },
+              { text: '时间不固定，看心情和空闲程度。', animalIndex: 5 }
+          ] },
+        // 8
+        { question: '你教别人新技能时，你通常会？',
+          options: [
+              { text: '耐心一遍遍示范，直到对方完全掌握。', animalIndex: 2 },
+              { text: '讲清楚关键点，然后让对方自己尝试。', animalIndex: 4 },
+              { text: '很快说完，然后让对方自己摸索。', animalIndex: 6 },
+              { text: '完全随缘，会就会，不会就算了。', animalIndex: 7 }
+          ] },
+        // 9
+        { question: '你梦想中的家最不可缺少的是什么？',
+          options: [
+              { text: '一个大院子，可以种花种菜，充满生机。', animalIndex: 0 },
+              { text: '一个舒适的客厅，是朋友聚会的中心。', animalIndex: 5 },
+              { text: '一个安静的角落，能摆放我的收藏和书籍。', animalIndex: 4 },
+              { text: '一个明亮的阳台，可以看到远处的风景。', animalIndex: 7 }
+          ] },
+        // 10
+        { question: '你对“聪明”的定义更偏向于？',
+          options: [
+              { text: '能理解我的情绪，给我温暖回应。', animalIndex: 1 },
+              { text: '能通过观察学会新技能，灵活变通。', animalIndex: 6 },
+              { text: '保持好奇心，喜欢探索环境。', animalIndex: 4 },
+              { text: '不惹麻烦，简单听话就好。', animalIndex: 3 }
+          ] },
+        // 11
+        { question: '你睡觉时对声音的耐受度如何？',
+          options: [
+              { text: '几乎不受影响，雷打不动。', animalIndex: 0 },
+              { text: '能忍受轻微响动，但太吵会醒。', animalIndex: 1 },
+              { text: '非常敏感，需要绝对安静环境。', animalIndex: 2 },
+              { text: '习惯用白噪音助眠，不怕背景音。', animalIndex: 6 }
+          ] },
+        // 12
+        { question: '你挑选物品时更看重“实用性”还是“美观性”？',
+          options: [
+              { text: '实用第一，外表其次。', animalIndex: 5 },
+              { text: '美观很重要，最好两者兼备。', animalIndex: 4 },
+              { text: '颜值即正义，好看就有动力。', animalIndex: 7 },
+              { text: '无所谓，顺手就行。', animalIndex: 3 }
+          ] },
+        // 13
+        { question: '你出差或旅行时，最想念家里的哪一点？',
+          options: [
+              { text: '家里的温暖和熟悉的气息，尤其是角落里的某件小物。', animalIndex: 0 },
+              { text: '担心家里的植物或小动物会不会饿着。', animalIndex: 3 },
+              { text: '想念自己的床和枕头，外面的总是睡不惯。', animalIndex: 5 },
+              { text: '其实不太想家，享受新鲜的环境。', animalIndex: 7 }
+          ] },
+        // 14
+        { question: '你更喜欢哪种性格的伙伴？',
+          options: [
+              { text: '偶尔高冷，但关键时刻很可靠。', animalIndex: 1 },
+              { text: '温柔体贴，从不打扰你。', animalIndex: 2 },
+              { text: '热情似火，总想粘着你。', animalIndex: 6 },
+              { text: '独立自主，各忙各的。', animalIndex: 4 }
+          ] },
+        // 15
+        { question: '你对“毛发”或“皮屑”的容忍度如何？',
+          options: [
+              { text: '完全没问题，衣服上沾满也无所谓。', animalIndex: 0 },
+              { text: '可以接受，但希望勤打理。', animalIndex: 1 },
+              { text: '有点介意，但为了喜欢的事物可以克服。', animalIndex: 2 },
+              { text: '非常在意，最好没有毛发脱落。', animalIndex: 7 }
+          ] },
+        // 16
+        { question: '看到自然界中独特的花纹或鳞片，你的第一反应是？',
+          options: [
+              { text: '觉得很美丽，想仔细观察。', animalIndex: 8 },
+              { text: '有点害怕，但忍不住好奇。', animalIndex: 9 },
+              { text: '喜欢这种神秘感，想了解更多。', animalIndex: 10 },
+              { text: '无感，觉得普通。', animalIndex: 11 }
+          ] },
+        // 17
+        { question: '你愿意为“特别”的饮食需求调整自己的习惯吗？',
+          options: [
+              { text: '完全愿意，只要对方健康。', animalIndex: 8 },
+              { text: '可以尝试，但不想太麻烦。', animalIndex: 10 },
+              { text: '只愿意接受简单的饮食调整。', animalIndex: 3 },
+              { text: '不想改变，尽量保持简单。', animalIndex: 7 }
+          ] },
+        // 18
+        { question: '你希望你的小圈子有“产出”或“收获”吗？',
+          options: [
+              { text: '喜欢那种有所得的感觉，比如新鲜蔬菜或蛋。', animalIndex: 12 },
+              { text: '更享受过程，不看重结果。', animalIndex: 13 },
+              { text: '无所谓，只要开心就好。', animalIndex: 14 },
+              { text: '喜欢观赏性，不需要产出。', animalIndex: 7 }
+          ] },
+        // 19
+        { question: '你对“声音环境”的偏好是？',
+          options: [
+              { text: '喜欢热闹，有背景音才不孤单。', animalIndex: 12 },
+              { text: '能接受偶尔的喧嚣，但大部分时间安静。', animalIndex: 13 },
+              { text: '钟爱安静，讨厌噪音。', animalIndex: 11 },
+              { text: '喜欢有节奏的自然音，如雨声、风声。', animalIndex: 6 }
+          ] },
+        // 20
+        { question: '你更愿意花精力布置一个“专属空间”吗？',
+          options: [
+              { text: '非常愿意，甚至享受设计和装饰的过程。', animalIndex: 8 },
+              { text: '可以，但追求简洁实用。', animalIndex: 10 },
+              { text: '不太喜欢，越简单越好。', animalIndex: 3 },
+              { text: '如果是水景或绿植环境，我会很用心。', animalIndex: 11 }
+          ] },
+        // 21
+        { question: '你希望和你一起生活的伙伴与你互动频次如何？',
+          options: [
+              { text: '每天都要深度互动，亲密无间。', animalIndex: 0 },
+              { text: '偶尔互动，但更多是精神陪伴。', animalIndex: 8 },
+              { text: '希望它主动来找我，但我不强求。', animalIndex: 1 },
+              { text: '最好保持距离，各自独立。', animalIndex: 4 }
+          ] },
+        // 22
+        { question: '你更适应“早起鸟”还是“夜猫子”的节奏？',
+          options: [
+              { text: '早起，喜欢清晨的阳光和活力。', animalIndex: 12 },
+              { text: '夜猫子，深夜效率最高。', animalIndex: 3 },
+              { text: '灵活，可以适应不同作息。', animalIndex: 5 },
+              { text: '偏向昼行，但晚上也能活动。', animalIndex: 6 }
+          ] },
+        // 23
+        { question: '你希望陪伴你的伙伴能活多久？',
+          options: [
+              { text: '十几年甚至更久，成为生命中长久的印记。', animalIndex: 0 },
+              { text: '5-10年，足够深的情感联结。', animalIndex: 2 },
+              { text: '1-3年，可以接受短暂的陪伴。', animalIndex: 3 },
+              { text: '希望它寿比南山，几十年陪伴。', animalIndex: 11 }
+          ] },
+        // 24
+        { question: '你愿意接触“活体饲料”吗（如昆虫、小老鼠）？',
+          options: [
+              { text: '完全没压力，甚至觉得有趣。', animalIndex: 9 },
+              { text: '可以接受，但内心有点排斥。', animalIndex: 10 },
+              { text: '绝对不行，只能接受饲料或蔬果。', animalIndex: 2 },
+              { text: '能接受，但希望尽量少碰。', animalIndex: 12 }
+          ] },
+        // 25
+        { question: '你更偏好哪种生活环境的“维度”？',
+          options: [
+              { text: '脚踏实地，喜欢陆地的一切。', animalIndex: 0 },
+              { text: '喜欢水，水中世界优雅神秘。', animalIndex: 7 },
+              { text: '向往天空，自由翱翔的感觉。', animalIndex: 6 },
+              { text: '喜欢攀爬和立体空间。', animalIndex: 8 }
+          ] },
+        // 26
+        { question: '你对待“气味”的敏感度如何？',
+          options: [
+              { text: '不太在意，有生命气息才好。', animalIndex: 0 },
+              { text: '有点在意，但可以勤打扫。', animalIndex: 2 },
+              { text: '非常敏感，必须保持空气清新。', animalIndex: 7 },
+              { text: '能接受，但需保持通风。', animalIndex: 5 }
+          ] },
+        // 27
+        { question: '你愿意为“造景”或“装饰”花费时间吗？',
+          options: [
+              { text: '非常喜欢，会精心设计每个细节。', animalIndex: 8 },
+              { text: '可以，但简洁为主。', animalIndex: 10 },
+              { text: '不喜欢麻烦，实用就行。', animalIndex: 3 },
+              { text: '愿意为水景或绿植花费心思。', animalIndex: 11 }
+          ] },
+        // 28
+        { question: '你更看重事物的“观赏价值”还是“互动价值”？',
+          options: [
+              { text: '观赏价值，美丽本身就是享受。', animalIndex: 7 },
+              { text: '互动价值，有回应才有趣。', animalIndex: 0 },
+              { text: '两者都要，缺一不可。', animalIndex: 6 },
+              { text: '更在意独特性和与众不同。', animalIndex: 9 }
+          ] },
+        // 29
+        { question: '你希望与你同住的伙伴是“独行侠”还是“社交达人”？',
+          options: [
+              { text: '独行侠，只专注于我就好。', animalIndex: 0 },
+              { text: '可以成对，但各自独立。', animalIndex: 2 },
+              { text: '必须成群，否则它会孤单。', animalIndex: 5 },
+              { text: '无所谓，适应性强。', animalIndex: 4 }
+          ] },
+        // 30
+        { question: '你最希望你的生活伴侣带给你什么？',
+          options: [
+              { text: '无条件的爱和支持。', animalIndex: 0 },
+              { text: '平静和放松的氛围。', animalIndex: 1 },
+              { text: '新奇和探索的乐趣。', animalIndex: 8 },
+              { text: '活力和欢笑。', animalIndex: 6 }
+          ] },
+        // 31
+        { question: '你更喜欢哪种“特别”的伴生物？',
+          options: [
+              { text: '能在空中滑翔、轻盈灵活的小家伙。', animalIndex: 17 },
+              { text: '浑身带刺但内心柔软的独特存在。', animalIndex: 16 },
+              { text: '拥有优雅鳞片和冷峻眼神的观赏者。', animalIndex: 15 },
+              { text: '身形修长、动作敏捷的机灵鬼。', animalIndex: 18 }
+          ] },
+        // 32
+        { question: '你愿意为对方的“特殊饮食”做哪些准备？',
+          options: [
+              { text: '愿意准备昆虫和新鲜蔬果，满足它的需要。', animalIndex: 15 },
+              { text: '可以准备昆虫和特制果泥，不算麻烦。', animalIndex: 10 },
+              { text: '愿意调配蜜水并准备水果。', animalIndex: 17 },
+              { text: '会准备优质肉类和动物蛋白。', animalIndex: 18 }
+          ] },
+        // 33
+        { question: '你对室内“气味”的容忍极限是？',
+          options: [
+              { text: '只要有活物气息，轻微体味完全可以接受。', animalIndex: 18 },
+              { text: '可以接受，但必须每天打扫除臭。', animalIndex: 16 },
+              { text: '能容忍，但希望有通风措施。', animalIndex: 19 },
+              { text: '希望完全无味，清新最好。', animalIndex: 7 }
+          ] },
+        // 34
+        { question: '你向往“飞翔”或“滑翔”的感觉吗？',
+          options: [
+              { text: '非常向往，那一定很自由。', animalIndex: 17 },
+              { text: '一般，更喜欢在地面探索。', animalIndex: 15 },
+              { text: '无所谓，但觉得有趣。', animalIndex: 2 },
+              { text: '更喜欢在空中盘旋的感觉。', animalIndex: 6 }
+          ] },
+        // 35
+        { question: '你更喜欢“夜生活”还是“日间活动”？',
+          options: [
+              { text: '夜晚更舒适，可以做很多事。', animalIndex: 16 },
+              { text: '夜晚效率高，正好和我同步。', animalIndex: 17 },
+              { text: '白天活力充沛，夜晚必须休息。', animalIndex: 0 },
+              { text: '两者皆可，适应性强。', animalIndex: 11 }
+          ] },
+        // 36
+        { question: '你愿意为对方准备“恒温设备”吗？',
+          options: [
+              { text: '愿意，为冷血伙伴提供热源和UVB。', animalIndex: 15 },
+              { text: '愿意，为刺猬准备加热垫。', animalIndex: 16 },
+              { text: '愿意，为热带伙伴准备保温灯。', animalIndex: 17 },
+              { text: '不需要，室温就足够。', animalIndex: 3 }
+          ] },
+        // 37
+        { question: '你希望伙伴有“攀爬”或“跳跃”能力吗？',
+          options: [
+              { text: '希望它能垂直攀爬，很酷。', animalIndex: 10 },
+              { text: '希望它能滑翔或跳跃。', animalIndex: 17 },
+              { text: '希望它灵活跳跃，充满活力。', animalIndex: 4 },
+              { text: '无所谓，能走就行。', animalIndex: 14 }
+          ] },
+        // 38
+        { question: '你更倾向于“柔软覆盖”还是“坚硬外壳”的质感？',
+          options: [
+              { text: '鳞片或光滑皮肤，很独特。', animalIndex: 15 },
+              { text: '柔软毛发，温暖舒适。', animalIndex: 0 },
+              { text: '羽毛，轻盈美丽。', animalIndex: 6 },
+              { text: '硬壳，安全可靠。', animalIndex: 11 }
+          ] },
+        // 39
+        { question: '你如何看待“特殊饲养许可”或“限制”？',
+          options: [
+              { text: '愿意办理，为了心仪的伙伴。', animalIndex: 19 },
+              { text: '宁愿选择没有限制的普通品种。', animalIndex: 1 },
+              { text: '不想麻烦，养简单易得的。', animalIndex: 7 },
+              { text: '可以接受，但希望程序简单。', animalIndex: 11 }
+          ] },
+        // 40
+        { question: '你希望伙伴的“智慧”水平如何？',
+          options: [
+              { text: '非常聪明，能理解复杂指令。', animalIndex: 19 },
+              { text: '聪明且调皮，充满惊喜。', animalIndex: 18 },
+              { text: '聪明且忠诚，善解人意。', animalIndex: 0 },
+              { text: '温顺就好，不追求高智商。', animalIndex: 2 }
+          ] }
+    ];
+
+    // ---------- 状态 ----------
+    let currentIndex = 0;
+    const totalQuestions = QUESTIONS.length;
+    const scores = new Array(ANIMALS.length).fill(0);
+    const answers = new Array(totalQuestions).fill(null);
+
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const questionArea = document.getElementById('questionArea');
+    const resultArea = document.getElementById('resultArea');
+    const podiumContainer = document.getElementById('podiumContainer');
+    const chartContainer = document.getElementById('chartContainer');
+
+    function renderQuestion(index) {
+        const q = QUESTIONS[index];
+        questionText.textContent = q.question;
+        optionsContainer.innerHTML = '';
+        const selectedIdx = answers[index];
+
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            if (selectedIdx !== null && i === selectedIdx) {
+                btn.classList.add('selected');
+            }
+            const letter = String.fromCharCode(65 + i);
+            btn.innerHTML = `<span class="letter">${letter}</span> ${opt.text}`;
+            btn.dataset.index = i;
+            btn.addEventListener('click', () => handleOptionClick(index, i));
+            optionsContainer.appendChild(btn);
+        });
+
+        const pct = ((index + 1) / totalQuestions * 100);
+        progressText.textContent = `${index + 1} / ${totalQuestions}`;
+        progressFill.style.width = pct + '%';
+        progressPercent.textContent = Math.round(pct) + '%';
+
+        prevBtn.disabled = (index === 0);
+        nextBtn.disabled = false;
+        if (index === totalQuestions - 1) {
+            nextBtn.textContent = '查看结果 🎉';
+        } else {
+            nextBtn.textContent = '下一题 →';
+        }
+    }
+
+    function handleOptionClick(qIndex, optIndex) {
+        if (answers[qIndex] !== null) {
+            const oldAnimalIdx = QUESTIONS[qIndex].options[answers[qIndex]].animalIndex;
+            scores[oldAnimalIdx] -= 1;
+        }
+        answers[qIndex] = optIndex;
+        const animalIdx = QUESTIONS[qIndex].options[optIndex].animalIndex;
+        scores[animalIdx] += 1;
+
+        renderQuestion(qIndex);
+
+        if (qIndex === totalQuestions - 1) {
+            showResults();
+        } else {
+            currentIndex = qIndex + 1;
+            renderQuestion(currentIndex);
+        }
+    }
+
+    function goToPrev() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion(currentIndex);
+        }
+    }
+
+    function goToNext() {
+        if (answers[currentIndex] === null) {
+            alert('请先选择一个选项再继续哦~');
+            return;
+        }
+        if (currentIndex === totalQuestions - 1) {
+            showResults();
+        } else {
+            currentIndex++;
+            renderQuestion(currentIndex);
+        }
+    }
+
+    function showResults() {
+        questionArea.style.display = 'none';
+        resultArea.style.display = 'block';
+
+        const ranked = ANIMALS.map((animal, idx) => ({
+            ...animal,
+            score: scores[idx],
+            index: idx
+        })).sort((a, b) => b.score - a.score);
+
+        const top3 = ranked.slice(0, 3);
+        const podiumHtml = top3.map((item, rank) => {
+            const rankLabel = rank === 0 ? '🥇 第一名' : rank === 1 ? '🥈 第二名' : '🥉 第三名';
+            const cls = rank === 0 ? 'first' : rank === 1 ? 'second' : 'third';
+            const desc = DESCRIPTIONS[item.id];
+            if (!desc) return '';
+            return `
+                <div class="podium-item ${cls}">
+                    <div class="podium-rank">${rankLabel} · 得分 ${item.score}</div>
+                    <div class="podium-name">${item.emoji} ${item.name}</div>
+                    <div class="podium-desc"><strong>✨ 适合你：</strong>${desc.good}</div>
+                    ${desc.bad ? `<div class="podium-desc" style="margin-top:6px;background:#f5ece4;"><strong>⚠️ 注意：</strong>${desc.bad}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        podiumContainer.innerHTML = podiumHtml;
+
+        const maxScore = Math.max(...scores, 1);
+        const chartRows = ranked.map(item => {
+            const pct = (item.score / maxScore * 100).toFixed(1);
+            return `
+                <div class="chart-row">
+                    <div class="chart-label">${item.emoji} ${item.name}</div>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar" style="width:${pct}%; background:${item.color};"></div>
+                    </div>
+                    <div class="chart-score">${item.score}</div>
+                </div>
+            `;
+        }).join('');
+        chartContainer.innerHTML = `<div style="font-weight:600;color:#4d3425;margin-bottom:12px;">📊 各宠物得分</div>` + chartRows;
+
+        const avg = scores.reduce((a,b)=>a+b,0) / ANIMALS.length;
+        const lowThreshold = avg * 0.5;
+        const lowAnimals = ranked.filter(item => item.score < lowThreshold && item.score > 0);
+        if (lowAnimals.length > 0) {
+            const warn = lowAnimals.map(a => `${a.emoji}${a.name}`).join('、');
+            const warnDiv = document.createElement('div');
+            warnDiv.style.marginTop = '16px';
+            warnDiv.style.padding = '14px 18px';
+            warnDiv.style.background = '#f7e4da';
+            warnDiv.style.borderRadius = '24px';
+            warnDiv.style.color = '#5d3a2a';
+            warnDiv.innerHTML = `💡 <strong>提示：</strong> 你对 ${warn} 的得分较低，可能不太适合养这类宠物哦。`;
+            document.getElementById('podiumContainer').appendChild(warnDiv);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', goToPrev);
+    nextBtn.addEventListener('click', goToNext);
+
+    renderQuestion(0);
+</script>
+</body>
+</html>
