@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐾 灵魂室友 · 20种宠物全面测试</title>
+    <title>🐾 灵魂室友·宠物适性测试</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -106,7 +106,7 @@
 <body>
 <div class="container" id="app">
     <h1>
-        <span class="paw">🐾</span> 灵魂室友
+        <span class="paw">🐾</span> 灵魂室友·宠物适性测试
     </h1>
     <div class="subhead">
         🌱 请根据内心的第一直觉作答，无需过多思虑，答案没有对错。
@@ -615,6 +615,7 @@
             index: idx
         })).sort((a, b) => b.score - a.score);
 
+        // 前三名推荐（不受得分限制，始终显示）
         const top3 = ranked.slice(0, 3);
         const podiumHtml = top3.map((item, rank) => {
             const rankLabel = rank === 0 ? '🥇 第一名' : rank === 1 ? '🥈 第二名' : '🥉 第三名';
@@ -632,21 +633,36 @@
         }).join('');
         podiumContainer.innerHTML = podiumHtml;
 
-        const maxScore = Math.max(...scores, 1);
-        const chartRows = ranked.map(item => {
-            const pct = (item.score / maxScore * 100).toFixed(1);
-            return `
-                <div class="chart-row">
-                    <div class="chart-label">${item.emoji} ${item.name}</div>
-                    <div class="chart-bar-bg">
-                        <div class="chart-bar" style="width:${pct}%; background:${item.color};"></div>
-                    </div>
-                    <div class="chart-score">${item.score}</div>
-                </div>
+        // ---------- 得分图表：只显示得分 ≥ 2 的宠物 ----------
+        const filteredRanked = ranked.filter(item => item.score >= 2);
+        if (filteredRanked.length === 0) {
+            chartContainer.innerHTML = `
+                <div style="font-weight:600;color:#4d3425;margin-bottom:12px;">📊 各宠物得分</div>
+                <p style="color:#6a4c38;text-align:center;padding:20px 0;font-style:italic;">
+                    🌱 目前所有宠物得分均低于2分，或许你更适合云养宠？ 😄
+                </p>
             `;
-        }).join('');
-        chartContainer.innerHTML = `<div style="font-weight:600;color:#4d3425;margin-bottom:12px;">📊 各宠物得分</div>` + chartRows;
+        } else {
+            const maxScore = Math.max(...filteredRanked.map(item => item.score), 1);
+            const chartRows = filteredRanked.map(item => {
+                const pct = (item.score / maxScore * 100).toFixed(1);
+                return `
+                    <div class="chart-row">
+                        <div class="chart-label">${item.emoji} ${item.name}</div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar" style="width:${pct}%; background:${item.color};"></div>
+                        </div>
+                        <div class="chart-score">${item.score}</div>
+                    </div>
+                `;
+            }).join('');
+            chartContainer.innerHTML = `
+                <div style="font-weight:600;color:#4d3425;margin-bottom:12px;">📊 各宠物得分</div>
+                ${chartRows}
+            `;
+        }
 
+        // 低分提示（基于所有得分，但只提示得分低于平均分一半的，保留原功能）
         const avg = scores.reduce((a,b)=>a+b,0) / ANIMALS.length;
         const lowThreshold = avg * 0.5;
         const lowAnimals = ranked.filter(item => item.score < lowThreshold && item.score > 0);
