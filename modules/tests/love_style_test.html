@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>爱情观念与恋爱风格 · 移动优化版</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #fdf2f4 0%, #f8e8ed 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 780px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 40px;
+            padding: 28px 24px 36px;
+            box-shadow: 0 30px 60px rgba(180, 100, 120, 0.18),
+                0 12px 28px rgba(180, 100, 120, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid rgba(210, 150, 170, 0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4a2c38;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #b34a6a, #d4738c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .sub {
+            font-size: 13px;
+            color: #8a6a78;
+            margin-top: 4px;
+            -webkit-text-fill-color: #8a6a78;
+        }
+
+        /* ===== 主页 ===== */
+        #homePage {
+            text-align: center;
+            padding: 20px 0 10px;
+            animation: fadeUp 0.5s ease;
+        }
+
+        #homePage .desc {
+            font-size: 16px;
+            color: #3d2a32;
+            line-height: 1.8;
+            margin: 16px 0 28px;
+            padding: 0 4px;
+        }
+
+        #homePage .desc strong {
+            color: #b34a6a;
+        }
+
+        .btn-start {
+            background: #b34a6a;
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 48px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 28px rgba(179, 74, 106, 0.35);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            touch-action: manipulation;
+            min-height: 60px;
+        }
+
+        .btn-start:active {
+            transform: scale(0.95);
+            background: #9e3d5b;
+        }
+
+        /* ===== 进度条 ===== */
+        .progress-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background: #f0e0e6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #d4738c, #b34a6a);
+            border-radius: 12px;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .progress-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #4a2c38;
+            min-width: 68px;
+            text-align: right;
+        }
+
+        /* ===== 题目卡片 ===== */
+        .question-area {
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .question-area.hidden,
+        .result-page.hidden,
+        #homePage.hidden,
+        .progress-area.hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .q-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: #b34a6a;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .q-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d1c24;
+            line-height: 1.5;
+            margin-bottom: 22px;
+            padding-right: 4px;
+        }
+
+        /* ===== 选项 ===== */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: rgba(255, 247, 249, 0.7);
+            border: 2px solid #f0dce4;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            color: #3d2a32;
+            font-weight: 450;
+            line-height: 1.4;
+            box-shadow: 0 2px 6px rgba(180, 100, 120, 0.04);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 56px;
+            user-select: none;
+        }
+
+        .option-btn:active:not(.selected) {
+            transform: scale(0.97);
+            background: #fceef2;
+        }
+
+        .option-btn .letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #f0dce4;
+            color: #5a3a48;
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn.selected {
+            border-color: #b34a6a;
+            background: #fbeaf0;
+            box-shadow: 0 4px 14px rgba(179, 74, 106, 0.18);
+        }
+
+        .option-btn.selected .letter {
+            background: #b34a6a;
+            color: #fff;
+        }
+
+        .option-btn:active.selected {
+            transform: scale(0.97);
+        }
+
+        /* ===== 底部导航 ===== */
+        .nav-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 18px;
+            border-top: 2px solid rgba(210, 150, 170, 0.15);
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: #f0dce4;
+            color: #5a3a48;
+            min-width: 100px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 48px;
+        }
+
+        .nav-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .nav-btn.primary {
+            background: #b34a6a;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(179, 74, 106, 0.28);
+        }
+
+        .nav-btn.primary:active:not(:disabled) {
+            background: #9e3d5b;
+            transform: scale(0.96);
+        }
+
+        .nav-btn.primary:disabled {
+            background: #c9a0b0;
+            box-shadow: none;
+        }
+
+        /* ===== 结果页 ===== */
+        .result-page {
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4a2c38;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        .result-sub {
+            text-align: center;
+            color: #8a6a78;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* 条形图 */
+        .chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+            background: rgba(255, 247, 249, 0.4);
+            padding: 18px 20px;
+            border-radius: 28px;
+            border: 1px solid rgba(210, 150, 170, 0.15);
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-label {
+            width: 72px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a2c38;
+            flex-shrink: 0;
+        }
+
+        .chart-bar-bg {
+            flex: 1;
+            height: 22px;
+            background: #f0e0e6;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 40px;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .chart-bar-fill.a { background: linear-gradient(90deg, #e89bb0, #d4738c); }
+        .chart-bar-fill.b { background: linear-gradient(90deg, #f5b07a, #e8926a); }
+        .chart-bar-fill.c { background: linear-gradient(90deg, #8fc1b5, #6daa9a); }
+        .chart-bar-fill.d { background: linear-gradient(90deg, #a897c0, #8b78aa); }
+
+        .chart-value {
+            width: 40px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #3d2a32;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* 主要类型标签 */
+        .main-type-badge {
+            display: inline-block;
+            padding: 8px 28px;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 auto 18px;
+            text-align: center;
+            background: #b34a6a;
+            box-shadow: 0 6px 20px rgba(179, 74, 106, 0.25);
+            letter-spacing: 0.5px;
+        }
+
+        .main-type-badge.a { background: linear-gradient(135deg, #d4738c, #b34a6a); }
+        .main-type-badge.b { background: linear-gradient(135deg, #e8926a, #d4784a); }
+        .main-type-badge.c { background: linear-gradient(135deg, #6daa9a, #4d8e7e); }
+        .main-type-badge.d { background: linear-gradient(135deg, #8b78aa, #6d5a8a); }
+
+        /* 解读卡片 */
+        .interpretation {
+            background: rgba(255, 247, 249, 0.5);
+            border-radius: 28px;
+            padding: 20px 22px;
+            border: 1px solid rgba(210, 150, 170, 0.12);
+            margin-top: 6px;
+        }
+
+        .interpretation h3 {
+            font-size: 17px;
+            color: #4a2c38;
+            margin-bottom: 8px;
+        }
+
+        .interpretation h3 span {
+            font-weight: 400;
+            color: #8a6a78;
+            font-size: 14px;
+        }
+
+        .interpretation p {
+            font-size: 15px;
+            color: #3d2a32;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .interpretation .highlight {
+            background: #fbeaf0;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border-left: 4px solid #b34a6a;
+            font-size: 14px;
+            color: #4a2c38;
+            margin-top: 6px;
+        }
+
+        .interpretation .highlight strong {
+            color: #b34a6a;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .result-actions .nav-btn {
+            min-width: 140px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            .container { padding: 20px 16px 28px; border-radius: 32px; }
+            .header h1 { font-size: 20px; }
+            .q-text { font-size: 17px; margin-bottom: 18px; }
+            .option-btn { padding: 14px 16px; font-size: 14px; gap: 12px; border-radius: 16px; min-height: 52px; }
+            .option-btn .letter { width: 30px; height: 30px; font-size: 13px; }
+            .nav-btn { padding: 10px 16px; font-size: 14px; min-width: 80px; min-height: 44px; }
+            .chart { padding: 12px 14px; gap: 10px; }
+            .chart-label { width: 62px; font-size: 12px; }
+            .chart-value { width: 34px; font-size: 13px; }
+            .chart-bar-bg { height: 18px; }
+            .result-title { font-size: 20px; }
+            .interpretation { padding: 14px 16px; }
+            .interpretation p { font-size: 14px; }
+            .main-type-badge { font-size: 16px; padding: 6px 20px; }
+            .btn-start { font-size: 18px; padding: 14px 36px; min-height: 54px; }
+            #homePage .desc { font-size: 15px; }
+        }
+
+        @media (max-width: 420px) {
+            .container { padding: 16px 12px 20px; border-radius: 24px; }
+            .q-text { font-size: 15px; }
+            .option-btn { font-size: 13px; padding: 12px 12px; gap: 10px; min-height: 46px; border-radius: 14px; }
+            .option-btn .letter { width: 26px; height: 26px; font-size: 12px; }
+            .nav-btn { font-size: 12px; padding: 8px 12px; min-width: 64px; min-height: 40px; }
+            .progress-text { font-size: 13px; min-width: 56px; }
+            .chart-label { width: 54px; font-size: 11px; }
+            .chart-value { width: 30px; font-size: 12px; }
+            .chart-bar-bg { height: 16px; }
+            .result-title { font-size: 18px; }
+            .btn-start { font-size: 16px; padding: 12px 28px; min-height: 48px; }
+            #homePage .desc { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+
+        <!-- 头部 -->
+        <div class="header">
+            <h1>❤️ 爱情观念与恋爱风格</h1>
+            <div class="sub">30 题 · 约 12 分钟 · 了解你的亲密关系模式</div>
+        </div>
+
+        <!-- ===== 主页 ===== -->
+        <div id="homePage">
+            <div class="desc">
+                <strong>欢迎参加本次心理测试</strong><br /><br />
+                本测试基于爱情色彩理论与依恋理论，通过 30 道情境式选择题，<br />
+                帮助您深入了解自己在亲密关系中的 <strong>行为模式</strong>、<strong>核心需求</strong> 与 <strong>潜在盲点</strong>。<br /><br />
+                请根据真实感受选择最符合自己的选项，<strong>答案无对错</strong>，只需凭直觉作答。<br />
+                测试结束后将为您生成详细的个人风格解析与成长建议。
+            </div>
+            <button class="btn-start" id="startBtn">开始测试 →</button>
+        </div>
+
+        <!-- ===== 进度条 ===== -->
+        <div class="progress-area hidden" id="progressArea">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">1 / 30</div>
+        </div>
+
+        <!-- ===== 题目区 ===== -->
+        <div class="question-area hidden" id="questionArea">
+            <div class="q-number" id="qNumber">第 1 题</div>
+            <div class="q-text" id="qText">加载题目...</div>
+            <div class="options" id="optionsContainer"></div>
+
+            <div class="nav-area">
+                <button class="nav-btn" id="prevBtn" disabled>上一题</button>
+                <button class="nav-btn primary" id="nextBtn">下一题</button>
+            </div>
+        </div>
+
+        <!-- ===== 结果区 ===== -->
+        <div class="result-page hidden" id="resultPage">
+            <div class="result-title">✨ 你的爱情风格解析</div>
+            <div class="result-sub">基于你的选择，以下是你在四个维度上的倾向</div>
+
+            <div class="chart" id="chartContainer"></div>
+
+            <div style="text-align:center;">
+                <div class="main-type-badge" id="mainTypeBadge">—</div>
+            </div>
+
+            <div class="interpretation" id="interpretationContainer"></div>
+
+            <div class="result-actions">
+                <button class="nav-btn" id="restartBtn">🔄 重新测试</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        //  1. 题目数据（30 题，四个维度均衡分布）
+        // ================================================================
+        const QUESTIONS = [{
+            id: 1,
+            text: '当你对某人产生好感时，你通常会：',
+            options: [
+                { text: '默默观察，分析我们是否合适，很难主动出击。', type: 'A' },
+                { text: '感觉自己被强烈的化学反应和直觉「击中」，难以自拔。', type: 'B' },
+                { text: '先尝试和对方成为朋友，从日常相处中慢慢培养感觉。', type: 'C' },
+                { text: '会考虑对方的家世、学历、职业前景是否与我的规划匹配。', type: 'D' }
+            ]
+        }, {
+            id: 2,
+            text: '你认为最理想的相识方式是：',
+            options: [
+                { text: '通过工作或学习中的长期合作，逐渐发现彼此的闪光点。', type: 'A' },
+                { text: '一见钟情，在某个充满激情的场合（如音乐节、旅途）突然相遇。', type: 'B' },
+                { text: '通过共同的朋友圈子自然认识，有相似的生活轨迹。', type: 'C' },
+                { text: '通过目的明确的相亲或婚恋网站，优先筛选硬性条件。', type: 'D' }
+            ]
+        }, {
+            id: 3,
+            text: '在确定关系前，你一般会：',
+            options: [
+                { text: '非常谨慎，需要确认对方是「安全可靠」的，会反复测试对方是否真心。', type: 'A' },
+                { text: '跟着感觉走，如果感觉对了，不在乎外界看法，会很快投入。', type: 'B' },
+                { text: '顺其自然，不强求，相信如果有缘分自然会在一起。', type: 'C' },
+                { text: '做一个详细的对比分析，权衡利弊后再做决定。', type: 'D' }
+            ]
+        }, {
+            id: 4,
+            text: '周末你们没有特别安排，你会倾向于：',
+            options: [
+                { text: '提前规划好一个具体的时间表，享受有序的共处。', type: 'A' },
+                { text: '心血来潮，拉上伴侣去尝试新鲜刺激的事情（如跳伞、新开的密室）。', type: 'B' },
+                { text: '宅在家里各做各的事，偶尔闲聊两句，享受平静的陪伴感。', type: 'C' },
+                { text: '讨论一下这周谁做的家务多，是否应该调整一下家庭贡献值。', type: 'D' }
+            ]
+        }, {
+            id: 5,
+            text: '当你遇到巨大的工作压力时，你第一反应是：',
+            options: [
+                { text: '需要伴侣给我一个拥抱和安慰，帮我平复情绪。', type: 'A' },
+                { text: '把自己关起来处理完情绪，不想把负能量传递给伴侣。', type: 'B' },
+                { text: '把烦恼讲给伴侣听，虽然不指望TA能解决，但说出来就好多了。', type: 'C' },
+                { text: '希望伴侣能帮我分析现状，或者干脆给我介绍个资源解决问题。', type: 'D' }
+            ]
+        }, {
+            id: 6,
+            text: '你们因为小事发生争执，你通常会：',
+            options: [
+                { text: '非常焦虑，急于修复关系，甚至愿意牺牲自己的立场来换取和平。', type: 'A' },
+                { text: '情绪激动，声音变大，希望把心里憋着的话全部倒出来争个对错。', type: 'B' },
+                { text: '选择冷处理，先各自冷静一下，等情绪过去了再慢慢聊。', type: 'C' },
+                { text: '认为争吵是低效的，列出1、2、3点逻辑去说服对方。', type: 'D' }
+            ]
+        }, {
+            id: 7,
+            text: '关于「我爱你」这三个字，你觉得：',
+            options: [
+                { text: '不太容易说出口，因为我觉得行动比承诺更重要，说出来就要负责。', type: 'A' },
+                { text: '是感受当下的心情，爱的时候要说，不爱了就是不爱了。', type: 'B' },
+                { text: '是感情的稳定基石，说出口意味着我愿意接纳你的全部缺点。', type: 'C' },
+                { text: '是建立家庭和长期利益共同体的开始，不仅是对人，也是对未来的承诺。', type: 'D' }
+            ]
+        }, {
+            id: 8,
+            text: '看到伴侣和异性单独吃饭，你的内心活动是：',
+            options: [
+                { text: '极度不安，会忍不住一直发消息询问，或者事后查手机。', type: 'A' },
+                { text: '虽然有点醋意，但反而觉得这增加了征服欲和刺激感。', type: 'B' },
+                { text: '给予完全信任，除非伴侣亲口承认，否则不会多想。', type: 'C' },
+                { text: '会委婉地提醒伴侣注意边界感，因为这涉及到我们共同的社交形象。', type: 'D' }
+            ]
+        }, {
+            id: 9,
+            text: '你对亲密关系中「个人空间」的看法是：',
+            options: [
+                { text: '我希望两个人越紧密越好，最好形影不离，留空间意味着疏远。', type: 'A' },
+                { text: '我需要绝对自由，如果感到被束缚我会想逃离这段关系。', type: 'B' },
+                { text: '需要一定的独立空间来做自己的事，但也知道家永远是港湾。', type: 'C' },
+                { text: '只要不影响共同的生活计划和目标，个人空间可以协商分配。', type: 'D' }
+            ]
+        }, {
+            id: 10,
+            text: '当和伴侣规划未来3年的生活时，你最看重的因素是：',
+            options: [
+                { text: '是否有一个安稳的住所和和谐的家庭氛围。', type: 'A' },
+                { text: '生活是否会有趣，我们能否一起去不同的地方旅行和生活。', type: 'B' },
+                { text: '我们是否依然能像朋友一样无话不谈，彼此理解。', type: 'C' },
+                { text: '我们的收入和资产是否有明显增长，社会阶层是否提升。', type: 'D' }
+            ]
+        }, {
+            id: 11,
+            text: '如果这段感情最终结束了，你认为最可能的原因是：',
+            options: [
+                { text: '我感受不到足够的安全感，觉得对方随时会抛弃我。', type: 'A' },
+                { text: '激情褪去，变得太无聊，就像温水煮青蛙。', type: 'B' },
+                { text: '价值观出现巨大分歧，我们成长为了不同世界的人。', type: 'C' },
+                { text: '在一方的事业或财务上出现了不可调和的冲突。', type: 'D' }
+            ]
+        }, {
+            id: 12,
+            text: '你认为恋爱和婚姻的关系是：',
+            options: [
+                { text: '恋爱是婚姻的前奏，恋爱必须以结婚为最终目的。', type: 'A' },
+                { text: '恋爱是自由的探索，婚姻是世俗的枷锁，尽量延迟或拒绝。', type: 'B' },
+                { text: '恋爱是更深层友谊的延伸，婚姻只是法律形式，不影响本质。', type: 'C' },
+                { text: '婚姻是强强联合的契约，需要像经营公司一样认真对待。', type: 'D' }
+            ]
+        }, {
+            id: 13,
+            text: '在感情中，你最害怕的是：',
+            options: [
+                { text: '被抛弃，失去那个最重要的人。', type: 'A' },
+                { text: '失去新鲜感，关系变得平淡如水。', type: 'B' },
+                { text: '被误解，对方根本不理解我的内心。', type: 'C' },
+                { text: '目标不一致，两个人朝着不同的方向前进。', type: 'D' }
+            ]
+        }, {
+            id: 14,
+            text: '你更喜欢伴侣用哪种方式表达爱意：',
+            options: [
+                { text: '陪伴和拥抱，让我感受到被珍视。', type: 'A' },
+                { text: '惊喜和浪漫，让每一天都充满期待。', type: 'B' },
+                { text: '日常的关心，润物细无声的温柔。', type: 'C' },
+                { text: '实际的帮助，在我需要时提供有力的支持。', type: 'D' }
+            ]
+        }, {
+            id: 15,
+            text: '当伴侣情绪低落时，你通常会：',
+            options: [
+                { text: '焦虑不安，想尽一切办法让TA快点好起来。', type: 'A' },
+                { text: '想办法逗TA开心，带TA去做一些有趣的事情。', type: 'B' },
+                { text: '静静陪着，给TA一个安全的空间去释放情绪。', type: 'C' },
+                { text: '帮TA分析原因，找出解决问题的最佳路径。', type: 'D' }
+            ]
+        }, {
+            id: 16,
+            text: '你如何看待前任：',
+            options: [
+                { text: '难以忘怀，总觉得那段感情还没有真正结束。', type: 'A' },
+                { text: '过去了就过去了，不值得再浪费任何情绪。', type: 'B' },
+                { text: '可以做朋友，毕竟曾经是最了解彼此的人。', type: 'C' },
+                { text: '是人生的教训，让我更清楚自己要什么。', type: 'D' }
+            ]
+        }, {
+            id: 17,
+            text: '在社交场合，你希望伴侣：',
+            options: [
+                { text: '时刻陪在你身边，让你有安全感。', type: 'A' },
+                { text: '自由社交，你们各自享受自己的圈子。', type: 'B' },
+                { text: '自然融入你的圈子，和朋友打成一片。', type: 'C' },
+                { text: '得体大方，展现出良好的形象和修养。', type: 'D' }
+            ]
+        }, {
+            id: 18,
+            text: '关于财务问题，你倾向于：',
+            options: [
+                { text: '共同管理，两个人的钱放在一起，不分彼此。', type: 'A' },
+                { text: '各管各的，保持经济上的独立和自由。', type: 'B' },
+                { text: '按需分配，谁需要谁就用，不斤斤计较。', type: 'C' },
+                { text: '严格规划，每一笔支出都有明确的预算和用途。', type: 'D' }
+            ]
+        }, {
+            id: 19,
+            text: '你更看重伴侣的哪种品质：',
+            options: [
+                { text: '忠诚可靠，让我能安心托付。', type: 'A' },
+                { text: '有趣灵魂，能带给我源源不断的快乐。', type: 'B' },
+                { text: '善解人意，能读懂我的情绪和需求。', type: 'C' },
+                { text: '上进心，有清晰的目标和执行力。', type: 'D' }
+            ]
+        }, {
+            id: 20,
+            text: '如果伴侣忘记重要纪念日，你会：',
+            options: [
+                { text: '非常伤心，觉得TA不够在乎我。', type: 'A' },
+                { text: '有点失落但无所谓，我自己也不一定记得。', type: 'B' },
+                { text: '理解TA太忙，不会放在心上。', type: 'C' },
+                { text: '理性沟通提醒，并一起规划下一次的庆祝方式。', type: 'D' }
+            ]
+        }, {
+            id: 21,
+            text: '你理想中的约会方式是：',
+            options: [
+                { text: '安静宅家，一起做饭看电影。', type: 'A' },
+                { text: '冒险旅行，去探索未知的地方。', type: 'B' },
+                { text: '朋友聚会，热闹又温馨的集体活动。', type: 'C' },
+                { text: '高雅餐厅，享受精致的食物和氛围。', type: 'D' }
+            ]
+        }, {
+            id: 22,
+            text: '你如何定义「灵魂伴侣」：',
+            options: [
+                { text: '永远不离开我的人，给我无条件的陪伴。', type: 'A' },
+                { text: '让我心跳加速的人，点燃我生命中的火焰。', type: 'B' },
+                { text: '最懂我的人，无需多言便能心意相通。', type: 'C' },
+                { text: '与我并肩前行的人，共同追逐更高的目标。', type: 'D' }
+            ]
+        }, {
+            id: 23,
+            text: '面对伴侣的缺点，你通常：',
+            options: [
+                { text: '试图改变TA，因为爱TA所以希望TA变得更好。', type: 'A' },
+                { text: '选择性忽视，毕竟人无完人，开心就好。', type: 'B' },
+                { text: '全盘接纳，爱一个人就要爱TA的全部。', type: 'C' },
+                { text: '评估是否影响未来，如果不影响则可以包容。', type: 'D' }
+            ]
+        }, {
+            id: 24,
+            text: '你更倾向于哪种沟通方式：',
+            options: [
+                { text: '感性表达，用情感和直觉去传递心意。', type: 'A' },
+                { text: '直接坦白，有话直说，不绕弯子。', type: 'B' },
+                { text: '委婉暗示，不希望伤害对方的感受。', type: 'C' },
+                { text: '逻辑分析，用数据和事实来阐述观点。', type: 'D' }
+            ]
+        }, {
+            id: 25,
+            text: '你如何看待异地恋：',
+            options: [
+                { text: '太痛苦了，难以接受，距离会摧毁一切。', type: 'A' },
+                { text: '只要有爱就可以，距离反而增添思念的美感。', type: 'B' },
+                { text: '需要信任和空间，但也要有明确的见面计划。', type: 'C' },
+                { text: '不现实，需要有明确的时间表和最终的落脚点。', type: 'D' }
+            ]
+        }, {
+            id: 26,
+            text: '在感情中，你的底线是：',
+            options: [
+                { text: '欺骗和背叛，这是绝对无法原谅的。', type: 'A' },
+                { text: '无聊和平淡，没有激情的关系等于死亡。', type: 'B' },
+                { text: '不尊重和不理解，无法沟通的孤独感。', type: 'C' },
+                { text: '拖累和不上进，阻碍彼此成长为更好的自己。', type: 'D' }
+            ]
+        }, {
+            id: 27,
+            text: '你更享受哪种亲密时刻：',
+            options: [
+                { text: '拥抱依偎，肌肤之亲带来的温暖和安心。', type: 'A' },
+                { text: '激情缠绵，充满张力和火花的交融。', type: 'B' },
+                { text: '日常陪伴，一起做饭、散步的平凡时光。', type: 'C' },
+                { text: '深度对话，灵魂层面的交流和碰撞。', type: 'D' }
+            ]
+        }, {
+            id: 28,
+            text: '你如何应对外界的反对意见（家人/朋友不看好你们）：',
+            options: [
+                { text: '非常焦虑，会反复思考是不是真的有问题。', type: 'A' },
+                { text: '坚持自我，完全不在乎别人的看法。', type: 'B' },
+                { text: '寻求和解，试图让所有人理解和接受。', type: 'C' },
+                { text: '理性分析，客观评估他们的意见是否有道理。', type: 'D' }
+            ]
+        }, {
+            id: 29,
+            text: '你理想中的晚年生活是：',
+            options: [
+                { text: '儿孙绕膝，享受天伦之乐和家庭的温暖。', type: 'A' },
+                { text: '环游世界，和伴侣一起看遍山川湖海。', type: 'B' },
+                { text: '老友相伴，和志同道合的人一起喝茶聊天。', type: 'C' },
+                { text: '安逸富足，有足够的物质保障安享晚年。', type: 'D' }
+            ]
+        }, {
+            id: 30,
+            text: '对「爱情」最简洁的理解是：',
+            options: [
+                { text: '归宿 —— 一个永远为我亮着灯的家。', type: 'A' },
+                { text: '火焰 —— 燃烧生命的热烈与绚烂。', type: 'B' },
+                { text: '清风 —— 自然而然，温柔且自由。', type: 'C' },
+                { text: '契约 —— 彼此承诺，共同经营的人生合伙。', type: 'D' }
+            ]
+        }];
+
+        // ================================================================
+        //  2. 类型解读数据
+        // ================================================================
+        const TYPE_INFO = {
+            A: {
+                label: '依赖 / 安全导向型',
+                emoji: '🛡️',
+                color: 'a',
+                desc: '你把爱情看作是「避风港」和「救命稻草」。你在感情中容易过度付出，特别害怕被抛弃。你需要非常明确的、持续的情感回应来确认自己被爱着。',
+                style: '你会非常体贴和细心，但有时会让对方感到窒息。你容易在关系中失去自我，把对方的情绪当作自己的晴雨表。',
+                advice: '学会自我安抚。爱情不是氧气，你本身就是完整的个体。练习在对方没有及时回复时，依然能专注自己的生活。试着把 50% 的注意力收回到自己身上。',
+                quote: '「真正的安全感，来自于你相信自己的价值，而不依赖于任何人的不离不弃。」'
+            },
+            B: {
+                label: '激情 / 浪漫导向型',
+                emoji: '🔥',
+                color: 'b',
+                desc: '你把爱情看作一场「华丽的冒险」和「灵感来源」。你最看重心跳加速的感觉，极其厌恶平淡。你爱上的可能不是真实的对方，而是「恋爱」这件事本身带来的戏剧感。',
+                style: '你极具魅力且浪漫，擅长制造惊喜，但进入关系快，抽离也快。一旦发现对方有现实中的瑕疵，或者关系归于柴米油盐，你会感到失望和无聊。',
+                advice: '区分幻想与现实。试着去欣赏平淡日子里的微光。真正的爱不是烟花刹那，而是烛火长明。给自己和对方多一点时间去沉淀，把激情转化为更持久的亲密。',
+                quote: '「爱不是寻找一个完美的人，而是学会用完美的眼光，欣赏那个不完美的人。」'
+            },
+            C: {
+                label: '友谊 / 平和导向型',
+                emoji: '🌿',
+                color: 'c',
+                desc: '你把爱情视为「最高形式的友谊」。你认为爱人首先应该是最懂你的朋友。你不喜欢轰轰烈烈，更欣赏细水长流和灵魂共鸣。',
+                style: '你是最稳定、最包容的伴侣。你不会过度索取情绪价值，也不会有强烈的控制欲。但缺点是容易过于被动，缺乏激情，有时会让伴侣觉得你「不够爱」或「没有占有欲」。',
+                advice: '注入一点热情。爱情需要一点排他性和仪式感。试着主动制造一些浪漫时刻，不要害怕表达强烈的渴望。告诉对方：「我需要你，不仅仅是作为朋友。」',
+                quote: '「爱是深深的理解和接纳，是在平凡的日子里，依然选择彼此。」'
+            },
+            D: {
+                label: '现实 / 契约导向型',
+                emoji: '📐',
+                color: 'd',
+                desc: '你把爱情看作是「人生合伙经营」。你极度理性，认为没有面包的爱情是一盘散沙。你擅长评估风险，希望通过关系实现 1+1 > 2 的价值。',
+                style: '你在关系中很有责任心，会规划好未来蓝图，提供坚实的物质保障。但容易显得冷漠、算计，缺少温情的流动，让伴侣感受不到「无条件的接纳」。',
+                advice: '允许关系「不实用」。试着放下利弊得失，去倾听那些「无用」的情绪。爱不仅仅是解决问题，更是感同身受。试着给伴侣一个大大的、没有理由的拥抱。',
+                quote: '「爱是理性的选择，也是感性的奔赴。最好的关系，是棋逢对手，也是相拥而泣。」'
+            }
+        };
+
+        // ================================================================
+        //  3. 应用状态
+        // ================================================================
+        const state = {
+            current: 0,
+            answers: new Array(30).fill(null),
+            scores: { A: 0, B: 0, C: 0, D: 0 },
+            isFinished: false
+        };
+
+        // ================================================================
+        //  4. DOM 引用
+        // ================================================================
+        const $ = (id) => document.getElementById(id);
+        const homePage = $('homePage');
+        const startBtn = $('startBtn');
+        const progressArea = $('progressArea');
+        const progressFill = $('progressFill');
+        const progressText = $('progressText');
+        const questionArea = $('questionArea');
+        const qNumber = $('qNumber');
+        const qText = $('qText');
+        const optionsContainer = $('optionsContainer');
+        const prevBtn = $('prevBtn');
+        const nextBtn = $('nextBtn');
+        const resultPage = $('resultPage');
+        const chartContainer = $('chartContainer');
+        const mainTypeBadge = $('mainTypeBadge');
+        const interpretationContainer = $('interpretationContainer');
+        const restartBtn = $('restartBtn');
+
+        // ================================================================
+        //  5. 页面切换控制
+        // ================================================================
+        function showHome() {
+            homePage.classList.remove('hidden');
+            progressArea.classList.add('hidden');
+            questionArea.classList.add('hidden');
+            resultPage.classList.add('hidden');
+        }
+
+        function showTest() {
+            homePage.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            questionArea.classList.remove('hidden');
+            resultPage.classList.add('hidden');
+        }
+
+        function showResult() {
+            homePage.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            questionArea.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+            progressFill.style.width = '100%';
+            progressText.textContent = '完成 ✓';
+        }
+
+        // ================================================================
+        //  6. 渲染函数
+        // ================================================================
+        function renderQuestion(index) {
+            const q = QUESTIONS[index];
+            qNumber.textContent = `第 ${index + 1} 题`;
+            qText.textContent = q.text;
+
+            const letters = ['A', 'B', 'C', 'D'];
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                if (state.answers[index] === opt.type) {
+                    btn.classList.add('selected');
+                }
+                btn.innerHTML = `
+                    <span class="letter">${letters[i]}</span>
+                    <span>${opt.text}</span>
+                `;
+                btn.dataset.type = opt.type;
+                btn.addEventListener('click', () => selectOption(index, opt.type));
+                optionsContainer.appendChild(btn);
+            });
+
+            const total = QUESTIONS.length;
+            const pct = ((index + 1) / total) * 100;
+            progressFill.style.width = pct + '%';
+            progressText.textContent = `${index + 1} / ${total}`;
+
+            prevBtn.disabled = index === 0;
+            // 下一题按钮永远可用（但自动跳转已生效，保留手动功能）
+            nextBtn.disabled = false;
+            // 如果是最后一题，改变文字
+            if (index === total - 1) {
+                nextBtn.textContent = '查看结果';
+                // 如果最后一题已选，点击可查看结果，否则提示
+            } else {
+                nextBtn.textContent = '下一题';
+            }
+        }
+
+        function selectOption(index, type) {
+            // 如果已经选中该选项，则取消选中（不跳转）
+            if (state.answers[index] === type) {
+                state.answers[index] = null;
+                recalcScores();
+                renderQuestion(index);
+                return;
+            }
+
+            // 否则选中新选项
+            state.answers[index] = type;
+            recalcScores();
+            renderQuestion(index);
+
+            // 自动跳转：如果当前不是最后一题，跳转到下一题；如果是最后一题，自动显示结果
+            const total = QUESTIONS.length;
+            if (index === total - 1) {
+                // 最后一题选完自动显示结果
+                renderResult();
+            } else {
+                // 自动跳转到下一题
+                goTo(index + 1);
+            }
+        }
+
+        function recalcScores() {
+            state.scores = { A: 0, B: 0, C: 0, D: 0 };
+            state.answers.forEach((ans) => {
+                if (ans && state.scores.hasOwnProperty(ans)) {
+                    state.scores[ans] += 1;
+                }
+            });
+        }
+
+        // ================================================================
+        //  7. 结果渲染
+        // ================================================================
+        function renderResult() {
+            const scores = state.scores;
+            const total = QUESTIONS.length;
+            const pcts = {
+                A: Math.round((scores.A / total) * 100),
+                B: Math.round((scores.B / total) * 100),
+                C: Math.round((scores.C / total) * 100),
+                D: Math.round((scores.D / total) * 100)
+            };
+
+            let maxType = 'A';
+            let maxVal = scores.A;
+            for (const [key, val] of Object.entries(scores)) {
+                if (val > maxVal) { maxVal = val;
+                    maxType = key; }
+            }
+            const mainType = maxType;
+            const info = TYPE_INFO[mainType];
+
+            const labels = {
+                A: '依赖·安全',
+                B: '激情·浪漫',
+                C: '友谊·平和',
+                D: '现实·契约'
+            };
+            const colors = {
+                A: 'a',
+                B: 'b',
+                C: 'c',
+                D: 'd'
+            };
+            chartContainer.innerHTML = '';
+            for (const [key, label] of Object.entries(labels)) {
+                const pct = pcts[key];
+                const row = document.createElement('div');
+                row.className = 'chart-row';
+                row.innerHTML = `
+                    <span class="chart-label">${label}</span>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar-fill ${colors[key]}" style="width: ${pct}%;"></div>
+                    </div>
+                    <span class="chart-value">${pct}%</span>
+                `;
+                chartContainer.appendChild(row);
+            }
+
+            mainTypeBadge.textContent = `${info.emoji} ${info.label}`;
+            mainTypeBadge.className = `main-type-badge ${info.color}`;
+
+            interpretationContainer.innerHTML = `
+                <h3>${info.emoji} ${info.label} <span>· 你的主导风格</span></h3>
+                <p><strong>💡 你的爱情观：</strong>${info.desc}</p>
+                <p><strong>💞 你的恋爱方式：</strong>${info.style}</p>
+                <div class="highlight">
+                    <strong>🌱 成长建议：</strong>${info.advice}
+                </div>
+                <p style="margin-top:14px; font-style:italic; color:#6a4a58;">“${info.quote}”</p>
+                <p style="margin-top:16px; font-size:14px; color:#8a6a78; border-top:1px solid rgba(210,150,170,0.2); padding-top:14px;">
+                    📊 你的得分分布：<br>
+                    🛡️ 依赖·安全 ${scores.A} 题 &nbsp;|&nbsp; 🔥 激情·浪漫 ${scores.B} 题 &nbsp;|&nbsp; 
+                    🌿 友谊·平和 ${scores.C} 题 &nbsp;|&nbsp; 📐 现实·契约 ${scores.D} 题
+                </p>
+                <p style="font-size:13px; color:#a0808e; margin-top:6px;">
+                    ⚡ 真正的成熟之爱，是在安全感、激情、友谊和责任之间找到动态平衡。
+                </p>
+            `;
+
+            showResult();
+            state.isFinished = true;
+        }
+
+        // ================================================================
+        //  8. 导航事件
+        // ================================================================
+        function goTo(index) {
+            if (index < 0 || index >= QUESTIONS.length) return;
+            state.current = index;
+            renderQuestion(index);
+            questionArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function goNext() {
+            const cur = state.current;
+            const total = QUESTIONS.length;
+            if (cur === total - 1) {
+                // 最后一题：如果已选则显示结果，否则提示
+                if (state.answers[cur] !== null) {
+                    renderResult();
+                } else {
+                    // 简单提示用户选择
+                    alert('请先选择当前题目的选项。');
+                }
+                return;
+            }
+            goTo(cur + 1);
+        }
+
+        function goPrev() {
+            if (state.current > 0) {
+                goTo(state.current - 1);
+            }
+        }
+
+        function resetAndGoHome() {
+            state.current = 0;
+            state.answers = new Array(30).fill(null);
+            state.scores = { A: 0, B: 0, C: 0, D: 0 };
+            state.isFinished = false;
+            showHome();
+            // 重置进度条
+            progressFill.style.width = '0%';
+            progressText.textContent = '0 / 30';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startTest() {
+            // 重置状态（如果之前有残留）
+            state.answers = new Array(30).fill(null);
+            state.scores = { A: 0, B: 0, C: 0, D: 0 };
+            state.current = 0;
+            state.isFinished = false;
+            showTest();
+            renderQuestion(0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================================================================
+        //  9. 绑定事件 & 初始化
+        // ================================================================
+        startBtn.addEventListener('click', startTest);
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+        restartBtn.addEventListener('click', resetAndGoHome);
+
+        // 键盘支持（桌面辅助）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (!nextBtn.disabled) goNext();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (!prevBtn.disabled) goPrev();
+            }
+            if (e.key >= '1' && e.key <= '4') {
+                const idx = parseInt(e.key) - 1;
+                const currentQ = QUESTIONS[state.current];
+                if (currentQ && currentQ.options[idx]) {
+                    const type = currentQ.options[idx].type;
+                    selectOption(state.current, type);
+                }
+            }
+        });
+
+        // 初始显示主页
+        showHome();
+    </script>
+</body>
+</html>
