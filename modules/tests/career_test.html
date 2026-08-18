@@ -337,7 +337,7 @@
             margin-bottom: 24px;
         }
 
-        /* ===== 新增：最终结论核心卡片 ===== */
+        /* ===== 最终结论核心卡片 ===== */
         .final-verdict {
             background: linear-gradient(135deg, #EEF3FF, #FFFFFF);
             border: 2px solid var(--primary-light);
@@ -383,33 +383,7 @@
             font-weight: 700;
         }
 
-        .result-code {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-        }
-        .result-code .code-letter {
-            font-size: 34px;
-            font-weight: 800;
-            width: 64px;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            background: var(--bg);
-            color: var(--primary);
-            border: 2px solid var(--primary-light);
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.08);
-        }
-        .result-code .code-letter.high {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #fff;
-            border-color: transparent;
-        }
-
+        /* ===== 图表 ===== */
         .chart-wrap {
             background: var(--bg);
             border-radius: var(--radius-sm);
@@ -475,6 +449,7 @@
             flex-shrink: 0;
         }
 
+        /* ===== 详细维度卡片 ===== */
         .result-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -646,12 +621,6 @@
                 font-size: 15px;
                 padding: 10px 12px;
             }
-            .result-code .code-letter {
-                width: 56px;
-                height: 56px;
-                font-size: 28px;
-                border-radius: 14px;
-            }
             .chart-wrap {
                 padding: 16px 12px 12px;
             }
@@ -709,11 +678,6 @@
             }
             .q-text {
                 font-size: 15px;
-            }
-            .result-code .code-letter {
-                width: 48px;
-                height: 48px;
-                font-size: 22px;
             }
             .chart-label {
                 width: 24px;
@@ -805,14 +769,14 @@
             <h2>📊 你的测试结果</h2>
             <p class="result-sub">以下是你六个维度的兴趣倾向得分</p>
 
-            <!-- ★★★ 最终结论核心卡片 ★★★ -->
+            <!-- ★★★ 最终结论核心卡片（含大号兴趣代码） ★★★ -->
             <div class="final-verdict" id="finalVerdict">
                 <div class="verdict-label">🎯 你的最终结论</div>
                 <div class="verdict-code" id="verdictCode"><span>---</span></div>
                 <div class="verdict-text" id="verdictText">加载中...</div>
             </div>
 
-            <div class="result-code" id="resultCode"></div>
+            <!-- 已删除原有的 result-code 三码展示区域 -->
 
             <div class="chart-wrap">
                 <div class="chart" id="chartContainer"></div>
@@ -993,11 +957,9 @@
         const questionList = $('questionList');
         const btnPrev = $('btnPrev');
         const btnNext = $('btnNext');
-        const resultCode = $('resultCode');
         const chartContainer = $('chartContainer');
         const resultDetails = $('resultDetails');
         const btnRestart = $('btnRestart');
-        const finalVerdict = $('finalVerdict');
         const verdictCode = $('verdictCode');
         const verdictText = $('verdictText');
 
@@ -1117,13 +1079,13 @@
         }
 
         // ================================================================
-        // RENDER: RESULT (包含“最终结论”增强)
+        // RENDER: RESULT (不含独立三码卡片)
         // ================================================================
         function renderResult() {
             const scores = getScores();
             const top3 = getTopThree();
 
-            // --- 1. 生成最终结论 ---
+            // --- 1. 生成最终结论 (含大号代码) ---
             if (top3.length >= 3) {
                 const p = top3[0];
                 const s = top3[1];
@@ -1133,10 +1095,8 @@
                 const tInfo = TYPE_INFO[t.id];
                 const codeStr = `${p.id}${s.id}${t.id}`;
 
-                // 格式化职业推荐（取前3个）
                 const jobList = pInfo.jobs.split('、').slice(0, 3).join('、');
 
-                // 构建人性化结论
                 let text = `你的核心职业兴趣代码是 <strong>${codeStr}</strong>，以 <strong>${pInfo.name}</strong> 为主导。`;
                 text += ` 你兼具 <strong>${sInfo.name}</strong> 和 <strong>${tInfo.name}</strong> 的特质，`;
                 text += `最适合从事需要「<strong>${pInfo.desc.split('，')[0] || pInfo.desc}</strong>」的工作。`;
@@ -1149,16 +1109,7 @@
                 verdictText.innerHTML = '请完成所有题目以获取准确的职业建议。';
             }
 
-            // --- 2. 三码展示 ---
-            let codeHtml = '';
-            top3.forEach((item, idx) => {
-                const sec = SECTIONS[item.idx];
-                const cls = idx === 0 ? 'code-letter high' : 'code-letter';
-                codeHtml += `<div class="${cls}">${sec.icon} ${sec.id}</div>`;
-            });
-            resultCode.innerHTML = codeHtml;
-
-            // --- 3. 图表 ---
+            // --- 2. 图表 ---
             const maxScore = 10;
             const colors = ['#4A6CF7', '#6C63FF', '#FF6B8A', '#4ECDC4', '#FFB347', '#A8A8A8'];
             let chartHtml = '';
@@ -1179,7 +1130,7 @@
             });
             chartContainer.innerHTML = chartHtml;
 
-            // --- 4. 详细维度卡片 ---
+            // --- 3. 详细维度卡片 ---
             let detailHtml = '';
             SECTIONS.forEach((sec, i) => {
                 const info = TYPE_INFO[sec.id];
@@ -1267,7 +1218,7 @@
         // INIT
         // ================================================================
         showPage('page-welcome');
-        console.log('🧭 职业兴趣测试已加载 (含最终结论)');
+        console.log('🧭 职业兴趣测试已加载 (结果页已精简)');
     </script>
 
 </body>
