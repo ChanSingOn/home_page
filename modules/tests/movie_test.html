@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 经典电影段位测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0b0b0b;
+            color: #f0e6d2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at 20% 30%, #2a1e1a 0%, #0b0b0b 70%);
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 820px;
+        }
+        .card {
+            background: rgba(20, 16, 14, 0.92);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            padding: 30px 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,215,150,0.2);
+            border: 1px solid #4a3a2e;
+            transition: all 0.3s;
+        }
+        /* ----- 通用隐藏 ----- */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ----- 头部 ----- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #c9a87c;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f7d68a, #d9a85b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .timer-box {
+            background: #1f1814;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #f5d79c;
+            border: 1px solid #6b513a;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(200,150,80,0.2);
+        }
+        .timer-box span {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ----- 进度 ----- */
+        .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #2b221d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #d9a85b, #f7d68a);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 1rem;
+            color: #c9b094;
+            min-width: 70px;
+            text-align: right;
+        }
+
+        /* ----- 题目 ----- */
+        .question-area {
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .q-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            padding: 6px 0;
+            font-weight: 500;
+            color: #f2e3d0;
+        }
+        .q-text .q-num {
+            display: inline-block;
+            background: #c9a87c;
+            color: #0b0b0b;
+            border-radius: 30px;
+            padding: 0 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .option {
+            background: #1f1814;
+            border: 2px solid #3f3228;
+            border-radius: 16px;
+            padding: 14px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #d8cdbe;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option:hover:not(.disabled) {
+            background: #2f241e;
+            border-color: #b6905f;
+            transform: scale(1.02);
+        }
+        .option .letter {
+            width: 28px;
+            height: 28px;
+            background: #332a22;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #c9a87c;
+            flex-shrink: 0;
+        }
+        .option.selected {
+            border-color: #f7d68a;
+            background: #2f241e;
+            box-shadow: 0 0 20px rgba(217,168,91,0.15);
+        }
+        .option.selected .letter {
+            background: #c9a87c;
+            color: #0b0b0b;
+        }
+        .option.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        /* ----- 按钮 ----- */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        .btn {
+            background: #2f241e;
+            border: 1px solid #5a4636;
+            color: #f0e6d2;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover:not(:disabled) {
+            background: #4a382c;
+            border-color: #b6905f;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(200,150,80,0.1);
+        }
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-primary {
+            background: #c9a87c;
+            border-color: #c9a87c;
+            color: #0b0b0b;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #d9b88c;
+            border-color: #d9b88c;
+        }
+        .btn-secondary {
+            background: transparent;
+            border-color: #5a4636;
+        }
+
+        /* ----- 开始页 ----- */
+        .start-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .start-screen .icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        .start-screen h2 {
+            font-size: 2.4rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: #f7d68a;
+        }
+        .start-screen p {
+            color: #c9b094;
+            font-size: 1.1rem;
+            margin: 16px 0 30px;
+            line-height: 1.8;
+        }
+        .start-screen .btn {
+            font-size: 1.4rem;
+            padding: 16px 60px;
+        }
+
+        /* ----- 结果页 ----- */
+        .result-box {
+            display: none;
+        }
+        .result-box.active {
+            display: block;
+        }
+        .result-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0 30px;
+            text-align: center;
+        }
+        .stat-item {
+            background: #1f1814;
+            padding: 16px 20px;
+            border-radius: 20px;
+            border: 1px solid #3f3228;
+            min-width: 100px;
+        }
+        .stat-item .num {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #f7d68a;
+        }
+        .stat-item .label {
+            font-size: 0.9rem;
+            color: #b09a82;
+        }
+        .rank-box {
+            background: #1f1814;
+            border-radius: 24px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-left: 6px solid #c9a87c;
+        }
+        .rank-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f7d68a;
+        }
+        .rank-desc {
+            color: #c9b094;
+            margin-top: 6px;
+        }
+        .review-item {
+            background: #15100e;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3f3228;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px 12px;
+        }
+        .review-item .r-q {
+            flex: 1 1 100%;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .review-item .r-status {
+            font-size: 0.9rem;
+            padding: 2px 12px;
+            border-radius: 20px;
+        }
+        .r-correct {
+            background: #1e3a2a;
+            color: #6fcf97;
+        }
+        .r-wrong {
+            background: #3a1e1e;
+            color: #eb5757;
+        }
+        .r-answer {
+            color: #b6905f;
+        }
+
+        @media (max-width: 640px) {
+            .options { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.4rem; }
+            .timer-box { font-size: 1.1rem; padding: 4px 14px; }
+            .q-text { font-size: 1.1rem; }
+            .btn { padding: 10px 20px; font-size: 0.9rem; }
+            .stat-item { min-width: 70px; padding: 12px; }
+            .stat-item .num { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card" id="app">
+
+        <!-- ====== 开始页 ====== -->
+        <div id="startScreen" class="start-screen">
+            <div class="icon">🎞️</div>
+            <h2>经典电影段位测试</h2>
+            <p>📽️ 40道经典题库 · 随机抽取20道 · 限时8分钟<br>
+            🎯 涵盖台词、导演、影人、冷知识、幕后趣闻<br>
+            ⏳ 答完即出分，看看你是“斯皮尔伯格亲传”还是“电视重播常客”</p>
+            <button class="btn btn-primary" id="startBtn">🎬 开始挑战</button>
+        </div>
+
+        <!-- ====== 答题页 ====== -->
+        <div id="quizScreen" class="hidden">
+            <div class="header">
+                <h1>🎥 电影段位</h1>
+                <div class="timer-box">⏱️ <span id="timerDisplay">08:00</span></div>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="progress-text" id="progressText">0 / 20</div>
+            </div>
+            <div class="question-area">
+                <div class="q-text" id="questionText"><span class="q-num">Q1</span> 加载中...</div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" id="prevBtn" disabled>◀ 上一题</button>
+                    <button class="btn btn-primary" id="nextBtn">下一题 ▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 结果页 ====== -->
+        <div id="resultScreen" class="result-box">
+            <div class="header">
+                <h1>🏆 测试完成</h1>
+                <div class="timer-box">⏱️ 用时 <span id="timeUsed">00:00</span></div>
+            </div>
+            <div class="result-stats">
+                <div class="stat-item"><div class="num" id="scoreNum">0</div><div class="label">得分</div></div>
+                <div class="stat-item"><div class="num" id="correctNum">0</div><div class="label">正确</div></div>
+                <div class="stat-item"><div class="num" id="wrongNum">0</div><div class="label">错误</div></div>
+            </div>
+            <div class="rank-box">
+                <div class="rank-title" id="rankTitle">🎖️ 段位名称</div>
+                <div class="rank-desc" id="rankDesc">段位描述</div>
+            </div>
+            <div style="margin: 20px 0 10px; font-weight: 600; color: #c9b094;">📋 答题回顾</div>
+            <div id="reviewContainer"></div>
+            <div style="margin-top: 25px; text-align: center;">
+                <button class="btn btn-primary" id="retryBtn">🔄 再来一次</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // ---------- 调试辅助 ----------
+        console.log('🎬 电影测试脚本已加载，等待开始...');
+
+        // ---------- 40道题库 ----------
+        const QUESTION_BANK = [
+            { id:1, question:'“生活就像一盒巧克力，你永远不知道你会得到什么。” 出自哪部电影？', options:['阿甘正传','肖申克的救赎','当幸福来敲门','美丽人生'], answer:0, explanation:'阿甘坐在长椅上对陌生人说的经典台词。' },
+            { id:2, question:'“我愿意付出任何代价，只为了能再次触碰到你。” 这句台词来自哪部电影？', options:['泰坦尼克号','珍珠港','断背山','人鬼情未了'], answer:0, explanation:'《泰坦尼克号》中老年Rose回忆Jack时的深情独白。' },
+            { id:3, question:'“你在跟我说话吗？你在跟我说话吗？” 这句经典独白出自哪部电影？', options:['出租车司机','愤怒的公牛','好家伙','华尔街'], answer:0, explanation:'罗伯特·德尼罗在《出租车司机》中对镜自语的即兴表演。' },
+            { id:4, question:'“真正的救赎，并不是厮杀后的胜利，而是能在苦难中找到生的力量与心的安宁。” 这句升华台词出自？', options:['肖申克的救赎','辛德勒的名单','美丽人生','钢琴家'], answer:0, explanation:'《肖申克的救赎》中安迪对瑞德关于希望与救赎的诠释。' },
+            { id:5, question:'斯坦利·库布里克最具超现实惊悚与单点透视风格的代表作是？', options:['2001太空漫游','发条橙','闪灵','全金属外壳'], answer:2, explanation:'《闪灵》中对称构图与走廊长镜头成为恐怖片经典。' },
+            { id:6, question:'昆汀·塔伦蒂诺以非线性叙事和喋喋不休对白著称，其成名作是？', options:['低俗小说','落水狗','杀死比尔','无耻混蛋'], answer:0, explanation:'《低俗小说》用章回体结构和环形叙事颠覆传统。' },
+            { id:7, question:'克里斯托弗·诺兰凭借哪部作品将“梦境入侵”概念推向全球？', options:['盗梦空间','记忆碎片','星际穿越','信条'], answer:0, explanation:'《盗梦空间》用多层梦境和陀螺图腾成为现象级烧脑片。' },
+            { id:8, question:'雷德利·斯科特执导的赛博朋克美学奠基之作是？', options:['银翼杀手','异形','角斗士','末路狂花'], answer:0, explanation:'《银翼杀手》奠定了未来废墟与人造人哲学的电影基调。' },
+            { id:9, question:'盖·里奇以黑色幽默和多线叙事闻名，其处女作是？', options:['两杆大烟枪','偷拐抢骗','大侦探福尔摩斯','绅士们'], answer:0, explanation:'《两杆大烟枪》用精巧的环形结构开启英伦黑帮喜剧风潮。' },
+            { id:10, question:'他是“新好莱坞电影”旗手，执导《出租车司机》《愤怒的公牛》，妻子多次获奥斯卡服装设计奖。他是？', options:['马丁·斯科塞斯','弗朗西斯·科波拉','史蒂文·斯皮尔伯格','罗伯特·德尼罗'], answer:0, explanation:'马丁·斯科塞斯，其妻子桑德拉·韦恩特曾六次获得奥斯卡最佳服装设计。' },
+            { id:11, question:'影史第一位片酬破百万美元的女星，在《埃及艳后》中留下绝世妆容，与理查德·伯顿的爱情轰动世界。她是？', options:['伊丽莎白·泰勒','奥黛丽·赫本','玛丽莲·梦露','格蕾丝·凯利'], answer:0, explanation:'伊丽莎白·泰勒凭借《埃及艳后》片酬高达100万美元。' },
+            { id:12, question:'意大利新现实主义奠基人，执导《偷自行车的人》，坚持用非职业演员。他是？', options:['维托里奥·德·西卡','罗伯托·罗西里尼','卢奇诺·维斯康蒂','费德里科·费里尼'], answer:0, explanation:'德·西卡用街头实景和素人演员展现了战后意大利的悲怆。' },
+            { id:13, question:'影史公认的第一部真正科幻电影是哪一部？', options:['月球旅行记 (1902)','大都会 (1927)','科学怪人 (1910)','星际穿越 (2014)'], answer:0, explanation:'乔治·梅里爱的《月球旅行记》被誉为科幻电影开山之作。' },
+            { id:14, question:'以下哪部电影不属于黑泽明的“武士三部曲”（《七武士》《用心棒》《椿三十郎》）？', options:['乱','蜘蛛巢城','影武者','罗生门'], answer:1, explanation:'《蜘蛛巢城》改编自《麦克白》，并非武士三部曲正传。' },
+            { id:15, question:'以下哪位演员凭借“小丑”这一角色获得奥斯卡最佳男主角奖？', options:['希斯·莱杰','华金·菲尼克斯','杰克·尼科尔森','杰瑞德·莱托'], answer:1, explanation:'华金·菲尼克斯凭《小丑》(2019)获奥斯卡影帝。' },
+            { id:16, question:'电影《公民凯恩》中，“玫瑰花蕾”真正的含义是？', options:['他童年心爱的雪橇','他情妇的代号','他失去的庄园','他未实现的歌剧梦'], answer:0, explanation:'“玫瑰花蕾”是凯恩童年时雪橇的名字，象征他失去的纯真。' },
+            { id:17, question:'在《回到未来》中，马丁在1955年舞会上演奏了《Johnny B. Goode》，该曲原唱者曾以“猫王”身份出现在《阿甘正传》中。请问饰演“猫王”的演员还主演了哪个系列？', options:['纽约大逃亡','银河护卫队','怪形','以上都是'], answer:3, explanation:'库尔特·拉塞尔主演了《纽约大逃亡》《怪形》，并在《银河护卫队2》中饰演星爵之父。' },
+            { id:18, question:'“Here\'s looking at you, kid.” 这句经典台词出自哪部电影？', options:['卡萨布兰卡','乱世佳人','北非谍影','罗马假日'], answer:0, explanation:'《卡萨布兰卡》中里克对伊尔莎的深情表白。' },
+            { id:19, question:'《教父》中，马龙·白兰度饰演的维托·柯里昂的经典口头禅是？', options:['我会给他一个无法拒绝的条件','永远不要恨你的敌人','家族高于一切','时间是唯一重要的东西'], answer:0, explanation:'这句台词成为影史最经典的黑帮台词之一。' },
+            { id:20, question:'《星际穿越》中，主角库珀的女儿名叫？', options:['墨菲','艾米莉','布兰德','露西'], answer:0, explanation:'墨菲·库珀，名字源于墨菲定律。' },
+            { id:21, question:'电影《低俗小说》中，乌玛·瑟曼饰演的角色名叫？', options:['蜜娅·华莱士','布奇·库利奇','朱尔斯·温菲尔德','文森特·维加'], answer:0, explanation:'蜜娅是黑帮老大马塞卢斯的妻子。' },
+            { id:22, question:'《肖申克的救赎》中，安迪用了什么工具越狱？', options:['小锤子','勺子','螺丝刀','锯条'], answer:0, explanation:'那把藏在圣经中的小锤子，花了19年挖通隧道。' },
+            { id:23, question:'《楚门的世界》中，楚门最终打开了哪扇门？', options:['一扇标有“出口”的门','一扇蓝色的门','一扇写着“天”的门','他家的前门'], answer:0, explanation:'楚门发现真相后毅然走向“出口”门，告别虚假世界。' },
+            { id:24, question:'《美丽人生》中，父亲将集中营解释为一个什么？', options:['游戏','夏令营','工作营','度假村'], answer:0, explanation:'父亲用“游戏”来保护儿子的童心，赢得坦克就是奖品。' },
+            { id:25, question:'《这个杀手不太冷》中，里昂的职业是？', options:['杀手','保镖','警察','钢琴家'], answer:0, explanation:'里昂是职业杀手，却有着纯真的内心。' },
+            { id:26, question:'《辛德勒的名单》中，辛德勒的名单上的人最终被送到哪里？', options:['工厂','集中营','瑞士','美国'], answer:0, explanation:'辛德勒用名单将他们从集中营转到他位于捷克的工厂，得以幸存。' },
+            { id:27, question:'《海上钢琴师》中，1900一生从未下船，他最后选择留在船上的原因是？', options:['对未知世界的恐惧','对大海的热爱','对钢琴的执着','对城市的憎恨'], answer:0, explanation:'他恐惧城市中无法掌控的无限，选择与船共亡。' },
+            { id:28, question:'《罗马假日》中，安妮公主和记者乔在罗马游玩时，他们共乘了什么交通工具？', options:['摩托车','马车','自行车','出租车'], answer:0, explanation:'乔骑着摩托车载着公主在罗马街头穿行，成为经典镜头。' },
+            { id:29, question:'《飞越疯人院》中，麦克墨菲最后被进行了什么手术？', options:['额叶切除术','电击疗法','脑叶白质切断术','催眠治疗'], answer:0, explanation:'麦克墨菲被强制切除额叶，变成“行尸走肉”。' },
+            { id:30, question:'《发条橙》中的主角叫什么名字？', options:['阿利斯','德罗格','亚历克斯','韦恩'], answer:0, explanation:'阿利斯（Alex）是主角的昵称，全名亚历克斯·德莱格。' },
+            { id:31, question:'《2001太空漫游》中，智能电脑HAL 9000的“HAL”命名有何含义？', options:['IBM每个字母前移一位','Heuristic Algorithmic Logic','Human Analog Life','谐音“地狱”'], answer:0, explanation:'HAL是IBM每个字母前移一位而得。' },
+            { id:32, question:'《银翼杀手》中的复制人被称为？', options:['连锁复制人','人造人','仿生人','机械人'], answer:0, explanation:'电影中复制人的官方名称是“连锁复制人”（Replicants）。' },
+            { id:33, question:'《异形》中，诺斯特罗莫号飞船的电脑系统叫什么？', options:['MUTHUR','HAL','AIDA','CORTANA'], answer:0, explanation:'飞船电脑名为“MUTHUR”（Mother的变体）。' },
+            { id:34, question:'《终结者2》中，T-800最后如何彻底摧毁自己？', options:['跳入熔钢','引爆核弹','自我格式化','被液态金属吞噬'], answer:0, explanation:'T-800跳入熔钢中自毁。' },
+            { id:35, question:'《黑客帝国》中，尼奥选择了哪颗药丸来了解真相？', options:['红色药丸','蓝色药丸','绿色药丸','白色药丸'], answer:0, explanation:'红色药丸代表真相，蓝色代表继续沉睡。' },
+            { id:36, question:'《指环王》中，弗罗多最终在哪里摧毁魔戒？', options:['末日火山','瑞文戴尔','刚铎','夏尔'], answer:0, explanation:'在末日火山的裂缝中，咕噜与魔戒一同坠落。' },
+            { id:37, question:'《哈利·波特》系列中，哈利的魔杖杖芯是什么？', options:['凤凰羽毛','龙心弦','独角兽毛','蛇怪角'], answer:0, explanation:'哈利的魔杖杖芯是凤凰羽毛，来自邓布利多的凤凰福克斯。' },
+            { id:38, question:'《盗梦空间》中，柯布的图腾是什么？', options:['陀螺','骰子','国际象棋','戒指'], answer:0, explanation:'柯布旋转的陀螺是他区分现实与梦境的关键。' },
+            { id:39, question:'《记忆碎片》中，主角莱纳德患有什么记忆障碍？', options:['无法形成新记忆','失忆症','脸盲症','健忘症'], answer:0, explanation:'莱纳德患有顺行性遗忘症，无法储存新记忆。' },
+            { id:40, question:'电影《大话西游》中，至尊宝为了救白晶晶而不断使用月光宝盒，最终穿越到了哪里？', options:['五百年前','五百年后','唐朝','现代'], answer:0, explanation:'他穿越到五百年前，遇见了紫霞仙子。' }
+        ];
+
+        // ---------- DOM 元素 ----------
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const startBtn = document.getElementById('startBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timeUsed = document.getElementById('timeUsed');
+        const scoreNum = document.getElementById('scoreNum');
+        const correctNum = document.getElementById('correctNum');
+        const wrongNum = document.getElementById('wrongNum');
+        const rankTitle = document.getElementById('rankTitle');
+        const rankDesc = document.getElementById('rankDesc');
+        const reviewContainer = document.getElementById('reviewContainer');
+
+        const TOTAL = 20;
+        let questions = [];
+        let userAnswers = [];
+        let currentIndex = 0;
+        let timer = null;
+        let timeLeft = 480;
+        let ended = false;
+
+        // ---------- 工具函数 ----------
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function pickQuestions() {
+            const shuffled = shuffle([...QUESTION_BANK]);
+            return shuffled.slice(0, TOTAL);
+        }
+
+        // ---------- 渲染当前题目 ----------
+        function renderQuestion() {
+            if (ended) return;
+            const q = questions[currentIndex];
+            const idx = currentIndex;
+            questionText.innerHTML = `<span class="q-num">Q${idx+1}</span> ${q.question}`;
+            optionsContainer.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                if (userAnswers[idx] !== undefined && userAnswers[idx] !== -1) {
+                    div.classList.add('disabled');
+                    if (userAnswers[idx] === i) div.classList.add('selected');
+                }
+                div.innerHTML = `<span class="letter">${letters[i]}</span> ${opt}`;
+                div.dataset.index = i;
+                if (userAnswers[idx] === undefined || userAnswers[idx] === -1) {
+                    div.addEventListener('click', () => selectOption(idx, i));
+                }
+                optionsContainer.appendChild(div);
+            });
+
+            const answered = userAnswers.filter(a => a !== undefined && a !== -1).length;
+            const progress = ((idx + 1) / TOTAL) * 100;
+            progressFill.style.width = progress + '%';
+            progressText.textContent = `${answered} / ${TOTAL}`;
+
+            prevBtn.disabled = (idx === 0);
+            if (idx === TOTAL - 1) {
+                nextBtn.textContent = '📨 提交答案';
+            } else {
+                nextBtn.textContent = '下一题 ▶';
+            }
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (ended) return;
+            if (userAnswers[qIndex] !== undefined && userAnswers[qIndex] !== -1) return;
+            userAnswers[qIndex] = optIndex;
+            renderQuestion();
+            const answered = userAnswers.filter(a => a !== undefined && a !== -1).length;
+            progressText.textContent = `${answered} / ${TOTAL}`;
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (ended) return;
+            if (userAnswers[currentIndex] === undefined || userAnswers[currentIndex] === -1) {
+                alert('请先选择本题的答案！');
+                return;
+            }
+            if (currentIndex === TOTAL - 1) {
+                submitQuiz();
+            } else {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        // ---------- 提交 ----------
+        function submitQuiz() {
+            const unanswered = userAnswers.some(a => a === undefined || a === -1);
+            if (unanswered) {
+                if (!confirm('还有题目未作答，确定要提交吗？')) return;
+            }
+            clearInterval(timer);
+            ended = true;
+            let correct = 0;
+            const reviewData = [];
+            questions.forEach((q, idx) => {
+                const selected = userAnswers[idx];
+                const isCorrect = (selected === q.answer);
+                if (isCorrect) correct++;
+                reviewData.push({
+                    question: q.question,
+                    selected: selected,
+                    correct: q.answer,
+                    isCorrect: isCorrect,
+                    explanation: q.explanation || '',
+                    options: q.options
+                });
+            });
+            const score = correct * 5;
+            const wrong = TOTAL - correct;
+            showResult(score, correct, wrong, reviewData);
+        }
+
+        function showResult(score, correct, wrong, reviewData) {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.add('active');
+            scoreNum.textContent = score;
+            correctNum.textContent = correct;
+            wrongNum.textContent = wrong;
+            const elapsed = 480 - timeLeft;
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            timeUsed.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+
+            let title, desc;
+            if (score >= 100) { title='🏆 斯皮尔伯格亲传弟子'; desc='你不是影迷，你是移动的电影档案馆！'; }
+            else if (score >= 80) { title='🎞️ 昆汀的录像带学徒'; desc='冷门梗全懂，主流题全对，就差一部处女作了。'; }
+            else if (score >= 60) { title='🍿 周末爆米花选手'; desc='经典片单看了一半，另一半在“想看”列表吃灰。'; }
+            else if (score >= 40) { title='📺 电视重播常客'; desc='更熟悉CCTV-6国语配音版，建议立即补课！'; }
+            else { title='🎬 初入影坛小白'; desc='多看看经典，你会爱上它们的！'; }
+            rankTitle.textContent = title;
+            rankDesc.textContent = desc;
+
+            reviewContainer.innerHTML = '';
+            reviewData.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'review-item';
+                const status = item.isCorrect ? '✅ 正确' : '❌ 错误';
+                const statusClass = item.isCorrect ? 'r-correct' : 'r-wrong';
+                const correctAns = item.options[item.correct];
+                const selectedAns = (item.selected !== undefined && item.selected !== -1) ? item.options[item.selected] : '未作答';
+                div.innerHTML = `
+                    <div class="r-q">${idx+1}. ${item.question}</div>
+                    <span class="r-status ${statusClass}">${status}</span>
+                    <span class="r-answer">正确答案：${correctAns}</span>
+                    ${!item.isCorrect ? `<span style="color:#b09a82;">你的答案：${selectedAns}</span>` : ''}
+                    ${item.explanation ? `<div style="color:#b09a82; font-size:0.9rem; margin-top:4px;">💡 ${item.explanation}</div>` : ''}
+                `;
+                reviewContainer.appendChild(div);
+            });
+        }
+
+        // ---------- 开始挑战 ----------
+        function startQuiz() {
+            console.log('🎬 开始挑战按钮被点击！');
+            // 隐藏开始页，显示答题页
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultScreen.classList.remove('active');
+            ended = false;
+            timeLeft = 480;
+            timerDisplay.textContent = '08:00';
+
+            questions = pickQuestions();
+            userAnswers = new Array(TOTAL).fill(-1);
+            currentIndex = 0;
+            renderQuestion();
+
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerDisplay.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timer = null;
+                    alert('⏰ 时间到！自动提交答卷。');
+                    if (!ended) {
+                        for (let i = 0; i < TOTAL; i++) {
+                            if (userAnswers[i] === undefined || userAnswers[i] === -1) userAnswers[i] = -1;
+                        }
+                        submitQuiz();
+                    }
+                }
+            }, 1000);
+        }
+
+        // ---------- 绑定事件 ----------
+        startBtn.addEventListener('click', function(e) {
+            console.log('✅ 开始按钮点击事件触发');
+            startQuiz();
+        });
+
+        retryBtn.addEventListener('click', function() {
+            console.log('🔄 重试按钮点击');
+            resultScreen.classList.remove('active');
+            startScreen.classList.remove('hidden');
+            quizScreen.classList.add('hidden');
+            if (timer) { clearInterval(timer); timer = null; }
+            ended = false;
+            timeLeft = 480;
+            timerDisplay.textContent = '08:00';
+            userAnswers = [];
+        });
+
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && !prevBtn.disabled) prevBtn.click();
+            else if (e.key === 'ArrowRight' && !nextBtn.disabled) nextBtn.click();
+        });
+
+        // 初始状态
+        startScreen.classList.remove('hidden');
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('active');
+        console.log('🎯 初始状态已设置，等待开始。');
+    })();
+</script>
+</body>
+</html>
