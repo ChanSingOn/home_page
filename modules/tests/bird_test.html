@@ -1526,7 +1526,7 @@
 
             document.getElementById('resultEmoji').textContent = topBird.emoji;
             document.getElementById('resultTitle').textContent = `你最适合养 · ${topBird.name}`;
-            document.getElementById('resultSub').textContent = `根据你的 36 项生活特质，匹配度最高的鸟类`;
+            document.getElementById('resultSub').textContent = `根据你的特质，匹配度最高的鸟类`;
 
             document.getElementById('resultBirdName').innerHTML =
                 `${topBird.name} <small>${topBird.latin}</small>`;
@@ -1588,7 +1588,7 @@
         function shareResult() {
             const birdName = document.getElementById('resultTitle').textContent;
             const pct = document.getElementById('matchPct').textContent;
-            const text = `🦜 我做了「鸟类适性测试」，结果是 ${birdName}，匹配度 ${pct}！你也来测测吧～`;
+            const text = `🦜 我做了「鸟类适性测试」，结果是 ${birdName}，匹配度 ${pct}！你也来测测吧～ https://chansingon.github.io/home_page/modules/tests/bird_test.html`;
             if (navigator.share) {
                 navigator.share({ title: '鸟类适性测试', text }).catch(() => {});
             } else {
