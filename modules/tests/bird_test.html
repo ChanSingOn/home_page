@@ -834,10 +834,10 @@
             <!-- 导航按钮区域 -->
             <div class="nav-buttons">
                 <button class="nav-btn nav-btn-prev" id="btnPrev" onclick="prevQuestion()" disabled>
-                    ← 上一题
+                   上一题
                 </button>
                 <button class="nav-btn nav-btn-next" id="btnNext" onclick="nextQuestion()" disabled>
-                    下一题 →
+                    下一题
                 </button>
             </div>
         </div>
@@ -1393,10 +1393,10 @@
             // 下一题按钮：根据当前题是否有答案启用
             if (answers[currentQ]) {
                 nextBtn.disabled = false;
-                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题';
             } else {
                 nextBtn.disabled = true;
-                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题';
             }
 
             // 清除自动跳转定时器
@@ -1418,7 +1418,7 @@
             // 更新下一题按钮状态
             const nextBtn = document.getElementById('btnNext');
             nextBtn.disabled = false;
-            nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+            nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题';
 
             // 清除之前的定时器
             if (autoTimer) {
