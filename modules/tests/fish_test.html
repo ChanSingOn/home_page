@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🐠 水族宠物适性测试 · 趣味30题</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #e6f7f9 0%, #c8e8ed 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .test-container {
+            max-width: 780px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 40px 36px;
+            box-shadow: 0 20px 60px rgba(0, 60, 80, 0.18), 0 8px 24px rgba(0, 40, 50, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-container::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(98, 210, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .test-container::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 200, 180, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .icon-big {
+            font-size: 52px;
+            display: block;
+            margin-bottom: 6px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 700;
+            color: #0b3b4a;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .header .subhead {
+            font-size: 16px;
+            color: #3f6e7a;
+            background: rgba(150, 210, 220, 0.25);
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header .timer-badge {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #2b5f6b;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 4px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .header .timer-badge span { font-weight: 600; }
+
+        /* ===== 首页样式 ===== */
+        .home-page {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px 0 10px;
+            animation: fadeUp 0.6s ease;
+        }
+
+        .home-page .home-icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .home-page .home-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #08313b;
+            margin-bottom: 8px;
+        }
+
+        .home-page .home-desc {
+            font-size: 17px;
+            color: #1f4e59;
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .home-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px 20px;
+            margin: 16px 0 28px;
+        }
+
+        .home-features .feature {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 15px;
+            color: #1f5a66;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .home-features .feature span {
+            margin-right: 6px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #29b7c7, #138b9e);
+            color: white;
+            border: none;
+            padding: 16px 56px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 28px rgba(44, 193, 208, 0.3);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(44, 193, 208, 0.4);
+            background: linear-gradient(135deg, #30c9da, #159bb0);
+        }
+
+        .btn-start:active { transform: scale(0.96); }
+
+        /* ===== 进度条 ===== */
+        .progress-wrap {
+            margin: 18px 0 28px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(160, 200, 210, 0.3);
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2cc1d0, #0f9bb0);
+            border-radius: 40px;
+            transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 12px rgba(44, 193, 208, 0.3);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #2a5f6a;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+        .progress-label .qnum {
+            background: rgba(44, 193, 208, 0.12);
+            padding: 0 12px;
+            border-radius: 20px;
+        }
+
+        /* ===== 题目区域 ===== */
+        .question-area {
+            position: relative;
+            z-index: 1;
+            min-height: 340px;
+            transition: opacity 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0a3540;
+            margin-bottom: 24px;
+            line-height: 1.4;
+            padding: 0 4px;
+        }
+        .question-text .q-emoji { margin-right: 8px; }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .option-item {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(180, 215, 225, 0.3);
+            border-radius: 20px;
+            padding: 16px 22px;
+            font-size: 17px;
+            color: #16454f;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            font-weight: 500;
+        }
+
+        .option-item:hover {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: #66c2d0;
+            transform: translateX(4px);
+            box-shadow: 0 6px 18px rgba(44, 193, 208, 0.12);
+        }
+
+        .option-item:active { transform: scale(0.98); }
+
+        .option-item .opt-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(44, 193, 208, 0.12);
+            color: #0f7b8a;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: 0.2s;
+        }
+        .option-item:hover .opt-letter { background: rgba(44, 193, 208, 0.25); }
+        .option-item .opt-text { flex: 1; }
+
+        /* ===== 结果区域 ===== */
+        .result-area {
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 32px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 60, 80, 0.08);
+        }
+
+        .result-emoji { font-size: 64px; text-align: center; display: block; margin-bottom: 6px; }
+        .result-title { font-size: 28px; font-weight: 700; color: #08313b; text-align: center; margin-bottom: 4px; }
+        .result-sub {
+            text-align: center;
+            font-size: 16px;
+            color: #336b78;
+            font-weight: 500;
+            margin-bottom: 18px;
+            background: rgba(44, 193, 208, 0.08);
+            padding: 4px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+            width: fit-content;
+        }
+
+        .result-desc {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #1f4e59;
+            margin: 14px 0 16px 0;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 16px 20px;
+            border-radius: 20px;
+            border-left: 4px solid #3dc0ce;
+        }
+
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            margin: 12px 0 18px 0;
+            justify-content: center;
+        }
+        .result-tags span {
+            background: rgba(44, 193, 208, 0.12);
+            padding: 4px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            color: #125f6b;
+            font-weight: 500;
+            border: 1px solid rgba(44, 193, 208, 0.15);
+        }
+
+        .result-care {
+            background: rgba(255, 248, 225, 0.5);
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin: 10px 0 16px 0;
+            font-size: 15px;
+            color: #3f5e46;
+            border: 1px solid rgba(200, 180, 120, 0.2);
+        }
+        .result-care strong { color: #2a6b3a; }
+
+        .result-score {
+            text-align: center;
+            font-size: 15px;
+            color: #1c6b78;
+            background: rgba(44, 193, 208, 0.08);
+            padding: 6px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 6px auto 12px;
+            border: 1px dashed rgba(44, 193, 208, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 12px 34px;
+            border-radius: 60px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: #dceef2;
+            color: #0d4b57;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #29b7c7, #138b9e);
+            color: white;
+            border: none;
+            box-shadow: 0 6px 20px rgba(44, 193, 208, 0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(44, 193, 208, 0.3);
+            background: linear-gradient(135deg, #30c9da, #159bb0);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #6baebd;
+            color: #1f6a78;
+        }
+        .btn-outline:hover {
+            background: rgba(44, 193, 208, 0.06);
+            border-color: #3c9bae;
+        }
+
+        .btn:active { transform: scale(0.96); }
+
+        /* ===== 隐藏工具 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            .test-container { padding: 28px 18px; border-radius: 32px; }
+            .header h1 { font-size: 24px; }
+            .question-text { font-size: 19px; }
+            .option-item { padding: 14px 16px; font-size: 15px; }
+            .result-card { padding: 24px 18px; }
+            .result-title { font-size: 22px; }
+            .result-emoji { font-size: 48px; }
+            .btn { padding: 10px 24px; font-size: 15px; width: 100%; justify-content: center; }
+            .btn-group { flex-direction: column; }
+            .btn-start { padding: 14px 36px; font-size: 18px; width: 100%; }
+            .home-features .feature { font-size: 13px; padding: 6px 14px; }
+        }
+
+        @media (max-width: 420px) {
+            .test-container { padding: 20px 14px; }
+            .option-item { padding: 12px 14px; gap: 10px; }
+            .option-item .opt-letter { width: 26px; height: 26px; font-size: 12px; }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); }
+        ::-webkit-scrollbar-thumb { background: #8ccbd6; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="test-container" id="app">
+    <!-- 头部 -->
+    <div class="header">
+        <span class="icon-big">🐚</span>
+        <h1>水族宠物适性测试</h1>
+        <div class="subhead">🧩 30道趣味情境 · 通用性加权算法</div>
+        <div class="timer-badge">⏱️ 推荐时长 <span>15~20</span> 分钟 · 共 30 题</div>
+    </div>
+
+    <!-- ===== 首页 ===== -->
+    <div id="homePage" class="home-page">
+        <span class="home-icon">🐠</span>
+        <div class="home-title">找到属于你的水中伙伴</div>
+        <p class="home-desc">
+            通过30道有趣的生活情境题，从时间、审美、性格、预算、空间、经验六个维度，
+            用加权算法精准匹配最适合你的水族宠物。无论你是新手还是达人，都能找到心仪之选。
+        </p>
+        <div class="home-features">
+            <span class="feature"><span>🧘</span> 10+ 种宠物类型</span>
+            <span class="feature"><span>🎯</span> 精准匹配度</span>
+            <span class="feature"><span>📊</span> 通用性加权</span>
+            <span class="feature"><span>🕒</span> 15分钟完成</span>
+        </div>
+        <button class="btn-start" id="startBtn">🚀 开始测试</button>
+    </div>
+
+    <!-- ===== 进度条 ===== -->
+    <div class="progress-wrap hidden" id="progressWrap">
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-label">
+            <span class="qnum" id="qNumLabel">1 / 30</span>
+            <span id="progressPercent">0%</span>
+        </div>
+    </div>
+
+    <!-- ===== 题目 / 结果区域 ===== -->
+    <div class="question-area hidden" id="questionArea"></div>
+</div>
+
+<script>
+    // ================================================================
+    //  1. 30道趣味情境题（完全不直接提及“鱼/水族”）
+    //     每题权重 1~3
+    // ================================================================
+
+    const questions = [
+        // —— 生活方式 & 时间投入 ——
+        { id: 0, emoji: '🌅', weight: 2, text: '周末早晨你通常怎么度过？',
+          options: [
+            { label: '睡到自然醒，慢悠悠享受早餐', value: 'A' },
+            { label: '早起运动或出门散步', value: 'B' },
+            { label: '打理家务、整理房间', value: 'C' },
+            { label: '约朋友一起喝早茶或聚会', value: 'D' }
+          ] },
+        { id: 1, emoji: '📅', weight: 2, text: '你的日常工作/学习节奏是？',
+          options: [
+            { label: '朝九晚五，规律稳定', value: 'A' },
+            { label: '自由职业，时间灵活', value: 'B' },
+            { label: '经常加班，但能掌控', value: 'C' },
+            { label: '忙闲不定，随任务变化', value: 'D' }
+          ] },
+        { id: 2, emoji: '🎯', weight: 2, text: '你每天能留给自己完全放松的时间大概有多久？',
+          options: [
+            { label: '不到半小时', value: 'A' },
+            { label: '半小时到一小时', value: 'B' },
+            { label: '一到两小时', value: 'C' },
+            { label: '两小时以上', value: 'D' }
+          ] },
+        { id: 3, emoji: '✈️', weight: 1, text: '你出远门（旅行/出差）的频率是？',
+          options: [
+            { label: '很少，一年一两次', value: 'A' },
+            { label: '偶尔，三四次', value: 'B' },
+            { label: '经常，每月都有', value: 'C' },
+            { label: '几乎都在路上', value: 'D' }
+          ] },
+
+        // —— 审美偏好 ——
+        { id: 4, emoji: '🎨', weight: 2, text: '你更偏爱哪种色彩组合？',
+          options: [
+            { label: '蓝白灰的冷色调', value: 'A' },
+            { label: '橙红黄的暖色调', value: 'B' },
+            { label: '大地色系（棕、米、绿）', value: 'C' },
+            { label: '高饱和度的撞色', value: 'D' }
+          ] },
+        { id: 5, emoji: '🛋️', weight: 2, text: '你理想中的家居风格是？',
+          options: [
+            { label: '极简现代，干净利落', value: 'A' },
+            { label: '自然田园，有绿植和原木', value: 'B' },
+            { label: '复古轻奢，带金属装饰', value: 'C' },
+            { label: '工业风，裸露砖墙和管道', value: 'D' }
+          ] },
+        { id: 6, emoji: '🖼️', weight: 2, text: '你更喜欢哪种艺术表达形式？',
+          options: [
+            { label: '写实风景画', value: 'A' },
+            { label: '抽象表现主义', value: 'B' },
+            { label: '街头涂鸦', value: 'C' },
+            { label: '极简线条画', value: 'D' }
+          ] },
+        { id: 7, emoji: '🌊', weight: 1, text: '你更向往哪种自然环境？',
+          options: [
+            { label: '静谧的湖畔或森林', value: 'A' },
+            { label: '金色的沙滩和海洋', value: 'B' },
+            { label: '巍峨的山脉', value: 'C' },
+            { label: '繁华的都市公园', value: 'D' }
+          ] },
+
+        // —— 性格特点 ——
+        { id: 8, emoji: '🧠', weight: 3, text: '遇到棘手问题时，你的第一反应是？',
+          options: [
+            { label: '冷静分析，列计划', value: 'A' },
+            { label: '马上找人帮忙', value: 'B' },
+            { label: '凭直觉快速行动', value: 'C' },
+            { label: '先放一放，等灵感', value: 'D' }
+          ] },
+        { id: 9, emoji: '🤝', weight: 2, text: '你在社交场合中通常扮演什么角色？',
+          options: [
+            { label: '倾听者，很少主动说话', value: 'A' },
+            { label: '温和的参与者', value: 'B' },
+            { label: '活跃的气氛制造者', value: 'C' },
+            { label: '组织者，掌控节奏', value: 'D' }
+          ] },
+        { id: 10, emoji: '🧘', weight: 2, text: '你的耐性如何？',
+          options: [
+            { label: '非常有耐心，能等很久', value: 'A' },
+            { label: '一般，可以等但会焦虑', value: 'B' },
+            { label: '不太有耐心，喜欢即时的反馈', value: 'C' },
+            { label: '分情况，对喜欢的事很耐心', value: 'D' }
+          ] },
+        { id: 11, emoji: '💪', weight: 2, text: '你更倾向于哪种决策风格？',
+          options: [
+            { label: '深思熟虑，权衡利弊', value: 'A' },
+            { label: '跟随内心感觉', value: 'B' },
+            { label: '参考多数人的意见', value: 'C' },
+            { label: '果断拍板，不犹豫', value: 'D' }
+          ] },
+
+        // —— 经济预算 ——
+        { id: 12, emoji: '💸', weight: 3, text: '你每个月的“非必要消费”预算大概是多少？',
+          options: [
+            { label: '500元以内', value: 'A' },
+            { label: '500~1500元', value: 'B' },
+            { label: '1500~4000元', value: 'C' },
+            { label: '4000元以上', value: 'D' }
+          ] },
+        { id: 13, emoji: '🛍️', weight: 2, text: '你购买心仪物品时最看重什么？',
+          options: [
+            { label: '性价比，实用为主', value: 'A' },
+            { label: '品质和耐用性', value: 'B' },
+            { label: '设计感和独特性', value: 'C' },
+            { label: '品牌和社交属性', value: 'D' }
+          ] },
+        { id: 14, emoji: '📦', weight: 2, text: '你愿意为一项爱好一次性投入多少启动资金？',
+          options: [
+            { label: '500元以内', value: 'A' },
+            { label: '500~2000元', value: 'B' },
+            { label: '2000~8000元', value: 'C' },
+            { label: '8000元以上', value: 'D' }
+          ] },
+
+        // —— 空间条件 ——
+        { id: 15, emoji: '🏠', weight: 3, text: '你目前的居住空间大小是？',
+          options: [
+            { label: '单间 / 30㎡以下', value: 'A' },
+            { label: '一居室 / 30~60㎡', value: 'B' },
+            { label: '两居室 / 60~100㎡', value: 'C' },
+            { label: '大户型 / 100㎡以上', value: 'D' }
+          ] },
+        { id: 16, emoji: '🪴', weight: 2, text: '你家里有专门的“放松角落”吗？',
+          options: [
+            { label: '没有，空间都利用满了', value: 'A' },
+            { label: '有，但很小', value: 'B' },
+            { label: '有，比较宽敞', value: 'C' },
+            { label: '有，而且很大，可以自由改造', value: 'D' }
+          ] },
+        { id: 17, emoji: '🧹', weight: 1, text: '你平时对整理收纳的态度是？',
+          options: [
+            { label: '喜欢整洁，定期大扫除', value: 'A' },
+            { label: '保持基本不乱', value: 'B' },
+            { label: '有点随性，但不过分', value: 'C' },
+            { label: '完全放飞，开心就好', value: 'D' }
+          ] },
+
+        // —— 经验水平 & 学习倾向 ——
+        { id: 18, emoji: '📚', weight: 3, text: '接触新事物时，你通常怎么学？',
+          options: [
+            { label: '看教程/说明书一步步来', value: 'A' },
+            { label: '请教有经验的人', value: 'B' },
+            { label: '自己摸索，试错中学习', value: 'C' },
+            { label: '先系统学习理论再实践', value: 'D' }
+          ] },
+        { id: 19, emoji: '🔧', weight: 2, text: '你动手能力强吗？比如修理小物件或组装家具。',
+          options: [
+            { label: '不太擅长，喜欢现成', value: 'A' },
+            { label: '一般，能应付基本的', value: 'B' },
+            { label: '比较擅长，喜欢自己来', value: 'C' },
+            { label: '很强，享受动手过程', value: 'D' }
+          ] },
+        { id: 20, emoji: '🧪', weight: 2, text: '你对需要定期维护的事情（比如养植物）怎么看？',
+          options: [
+            { label: '觉得麻烦，最好不用管', value: 'A' },
+            { label: '可以接受，但不要太繁琐', value: 'B' },
+            { label: '喜欢，觉得是一种治愈', value: 'C' },
+            { label: '很享受，越细致越好', value: 'D' }
+          ] },
+        { id: 21, emoji: '🧩', weight: 2, text: '你更喜欢哪种类型的游戏或活动？',
+          options: [
+            { label: '轻松休闲，无压力', value: 'A' },
+            { label: '有策略性，但不太复杂', value: 'B' },
+            { label: '复杂模拟，需要钻研', value: 'C' },
+            { label: '高难度挑战，成就感强', value: 'D' }
+          ] },
+
+        // —— 额外维度：生活习惯、偏好 ——
+        { id: 22, emoji: '☕', weight: 1, text: '你喝咖啡/茶的习惯是？',
+          options: [
+            { label: '不喝，或很少', value: 'A' },
+            { label: '每天一杯，固定口味', value: 'B' },
+            { label: '经常尝试不同品种', value: 'C' },
+            { label: '收集各种器具，讲求仪式感', value: 'D' }
+          ] },
+        { id: 23, emoji: '🌿', weight: 2, text: '你对绿色植物或园艺的兴趣如何？',
+          options: [
+            { label: '几乎没有兴趣', value: 'A' },
+            { label: '一般，有几盆绿萝就好', value: 'B' },
+            { label: '比较喜欢，会精心打理', value: 'C' },
+            { label: '非常热爱，有花园或很多盆栽', value: 'D' }
+          ] },
+        { id: 24, emoji: '🎵', weight: 1, text: '你平时更偏爱哪种音乐风格？',
+          options: [
+            { label: '古典或轻音乐', value: 'A' },
+            { label: '民谣或独立音乐', value: 'B' },
+            { label: '流行或摇滚', value: 'C' },
+            { label: '电子或爵士', value: 'D' }
+          ] },
+        { id: 25, emoji: '🐾', weight: 2, text: '你以前有过照顾小动物（猫狗等）的经验吗？',
+          options: [
+            { label: '完全没有', value: 'A' },
+            { label: '有过短暂经历', value: 'B' },
+            { label: '有较长时间经验', value: 'C' },
+            { label: '一直都有养动物', value: 'D' }
+          ] },
+        { id: 26, emoji: '📱', weight: 1, text: '你获取知识的主要渠道是？',
+          options: [
+            { label: '书本或纸质资料', value: 'A' },
+            { label: '视频教程', value: 'B' },
+            { label: '社交平台或论坛', value: 'C' },
+            { label: '线下课程或工作坊', value: 'D' }
+          ] },
+        { id: 27, emoji: '🌟', weight: 2, text: '你更看重生活中的哪些体验？',
+          options: [
+            { label: '安静、独处的时光', value: 'A' },
+            { label: '与家人朋友共度的温馨', value: 'B' },
+            { label: '不断学习新事物的充实', value: 'C' },
+            { label: '挑战自我、突破极限', value: 'D' }
+          ] },
+        { id: 28, emoji: '🏆', weight: 2, text: '你做事情时更倾向于？',
+          options: [
+            { label: '按部就班，完成就好', value: 'A' },
+            { label: '追求完美，精益求精', value: 'B' },
+            { label: '享受过程，结果不重要', value: 'C' },
+            { label: '竞争意识强，想要超越别人', value: 'D' }
+          ] },
+        { id: 29, emoji: '🌈', weight: 1, text: '你对未来的生活有什么期待？',
+          options: [
+            { label: '简单平静，低压力', value: 'A' },
+            { label: '充满小确幸，温暖', value: 'B' },
+            { label: '不断探索，充满变化', value: 'C' },
+            { label: '有所成就，被人认可', value: 'D' }
+          ] }
+    ];
+
+    // ================================================================
+    //  2. 16种水族宠物 + 通用性系数（generality）
+    // ================================================================
+
+    const results = [
+        { id: 'goldfish', emoji: '🐠', title: '金鱼 · 经典永不过时', subtitle: '入门首选，憨态可掬',
+          description: '金鱼是水族界最经典的宠物，皮实好养，品种繁多。你性格随和、喜欢传统美感，金鱼的悠然自得正合你意。冷水缸即可，无需加热，适合新手和忙碌的上班族。',
+          tags: ['✅ 新手友好', '💧 冷水鱼', '💰 性价比高', '🏠 空间要求低'],
+          care: '💡 饲养贴士：建议 60cm 以上鱼缸，过滤要足够，每周换水 1/4，喂食少量多次。',
+          idealAnswers: 'AAAAAAAAAAAAAAACAAAAAAAAAAAAAA',
+          generality: 1.25
+        },
+        { id: 'betta', emoji: '🌺', title: '斗鱼 · 独立优雅艺术家', subtitle: '孤芳自赏，美得张扬',
+          description: '斗鱼拥有飘逸的鱼鳍和丰富的色彩，性格独立且极具观赏性。你追求个性、喜欢精致生活，斗鱼不需要大缸，但需要你的细心呵护。适合小户型、喜欢安静陪伴的你。',
+          tags: ['🎨 高颜值', '🏠 小缸可养', '🧘 低噪音', '💪 生命力强'],
+          care: '💡 饲养贴士：水温 26-28°C，缸体加盖防跳，每周换水 1/3，避免强水流。',
+          idealAnswers: 'ABABABABABABABABABABABABABABAB',
+          generality: 1.12
+        },
+        { id: 'guppy', emoji: '🌈', title: '孔雀鱼 · 缤纷彩虹', subtitle: '活泼多彩，生生不息',
+          description: '孔雀鱼色彩绚丽、繁殖力强，是水族箱里的调色盘。你性格开朗、喜欢热闹，孔雀鱼群游的活力能点亮你的每一天。适合中缸混养，体验生命繁衍的乐趣。',
+          tags: ['🌈 色彩丰富', '👨‍👩‍👧‍👦 群养有趣', '🌱 易繁殖', '💧 适应力强'],
+          care: '💡 饲养贴士：水温 22-26°C，中性水质，多放水草提供躲避，注意后代隔离。',
+          idealAnswers: 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+          generality: 1.20
+        },
+        { id: 'molly', emoji: '🐟', title: '玛丽鱼 · 温婉恬静', subtitle: '亲和力十足，群游小精灵',
+          description: '玛丽鱼体态圆润、性格温和，是社区缸的绝佳选择。你友善随和、喜欢和谐氛围，玛丽鱼能与其他小型鱼和平共处，饲养简单，适合新手入门。',
+          tags: ['🤝 温和群游', '🌿 草缸适配', '💧 汽水可养', '👶 入门推荐'],
+          care: '💡 饲养贴士：水温 24-28°C，中性到弱碱性水质，可添加少量盐，杂食性。',
+          idealAnswers: 'AABBAABBAABBAABBAABBAABBAABBAA',
+          generality: 1.18
+        },
+        { id: 'platy', emoji: '🧡', title: '月光鱼 · 暖色月光', subtitle: '色彩柔和，活泼不张扬',
+          description: '月光鱼色彩温暖、体型小巧，是水族箱里的温柔点缀。你低调内敛、喜欢温馨感，月光鱼对水质要求不高，繁殖容易，适合与孔雀鱼等混养。',
+          tags: ['🌙 温柔色彩', '👨‍👩‍👧‍👦 易混养', '💪 皮实耐养', '🌱 适合草缸'],
+          care: '💡 饲养贴士：水温 22-26°C，中性水，喜吃藻类，定期补充植物性饲料。',
+          idealAnswers: 'BABABABABABABABABABABABABABABA',
+          generality: 1.15
+        },
+        { id: 'angel', emoji: '🧜‍♀️', title: '神仙鱼 · 水中仙子', subtitle: '优雅从容，气质非凡',
+          description: '神仙鱼体态优雅、游姿从容，是水族箱中的贵族。你品味出众、追求格调，神仙鱼需要稳定的水质和足够的垂直空间。适合有一定经验、愿意投入精力的玩家。',
+          tags: ['✨ 气质出众', '🌿 适合草缸', '🧠 需要经验', '📏 需高缸'],
+          care: '💡 饲养贴士：水温 26-28°C，pH 6.0-7.0，缸高 50cm+，避免与小型鱼混养。',
+          idealAnswers: 'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
+          generality: 1.00
+        },
+        { id: 'discus', emoji: '🌀', title: '七彩神仙 · 梦幻圆盘', subtitle: '极致艳丽，挑战与回报并存',
+          description: '七彩神仙被誉为“热带鱼之王”，体色变幻万千。你追求完美、喜欢挑战，养七彩需要极佳的水质和耐心，但成功后的成就感无与伦比。适合资深玩家。',
+          tags: ['🎨 色彩之王', '🧪 水质苛刻', '🏆 挑战性高', '💎 收藏价值'],
+          care: '💡 饲养贴士：水温 28-30°C，pH 6.0-6.5，需频繁换水，高蛋白饲料，建议群养。',
+          idealAnswers: 'CDCDCDCDCDCDCDCDCDCDCDCDCDCDCD',
+          generality: 0.95
+        },
+        { id: 'oscar', emoji: '🐊', title: '地图鱼 · 水中狗子', subtitle: '憨厚互动，食量惊人',
+          description: '地图鱼体型大、智商高，能认人、会互动，像小狗一样有趣。你热情开朗、喜欢互动，地图鱼需要大缸和强力过滤，是大型鱼爱好者的入门首选。',
+          tags: ['🐶 互动性强', '📏 需大缸', '🍖 食量巨大', '💪 皮实好养'],
+          care: '💡 饲养贴士：水温 24-28°C，缸体 120cm+，强过滤，喂食活食或颗粒，避免混养小型鱼。',
+          idealAnswers: 'DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC',
+          generality: 1.05
+        },
+        { id: 'flowerhorn', emoji: '💎', title: '罗汉鱼 · 霸气头瘤', subtitle: '王者之风，灵性十足',
+          description: '罗汉鱼以其隆起的头瘤和鲜艳的色彩著称，性格凶猛但极具灵性，能与主人互动。你自信果敢、喜欢独特，罗汉鱼需要单养，适合追求个性和霸气的人。',
+          tags: ['👑 霸气外露', '🤝 互动性强', '🧠 需要经验', '🏠 需大缸'],
+          care: '💡 饲养贴士：水温 26-30°C，缸体 100cm+，强过滤，建议单养，喂食增色饲料。',
+          idealAnswers: 'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD',
+          generality: 0.92
+        },
+        { id: 'arowana', emoji: '🐉', title: '龙鱼 · 水中霸主', subtitle: '王者风范，气势磅礴',
+          description: '龙鱼是水族界的王者，体型霸气、游姿威严，极具观赏价值。你有领导气质、追求卓越，龙鱼需要超大空间和顶级设备，是资深玩家的终极目标。',
+          tags: ['👑 王者气质', '📏 需大缸', '💰 价值不菲', '🏆 终极挑战'],
+          care: '💡 饲养贴士：缸体 150cm+，水温 26-30°C，强过滤，喂食活食或高品质饲料。',
+          idealAnswers: 'DDCDDDCDDDCDDDCDDDCDDDCDDDCDDD',
+          generality: 0.88
+        },
+        { id: 'clown', emoji: '🐡', title: '小丑鱼 · 海洋精灵', subtitle: '海水入门，萌趣互动',
+          description: '小丑鱼因《海底总动员》而家喻户晓，色彩鲜艳、性格活泼，能与海葵共生。你富有童心、喜欢探索，海水缸虽然有一定门槛，但小丑鱼是绝佳的起点。',
+          tags: ['🌊 海水入门', '🤝 互动性强', '🏝️ 造景丰富', '📈 有挑战性'],
+          care: '💡 饲养贴士：需海水盐度 1.020-1.025，温度 24-26°C，配备蛋白分离器，建议 60cm+ 缸。',
+          idealAnswers: 'BCCBCCBCCBCCBCCBCCBCCBCCBCCBC',
+          generality: 1.02
+        },
+        { id: 'blue_damsel', emoji: '🔷', title: '蓝魔 · 海水小强', subtitle: '皮实艳丽，新手海水首选',
+          description: '蓝魔是海水鱼中最皮实的品种之一，色彩亮蓝，性格活泼。你对海洋充满好奇但担心难度，蓝魔能帮你轻松迈出海水第一步，适合小缸入门。',
+          tags: ['🌊 海水入门', '💪 超级皮实', '🔵 亮眼色彩', '🏠 小缸可养'],
+          care: '💡 饲养贴士：盐度 1.020-1.025，温度 24-26°C，水质要求不高，注意与其他鱼争斗。',
+          idealAnswers: 'CBCCBCCBCCBCCBCCBCCBCCBCCBCCB',
+          generality: 1.10
+        },
+        { id: 'crystal_shrimp', emoji: '🦐', title: '水晶虾 · 微观艺术品', subtitle: '精致细腻，赏玩无穷',
+          description: '水晶虾体色艳丽、花纹独特，是水族界的微缩艺术品。你心思细腻、喜欢观察细节，养虾需要耐心和精准的水质控制。适合喜欢安静、追求极致细节的你。',
+          tags: ['🔬 微观世界', '🧴 需纯净水', '🎯 考验耐心', '🌿 草缸绝配'],
+          care: '💡 饲养贴士：RO 水饲养，GH 4-6，pH 6.2-6.8，温度 22-24°C，避免 predators。',
+          idealAnswers: 'ACACACACACACACACACACACACACACAC',
+          generality: 0.98
+        },
+        { id: 'cherry_shrimp', emoji: '🍒', title: '极火虾 · 炽热红宝石', subtitle: '热情如火，繁殖简单',
+          description: '极火虾通体火红，是草缸中最耀眼的点缀。你热情奔放、喜欢色彩，极火虾比水晶虾更皮实，繁殖容易，适合新手体验养虾乐趣。',
+          tags: ['🔴 鲜艳红色', '🌱 草缸绝配', '👶 新手友好', '🌊 繁殖简单'],
+          care: '💡 饲养贴士：水温 22-26°C，pH 6.5-7.5，硬度适中，多放莫斯，注意躲避。',
+          idealAnswers: 'BCBCBCBCBCBCBCBCBCBCBCBCBCBCBC',
+          generality: 1.10
+        },
+        { id: 'planted', emoji: '🌿', title: '水草缸 · 水下森林', subtitle: '自然造景，生态平衡',
+          description: '水草缸不是养鱼，而是养一个完整的生态系统。你热爱自然、喜欢创作，水草造景是艺术与科学的结合。适合有耐心、愿意学习、享受过程的人。',
+          tags: ['🌱 生态之美', '🎨 创作空间', '🧘 治愈心灵', '📚 知识丰富'],
+          care: '💡 饲养贴士：需 CO₂ 系统、合适光照，定期修剪施肥，水质稳定是关键。',
+          idealAnswers: 'CACACACACACACACACACACACACACACA',
+          generality: 1.08
+        },
+        { id: 'koi', emoji: '🎏', title: '锦鲤 · 吉祥之鳞', subtitle: '大型池塘，福气满满',
+          description: '锦鲤是吉祥与长寿的象征，色彩斑斓、游姿优雅。你大气豁达、热爱户外，养锦鲤需要池塘或超大缸，适合有庭院或大空间的你，带来好运与宁静。',
+          tags: ['🏯 吉祥象征', '🏊 需大水体', '🌿 户外池养', '👨‍👩‍👧‍👦 全家共赏'],
+          care: '💡 饲养贴士：池深 1m+，强过滤，水温 2-30°C，杂食性，注意防鸟和跳跃。',
+          idealAnswers: 'ADADADADADADADADADADADADADADAD',
+          generality: 0.96
+        }
+    ];
+
+    // ================================================================
+    //  3. 应用状态
+    // ================================================================
+
+    let currentQuestion = 0;
+    const answers = [];
+
+    const homePage = document.getElementById('homePage');
+    const progressWrap = document.getElementById('progressWrap');
+    const questionArea = document.getElementById('questionArea');
+    const progressFill = document.getElementById('progressFill');
+    const qNumLabel = document.getElementById('qNumLabel');
+    const progressPercent = document.getElementById('progressPercent');
+    const startBtn = document.getElementById('startBtn');
+
+    const weights = questions.map(q => q.weight || 1);
+
+    // ================================================================
+    //  4. 页面切换 & 渲染
+    // ================================================================
+
+    function startTest() {
+        // 隐藏首页，显示进度条和题目区
+        homePage.classList.add('hidden');
+        progressWrap.classList.remove('hidden');
+        questionArea.classList.remove('hidden');
+        // 重置状态
+        answers.length = 0;
+        currentQuestion = 0;
+        renderQuestion(0);
+    }
+
+    function renderQuestion(index) {
+        const q = questions[index];
+        const total = questions.length;
+        const progress = (index / total) * 100;
+
+        progressFill.style.width = progress + '%';
+        qNumLabel.textContent = `${index + 1} / ${total}`;
+        progressPercent.textContent = Math.round(progress) + '%';
+
+        const optionsHtml = q.options.map((opt, idx) => {
+            const letter = String.fromCharCode(65 + idx);
+            return `
+                <div class="option-item" data-value="${opt.value}">
+                    <span class="opt-letter">${letter}</span>
+                    <span class="opt-text">${opt.label}</span>
+                </div>
+            `;
+        }).join('');
+
+        const html = `
+            <div class="question-text">
+                <span class="q-emoji">${q.emoji}</span>
+                ${q.text}
+            </div>
+            <div class="options" id="optionsContainer">
+                ${optionsHtml}
+            </div>
+        `;
+
+        questionArea.innerHTML = html;
+
+        document.querySelectorAll('.option-item').forEach(el => {
+            el.addEventListener('click', function() {
+                const value = this.dataset.value;
+                answers[index] = value;
+                if (index < total - 1) {
+                    renderQuestion(index + 1);
+                } else {
+                    showResult();
+                }
+            });
+        });
+
+        document.querySelector('.test-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ================================================================
+    //  5. 加权匹配 + 通用性系数算法
+    // ================================================================
+
+    function calculateResult() {
+        let bestPet = null;
+        let bestFinalScore = -1;
+        let totalWeight = weights.reduce((a, b) => a + b, 0);
+
+        for (const pet of results) {
+            let weightedMatch = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (answers[i] === pet.idealAnswers[i]) {
+                    weightedMatch += weights[i];
+                }
+            }
+            const basePercent = (weightedMatch / totalWeight) * 100;
+            let finalScore = basePercent * pet.generality;
+            if (finalScore > 100) finalScore = 100;
+            if (finalScore > bestFinalScore) {
+                bestFinalScore = finalScore;
+                bestPet = { ...pet, matchPercent: Math.round(finalScore) };
+            }
+        }
+        return bestPet;
+    }
+
+    function showResult() {
+        const result = calculateResult();
+
+        progressFill.style.width = '100%';
+        qNumLabel.textContent = '🎉 完成！';
+        progressPercent.textContent = '100%';
+
+        const html = `
+            <div class="result-area">
+                <div class="result-card">
+                    <span class="result-emoji">${result.emoji}</span>
+                    <div class="result-title">${result.title}</div>
+                    <div class="result-sub">${result.subtitle}</div>
+                    <div class="result-score">🏅 匹配度 ${result.matchPercent}% · 含通用性加权</div>
+                    <div class="result-desc">${result.description}</div>
+                    <div class="result-tags">
+                        ${result.tags.map(t => `<span>${t}</span>`).join('')}
+                    </div>
+                    <div class="result-care">${result.care}</div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="restartTest()">🔄 重新测试</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ 保存结果</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        questionArea.innerHTML = html;
+        document.querySelector('.test-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ================================================================
+    //  6. 重新开始（回到首页）
+    // ================================================================
+
+    function restartTest() {
+        answers.length = 0;
+        currentQuestion = 0;
+        // 回到首页
+        homePage.classList.remove('hidden');
+        progressWrap.classList.add('hidden');
+        questionArea.classList.add('hidden');
+        // 重置进度条
+        progressFill.style.width = '0%';
+        qNumLabel.textContent = '1 / 30';
+        progressPercent.textContent = '0%';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ================================================================
+    //  7. 绑定事件 & 初始化
+    // ================================================================
+
+    startBtn.addEventListener('click', startTest);
+
+    // 初始状态：首页显示，进度条和题目区隐藏（已在HTML中设置hidden）
+    // 无需额外操作
+</script>
+</body>
+</html>
