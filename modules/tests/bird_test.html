@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🦜 鸟类适性测试 · 你适合养什么鸟？</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f7f3e9 0%, #e8e0d5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== 主容器 ===== */
+        .container {
+            max-width: 820px;
+            width: 100%;
+            background: rgba(255, 252, 245, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 40px 44px 48px;
+            box-shadow: 0 30px 60px rgba(100, 70, 40, 0.18), 0 12px 28px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 245, 230, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 200, 120, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .container::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(180, 210, 240, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* ===== 首页样式 ===== */
+        #home {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-icon {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 6px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #4a3728;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #d48c5c, #b5724a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #7a6a5a;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .subtitle em {
+            font-style: normal;
+            color: #b5724a;
+            font-weight: 500;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 28px 0 32px;
+            text-align: left;
+        }
+
+        .feature-item {
+            background: rgba(245, 235, 220, 0.5);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: #4a3728;
+            border: 1px solid rgba(200, 175, 150, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .feature-item .icon {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #d48c5c, #b5724a);
+            color: #fff;
+            border: none;
+            padding: 18px 56px;
+            font-size: 22px;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 24px rgba(180, 110, 60, 0.3);
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 14px 32px rgba(180, 110, 60, 0.35);
+        }
+
+        .btn-start:active {
+            transform: scale(0.97);
+        }
+
+        .test-meta {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #9a8a7a;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .test-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== 测试页样式 ===== */
+        #quiz {
+            display: none;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 测试页大标题 */
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(200, 175, 150, 0.2);
+        }
+
+        .quiz-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4a3728;
+            letter-spacing: 1px;
+        }
+
+        .quiz-header h2 span {
+            background: linear-gradient(135deg, #d48c5c, #b5724a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-header .progress-label {
+            font-size: 15px;
+            color: #7a6a5a;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: #e8ddd0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #d48c5c, #c47a4a);
+            border-radius: 12px;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .progress-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #7a6a5a;
+            min-width: 58px;
+            text-align: right;
+            letter-spacing: 0.3px;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #b09a88;
+            font-weight: 500;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #3d2c1e;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            min-height: 68px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: rgba(250, 245, 235, 0.7);
+            border: 2px solid #e8ddd0;
+            border-radius: 18px;
+            padding: 18px 22px;
+            font-size: 16px;
+            color: #3d2c1e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(4px);
+            font-weight: 450;
+            line-height: 1.4;
+            min-height: 64px;
+        }
+
+        .option-btn:hover {
+            background: rgba(235, 220, 200, 0.6);
+            border-color: #c4a88a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(140, 100, 70, 0.08);
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn .opt-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e8ddd0;
+            color: #5a4a3a;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .option-btn:hover .opt-label {
+            background: #d4c0b0;
+            color: #3d2c1e;
+        }
+
+        .option-btn.selected {
+            border-color: #b5724a;
+            background: rgba(210, 170, 130, 0.2);
+            box-shadow: 0 0 0 4px rgba(180, 110, 60, 0.08);
+        }
+
+        .option-btn.selected .opt-label {
+            background: #b5724a;
+            color: #fff;
+        }
+
+        /* ===== 导航按钮区域 ===== */
+        .nav-buttons {
+            display: flex;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .nav-btn-prev {
+            background: rgba(235, 220, 200, 0.5);
+            border: 2px solid #d4c0b0;
+            color: #4a3728;
+        }
+
+        .nav-btn-prev:hover:not(:disabled) {
+            background: rgba(215, 195, 175, 0.5);
+            border-color: #b5724a;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn-prev:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .nav-btn-next {
+            background: linear-gradient(135deg, #d48c5c, #b5724a);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(180, 110, 60, 0.25);
+        }
+
+        .nav-btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(180, 110, 60, 0.3);
+        }
+
+        .nav-btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+        }
+
+        /* ===== 结果页样式 ===== */
+        #result {
+            display: none;
+            position: relative;
+            z-index: 2;
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .result-emoji {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .result-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #3d2c1e;
+            margin-bottom: 4px;
+        }
+
+        .result-sub {
+            font-size: 18px;
+            color: #7a6a5a;
+            font-weight: 400;
+        }
+
+        .result-bird-card {
+            background: rgba(250, 245, 235, 0.6);
+            border-radius: 28px;
+            padding: 28px 32px;
+            border: 1px solid rgba(200, 175, 150, 0.2);
+            margin-bottom: 24px;
+            backdrop-filter: blur(6px);
+        }
+
+        .result-bird-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #3d2c1e;
+            margin-bottom: 6px;
+        }
+
+        .result-bird-name small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #9a8a7a;
+            margin-left: 10px;
+        }
+
+        .result-bird-desc {
+            font-size: 16px;
+            color: #5a4a3a;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .result-bird-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .trait-tag {
+            background: rgba(200, 175, 150, 0.2);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            color: #5a4a3a;
+            border: 1px solid rgba(180, 150, 120, 0.15);
+        }
+
+        .match-section {
+            margin: 20px 0 18px;
+        }
+
+        .match-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 8px;
+        }
+
+        .match-bar-label {
+            font-size: 14px;
+            color: #7a6a5a;
+            min-width: 70px;
+            font-weight: 500;
+        }
+
+        .match-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #e8ddd0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .match-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #d48c5c, #b5724a);
+            width: 0%;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .match-bar-pct {
+            font-size: 15px;
+            font-weight: 600;
+            color: #4a3728;
+            min-width: 44px;
+            text-align: right;
+        }
+
+        .result-advice {
+            background: rgba(235, 220, 200, 0.25);
+            border-radius: 18px;
+            padding: 18px 24px;
+            border-left: 4px solid #b5724a;
+            margin: 16px 0 22px;
+            font-size: 15px;
+            color: #4a3a2a;
+            line-height: 1.6;
+        }
+
+        .result-advice strong {
+            color: #b5724a;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            background: rgba(235, 220, 200, 0.5);
+            border: 2px solid #d4c0b0;
+            color: #4a3728;
+            padding: 14px 34px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(215, 195, 175, 0.5);
+            border-color: #b5724a;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d48c5c, #b5724a);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 6px 20px rgba(180, 110, 60, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(180, 110, 60, 0.3);
+        }
+
+        /* ===== 其他鸟类匹配 ===== */
+        .other-birds {
+            margin-top: 28px;
+            border-top: 1px solid rgba(200, 175, 150, 0.2);
+            padding-top: 22px;
+        }
+
+        .other-birds-title {
+            font-size: 16px;
+            color: #7a6a5a;
+            margin-bottom: 14px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .other-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .other-item {
+            background: rgba(250, 245, 235, 0.4);
+            border-radius: 16px;
+            padding: 12px 14px;
+            text-align: center;
+            border: 1px solid rgba(200, 175, 150, 0.1);
+            transition: all 0.2s;
+        }
+
+        .other-item .o-emoji {
+            font-size: 30px;
+            display: block;
+        }
+
+        .other-item .o-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a3728;
+            margin-top: 2px;
+        }
+
+        .other-item .o-pct {
+            font-size: 13px;
+            color: #9a8a7a;
+        }
+
+        .other-item .o-bar-bg {
+            height: 4px;
+            background: #e8ddd0;
+            border-radius: 8px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .other-item .o-bar-fill {
+            height: 100%;
+            background: #c4a88a;
+            border-radius: 8px;
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .container {
+                padding: 28px 20px 32px;
+                border-radius: 32px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .quiz-header h2 {
+                font-size: 22px;
+            }
+
+            .question-text {
+                font-size: 18px;
+                min-height: 52px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .option-btn {
+                padding: 14px 18px;
+                font-size: 15px;
+                min-height: 54px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .feature-item {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            .btn-start {
+                padding: 16px 40px;
+                font-size: 19px;
+                width: 100%;
+            }
+
+            .result-bird-card {
+                padding: 20px 18px;
+            }
+
+            .result-title {
+                font-size: 24px;
+            }
+
+            .test-meta {
+                gap: 14px;
+                font-size: 13px;
+                flex-wrap: wrap;
+            }
+
+            .other-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            .result-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 20px 14px 24px;
+                border-radius: 24px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .question-text {
+                font-size: 17px;
+            }
+        }
+
+        /* ===== 工具类 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0e8dc;
+            border-radius: 12px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c4a88a;
+            border-radius: 12px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b5724a;
+        }
+
+        /* ===== 轻提示 ===== */
+        .hint-msg {
+            text-align: center;
+            color: #b5724a;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 8px;
+            animation: fadeInOut 1.8s ease forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-6px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <!-- ====== 首页 ====== -->
+        <div id="home">
+            <span class="logo-icon">🦜</span>
+            <h1>鸟类适性 <span>测试</span></h1>
+            <p class="subtitle">
+                从生活作息、性格偏好、家居环境到心理需求<br />
+                找到与你 <em>灵魂契合</em> 的那只鸟伙伴
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item"><span class="icon">⏱️</span> 约 8-12 分钟</div>
+                <div class="feature-item"><span class="icon">📋</span> 36 道趣味选择题</div>
+                <div class="feature-item"><span class="icon">🐦</span> 15 种常见宠物鸟</div>
+                <div class="feature-item"><span class="icon">🎯</span> 精准匹配推荐</div>
+            </div>
+
+            <button class="btn-start" onclick="startTest()">开始测试 →</button>
+
+            <div class="test-meta">
+                <span>🧠 不直接问「你喜欢什么鸟」</span>
+                <span>🌿 从生活细节洞察</span>
+                <span>✨ 趣味 + 实用</span>
+            </div>
+        </div>
+
+        <!-- ====== 测试页 ====== -->
+        <div id="quiz">
+            <!-- 大标题 -->
+            <div class="quiz-header">
+                <h2>🦜 鸟类适性 <span>测试</span></h2>
+                <div class="progress-label" id="progressLabel">第 1 / 36 题</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">0 / 36</span>
+            </div>
+
+            <div class="question-number" id="questionNumber">第 1 题</div>
+            <div class="question-text" id="questionText">加载题目中…</div>
+
+            <div class="options-grid" id="optionsContainer"></div>
+
+            <!-- 导航按钮区域 -->
+            <div class="nav-buttons">
+                <button class="nav-btn nav-btn-prev" id="btnPrev" onclick="prevQuestion()" disabled>
+                    ← 上一题
+                </button>
+                <button class="nav-btn nav-btn-next" id="btnNext" onclick="nextQuestion()" disabled>
+                    下一题 →
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== 结果页 ====== -->
+        <div id="result">
+            <div class="result-header">
+                <span class="result-emoji" id="resultEmoji">🦜</span>
+                <div class="result-title" id="resultTitle">你的灵魂鸟伙伴</div>
+                <div class="result-sub" id="resultSub">根据你的生活特质，我们推荐：</div>
+            </div>
+
+            <div class="result-bird-card">
+                <div class="result-bird-name" id="resultBirdName">虎皮鹦鹉 <small>Budgerigar</small></div>
+                <div class="result-bird-desc" id="resultBirdDesc">活泼可爱，适应力强，是新手入门的绝佳选择。</div>
+                <div class="result-bird-traits" id="resultTraits"></div>
+
+                <div class="match-section">
+                    <div class="match-bar-wrap">
+                        <span class="match-bar-label">匹配度</span>
+                        <div class="match-bar-bg">
+                            <div class="match-bar-fill" id="matchBarFill" style="width:0%"></div>
+                        </div>
+                        <span class="match-bar-pct" id="matchPct">0%</span>
+                    </div>
+                </div>
+
+                <div class="result-advice" id="resultAdvice">
+                    <strong>💡 饲养贴士：</strong> 虎皮鹦鹉活泼好动，需要较大的活动空间和丰富的玩具，每天至少半小时的互动时间。
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn-secondary" onclick="retest()">🔄 重新测试</button>
+                <button class="btn-primary" onclick="shareResult()">📤 分享结果</button>
+            </div>
+
+            <div class="other-birds">
+                <div class="other-birds-title">📊 其他适合你的鸟类</div>
+                <div class="other-grid" id="otherGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  1. 鸟类数据（15种）
+        // ============================================================
+        const BIRDS = {
+            budgie: {
+                id: 'budgie',
+                name: '虎皮鹦鹉',
+                emoji: '🐦',
+                latin: 'Budgerigar',
+                desc: '活泼可爱，适应力强，是新手入门的绝佳选择。喜欢热闹，爱鸣叫，能给家庭带来无限活力。',
+                traits: ['活泼好动', '适应力强', '爱鸣叫', '适合新手', '体型小巧'],
+                advice: '虎皮鹦鹉需要较大的活动空间和丰富的玩具，每天至少半小时互动。它们喜欢群居，建议养一对。饮食以谷物为主，辅以新鲜蔬果。'
+            },
+            cockatiel: {
+                id: 'cockatiel',
+                name: '玄凤鹦鹉',
+                emoji: '🦜',
+                latin: 'Cockatiel',
+                desc: '温顺亲人，性格温和，是家庭宠物的理想选择。喜欢被抚摸，会撒娇，能与人建立深厚情感。',
+                traits: ['温顺亲人', '性格温和', '爱撒娇', '适合家庭', '好养活'],
+                advice: '玄凤鹦鹉性格温顺，适合有孩子的家庭。每天需要1-2小时互动，喜欢被抚摸头部。注意提供磨嘴玩具和沐浴机会。'
+            },
+            lovebird: {
+                id: 'lovebird',
+                name: '牡丹鹦鹉',
+                emoji: '💕',
+                latin: 'Lovebird',
+                desc: '粘人活泼，聪明伶俐，对主人有强烈的占有欲。喜欢依偎在主人身边，是名副其实的「恋爱鸟」。',
+                traits: ['粘人', '活泼', '聪明', '需要陪伴', '占有欲强'],
+                advice: '牡丹鹦鹉极度依赖陪伴，如果白天无人陪伴，建议养一对。它们喜欢啃咬，需要提供充足的木制玩具。注意防止逃逸。'
+            },
+            quaker: {
+                id: 'quaker',
+                name: '和尚鹦鹉',
+                emoji: '🧘',
+                latin: 'Quaker Parrot',
+                desc: '健谈聪慧，学习能力强，喜欢模仿人声。性格独立又有趣，适合有一定经验的饲养者。',
+                traits: ['健谈', '聪明', '学习能力强', '需经验', '社交性强'],
+                advice: '和尚鹦鹉需要大量的智力刺激和社交互动。每天至少1小时的训练和玩耍时间。它们善于筑巢，需要提供合适的巢材。'
+            },
+            sun: {
+                id: 'sun',
+                name: '金太阳鹦鹉',
+                emoji: '☀️',
+                latin: 'Sun Conure',
+                desc: '色彩艳丽，活泼吵闹，充满活力。喜欢与人互动，需要宽敞的空间和大量的关注。',
+                traits: ['色彩鲜艳', '活泼吵闹', '需大空间', '互动性强', '爱表现'],
+                advice: '金太阳鹦鹉叫声响亮，不适合公寓居住。需要大型笼具和充足的户外活动时间。每天至少2小时互动，喜欢沐浴和玩耍。'
+            },
+            grey: {
+                id: 'grey',
+                name: '非洲灰鹦鹉',
+                emoji: '🧠',
+                latin: 'African Grey',
+                desc: '高智商，情感丰富，被誉为「会飞的哲学家」。需要大量互动和智力挑战，适合有充足时间的饲养者。',
+                traits: ['高智商', '情感丰富', '需要大量互动', '长寿', '安静'],
+                advice: '非洲灰鹦鹉需要每天至少2小时的互动和智力训练。它们对情绪敏感，需要稳定的家庭环境。提供丰富的益智玩具和社交机会。'
+            },
+            java: {
+                id: 'java',
+                name: '文鸟',
+                emoji: '🐧',
+                latin: 'Java Sparrow',
+                desc: '安静温和，适应小空间，是都市生活的理想伴侣。不粘人，但会默默陪伴，给人宁静的温暖。',
+                traits: ['安静温和', '适应小空间', '好养', '不太粘人', '优雅'],
+                advice: '文鸟适合公寓和小户型家庭。它们喜欢群居，建议养一对或小群体。提供宽敞的飞行空间和多样化的谷物饲料。'
+            },
+            canary: {
+                id: 'canary',
+                name: '金丝雀',
+                emoji: '🎵',
+                latin: 'Canary',
+                desc: '鸣唱优美，优雅动人，是视觉与听觉的双重享受。相对独立，适合喜欢观赏和聆听的饲养者。',
+                traits: ['鸣唱优美', '优雅', '观赏性强', '相对独立', '爱干净'],
+                advice: '金丝雀以鸣唱闻名，雄性歌声尤为动听。需要提供安静的环境和充足的光照。保持笼具清洁，提供浴盆供其沐浴。'
+            },
+            hwamei: {
+                id: 'hwamei',
+                name: '画眉',
+                emoji: '🎶',
+                latin: 'Hwamei',
+                desc: '歌声婉转动听，是传统的笼养鸣禽。性格机敏，需要安静的环境来展现其优美的歌喉。',
+                traits: ['鸣唱优美', '机敏', '喜静', '传统笼养', '观赏性强'],
+                advice: '画眉需要安静的环境，避免惊吓。日常以虫和专用饲料为主，定期遛鸟有助于保持其鸣唱状态。笼具需宽大，并放置栖杠。'
+            },
+            myna: {
+                id: 'myna',
+                name: '八哥',
+                emoji: '🗣️',
+                latin: 'Crested Myna',
+                desc: '聪明活泼，擅长模仿各种声音，是花鸟市场的经典品种。与人互动性强，极具灵性。',
+                traits: ['聪明', '善于模仿', '活泼', '需要陪伴', '互动性强'],
+                advice: '八哥需要较大的笼具和充足的社交互动。每天花时间训练和对话，能显著提升其模仿能力。饮食以软食和昆虫为主。'
+            },
+            whiteeye: {
+                id: 'whiteeye',
+                name: '绣眼鸟',
+                emoji: '🐤',
+                latin: 'White-eye',
+                desc: '小巧玲珑，动作敏捷，喜欢在花丛中跳跃，给人带来灵动的美感，非常适合小空间饲养。',
+                traits: ['小巧', '活泼', '适应性强', '爱干净', '鸣声清脆'],
+                advice: '绣眼鸟喜欢沐浴和甜食（水果）。笼内需放置浴盆，并提供粉料和昆虫补充蛋白质。注意保暖，避免冷风直吹。'
+            },
+            zebrafinch: {
+                id: 'zebrafinch',
+                name: '珍珠鸟',
+                emoji: '🐦',
+                latin: 'Zebra Finch',
+                desc: '性格温和，叫声轻快，是非常适合新手和家庭饲养的雀类，也是很好的入门观察对象。',
+                traits: ['温和', '好养', '适合新手', '叫声轻快', '群居性'],
+                advice: '珍珠鸟喜欢群居，建议养一对或小群。提供小米和清洁饮水，它们很容易繁殖，适合观察生活习性。笼内放置干草供其筑巢。'
+            },
+            gouldian: {
+                id: 'gouldian',
+                name: '七彩文鸟',
+                emoji: '🌈',
+                latin: 'Gouldian Finch',
+                desc: '色彩斑斓，宛如调色盘，是雀类中颜值最高的品种之一，极具观赏价值。',
+                traits: ['色彩绚丽', '观赏性强', '需要温暖', '安静', '优雅'],
+                advice: '七彩文鸟对温度敏感，冬天需注意保暖。以谷物为主食，补充矿物质和维生素以保持羽毛鲜艳。避免过度惊扰。'
+            },
+            society: {
+                id: 'society',
+                name: '十姐妹',
+                emoji: '🕊️',
+                latin: 'Society Finch',
+                desc: '性格温顺，合群友善，喜欢与其他鸟类相处，是极佳的「社区鸟」，适合多鸟混养环境。',
+                traits: ['温顺', '合群', '好养活', '适合群养', '友好'],
+                advice: '十姐妹非常温顺，可以和其他小型雀类混养。它们喜欢筑巢，提供干草和巢材会看到它们有趣的行为。饮食简单，以谷物为主。'
+            },
+            leiothrix: {
+                id: 'leiothrix',
+                name: '相思鸟',
+                emoji: '❤️',
+                latin: 'Red-billed Leiothrix',
+                desc: '羽色艳丽，鸣声清脆，象征着爱情的相思鸟，深受传统养鸟人喜爱，成对饲养观赏性极佳。',
+                traits: ['艳丽', '鸣声清脆', '互动性强', '需要陪伴', '成对饲养'],
+                advice: '相思鸟需要较大的笼舍活动空间，喜欢活食（面包虫）。成对饲养能欣赏到它们美妙的“对唱”。保持环境安静，定期沐浴。'
+            }
+        };
+
+        const BIRD_IDS = ['budgie', 'cockatiel', 'lovebird', 'quaker', 'sun', 'grey', 'java', 'canary', 'hwamei', 'myna',
+            'whiteeye', 'zebrafinch', 'gouldian', 'society', 'leiothrix'
+        ];
+
+        // ============================================================
+        //  2. 题目数据（36 题，覆盖全部15种鸟）
+        // ============================================================
+        const QUESTIONS = [{
+            text: '周末早上你通常会——',
+            options: [
+                { text: '天刚亮就自然醒，精神饱满地开始一天', bird: 'hwamei' },
+                { text: '睡到自然醒，悠闲地享受早午餐', bird: 'java' },
+                { text: '早早起床，约朋友一起出去玩', bird: 'lovebird' },
+                { text: '醒来后先在床上刷手机，再慢慢起床', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你对「安静」的态度是——',
+            options: [
+                { text: '喜欢安静，享受独处的宁静时光', bird: 'java' },
+                { text: '可以安静，但更喜欢有声音的热闹氛围', bird: 'whiteeye' },
+                { text: '完全不怕吵闹，甚至喜欢热闹', bird: 'gouldian' },
+                { text: '需要安静才能集中注意力，但偶尔也喜欢音乐', bird: 'canary' }
+            ]
+        }, {
+            text: '你更倾向于哪种社交方式？',
+            options: [
+                { text: '喜欢成为焦点，在人群中侃侃而谈', bird: 'myna' },
+                { text: '喜欢小圈子深度交流，和熟悉的人亲近', bird: 'lovebird' },
+                { text: '随和友好，能和大多数人愉快相处', bird: 'cockatiel' },
+                { text: '享受独处，社交适量即可', bird: 'java' }
+            ]
+        }, {
+            text: '你家的空间大小最接近——',
+            options: [
+                { text: '宽敞的大房子，有院子或阳台', bird: 'leiothrix' },
+                { text: '中等面积的公寓，布局合理', bird: 'quaker' },
+                { text: '紧凑的小户型，但采光良好', bird: 'java' },
+                { text: '空间不大，但布置得很温馨', bird: 'canary' }
+            ]
+        }, {
+            text: '你一天中精力最充沛的时段是——',
+            options: [
+                { text: '清晨，日出时分', bird: 'zebrafinch' },
+                { text: '上午到中午，工作效率最高', bird: 'cockatiel' },
+                { text: '下午到傍晚，越晚越精神', bird: 'budgie' },
+                { text: '晚上，夜深人静时灵感最多', bird: 'grey' }
+            ]
+        }, {
+            text: '你对「整洁」的态度是——',
+            options: [
+                { text: '非常注重，喜欢一切井井有条', bird: 'society' },
+                { text: '比较注重，但偶尔也会乱一下', bird: 'cockatiel' },
+                { text: '随性自然，舒适最重要', bird: 'lovebird' },
+                { text: '不太在意，生活有点混乱反而觉得自在', bird: 'sun' }
+            ]
+        }, {
+            text: '你希望宠物与你的关系是——',
+            options: [
+                { text: '形影不离，彼此依赖', bird: 'lovebird' },
+                { text: '亲密互动，但各自也有独立空间', bird: 'cockatiel' },
+                { text: '互相尊重，保持一定的距离感', bird: 'whiteeye' },
+                { text: '智力上的伙伴，一起探索和学习', bird: 'grey' }
+            ]
+        }, {
+            text: '你平时如何处理情绪压力？',
+            options: [
+                { text: '找朋友倾诉，释放情绪', bird: 'myna' },
+                { text: '一个人静静，自我消化', bird: 'grey' },
+                { text: '通过运动或爱好转移注意力', bird: 'budgie' },
+                { text: '听音乐或唱歌来放松', bird: 'canary' }
+            ]
+        }, {
+            text: '你更喜欢哪种休闲方式？',
+            options: [
+                { text: '户外运动，感受自然', bird: 'gouldian' },
+                { text: '在家看书、看电影，享受宁静', bird: 'java' },
+                { text: '学习新技能，挑战自己', bird: 'quaker' },
+                { text: '与家人朋友一起做饭、聊天', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你对「噪音」的容忍度是——',
+            options: [
+                { text: '完全不能忍受，喜欢绝对的安静', bird: 'society' },
+                { text: '可以接受适度的生活噪音', bird: 'cockatiel' },
+                { text: '不怕吵闹，甚至觉得热闹有安全感', bird: 'budgie' },
+                { text: '能容忍，但需要有安静的时刻', bird: 'canary' }
+            ]
+        }, {
+            text: '你愿意每天花多长时间陪伴宠物？',
+            options: [
+                { text: '1 小时以内，偶尔互动即可', bird: 'zebrafinch' },
+                { text: '1-2 小时，日常互动和照料', bird: 'cockatiel' },
+                { text: '2-4 小时，深度互动和训练', bird: 'quaker' },
+                { text: '4 小时以上，几乎形影不离', bird: 'lovebird' }
+            ]
+        }, {
+            text: '你更看重宠物的哪种特质？',
+            options: [
+                { text: '聪明伶俐，能学会各种技能', bird: 'hwamei' },
+                { text: '外表漂亮，赏心悦目', bird: 'canary' },
+                { text: '性格粘人，给你满满的陪伴感', bird: 'lovebird' },
+                { text: '活泼有趣，能带来欢笑', bird: 'budgie' }
+            ]
+        }, {
+            text: '你家里的日常噪音水平如何？',
+            options: [
+                { text: '非常安静，几乎没什么噪音', bird: 'java' },
+                { text: '正常的生活噪音，电视、交谈等', bird: 'cockatiel' },
+                { text: '比较热闹，经常有朋友来访', bird: 'budgie' },
+                { text: '有时会比较嘈杂，但也能接受', bird: 'leiothrix' }
+            ]
+        }, {
+            text: '你对宠物「说话」能力的期待是——',
+            options: [
+                { text: '完全不期待，安静就好', bird: 'whiteeye' },
+                { text: '能学几句简单的话就好', bird: 'quaker' },
+                { text: '希望它能模仿各种声音和语言', bird: 'grey' },
+                { text: '无所谓，只要可爱就行', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你平时作息规律吗？',
+            options: [
+                { text: '非常规律，早睡早起', bird: 'society' },
+                { text: '比较规律，偶尔熬夜', bird: 'cockatiel' },
+                { text: '不太规律，经常晚睡晚起', bird: 'budgie' },
+                { text: '完全随性，没有固定作息', bird: 'sun' }
+            ]
+        }, {
+            text: '你更喜欢哪种运动或活动？',
+            options: [
+                { text: '瑜伽、冥想等静态活动', bird: 'java' },
+                { text: '跑步、健身等动态运动', bird: 'budgie' },
+                { text: '团队运动，如篮球、足球', bird: 'sun' },
+                { text: '智力运动，如棋类、解谜', bird: 'myna' }
+            ]
+        }, {
+            text: '你的经济预算更适合——',
+            options: [
+                { text: '预算充足，愿意为宠物投入较多', bird: 'hwamei' },
+                { text: '中等预算，能提供良好的生活条件', bird: 'quaker' },
+                { text: '预算有限，但能保证基本需求', bird: 'budgie' },
+                { text: '希望经济实惠，好养不费钱', bird: 'java' }
+            ]
+        }, {
+            text: '你希望宠物给你带来什么？',
+            options: [
+                { text: '陪伴和情感支持', bird: 'lovebird' },
+                { text: '欢乐和活力', bird: 'budgie' },
+                { text: '美的享受和艺术感', bird: 'zebrafinch' },
+                { text: '智力的启发和挑战', bird: 'grey' }
+            ]
+        }, {
+            text: '你对自己「耐心」的评价是——',
+            options: [
+                { text: '非常有耐心，能长时间做同一件事', bird: 'gouldian' },
+                { text: '比较有耐心，但偶尔会急躁', bird: 'cockatiel' },
+                { text: '耐心一般，容易厌烦重复的事', bird: 'budgie' },
+                { text: '没什么耐心，喜欢快节奏', bird: 'sun' }
+            ]
+        }, {
+            text: '你喜欢「变化」还是「稳定」？',
+            options: [
+                { text: '喜欢稳定，不喜欢太多变化', bird: 'leiothrix' },
+                { text: '喜欢适度的变化，有新鲜感', bird: 'cockatiel' },
+                { text: '喜欢变化，讨厌一成不变', bird: 'budgie' },
+                { text: '完全拥抱变化，越刺激越好', bird: 'sun' }
+            ]
+        }, {
+            text: '你对「责任感」的理解是——',
+            options: [
+                { text: '愿意为宠物负责到底，不离不弃', bird: 'myna' },
+                { text: '会认真负责，但需要提前做好准备', bird: 'quaker' },
+                { text: '愿意负责，但希望宠物不要太麻烦', bird: 'java' },
+                { text: '觉得责任重大，需要深思熟虑', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你更喜欢哪种天气？',
+            options: [
+                { text: '阳光明媚的晴天', bird: 'sun' },
+                { text: '微风和煦的春日', bird: 'hwamei' },
+                { text: '凉爽安静的阴天', bird: 'java' },
+                { text: '温暖的室内，不管外面天气', bird: 'lovebird' }
+            ]
+        }, {
+            text: '你平时如何与人沟通？',
+            options: [
+                { text: '直接坦率，有什么说什么', bird: 'quaker' },
+                { text: '委婉含蓄，照顾他人感受', bird: 'cockatiel' },
+                { text: '喜欢用肢体语言和表情表达', bird: 'lovebird' },
+                { text: '深思熟虑后再说，比较谨慎', bird: 'whiteeye' }
+            ]
+        }, {
+            text: '你对「新事物」的态度是——',
+            options: [
+                { text: '充满好奇，喜欢探索新事物', bird: 'budgie' },
+                { text: '谨慎接受，需要时间适应', bird: 'java' },
+                { text: '积极尝试，但会评估风险', bird: 'quaker' },
+                { text: '喜欢研究，深入了解后再行动', bird: 'zebrafinch' }
+            ]
+        }, {
+            text: '你更倾向于哪种生活方式？',
+            options: [
+                { text: '城市中心，繁华便利', bird: 'budgie' },
+                { text: '城郊结合，安静又不失便利', bird: 'cockatiel' },
+                { text: '乡村或郊区，亲近自然', bird: 'society' },
+                { text: '随遇而安，哪里都能适应', bird: 'java' }
+            ]
+        }, {
+            text: '你对「独处」的感受是——',
+            options: [
+                { text: '享受独处，觉得很自在', bird: 'java' },
+                { text: '可以独处，但更喜欢有人陪伴', bird: 'lovebird' },
+                { text: '独处时容易感到无聊', bird: 'budgie' },
+                { text: '需要独处来充电，但也要社交', bird: 'gouldian' }
+            ]
+        }, {
+            text: '你平时如何处理与人的分歧？',
+            options: [
+                { text: '积极沟通，寻求共识', bird: 'quaker' },
+                { text: '妥协退让，维持和谐', bird: 'cockatiel' },
+                { text: '坚持己见，但尊重对方', bird: 'leiothrix' },
+                { text: '回避冲突，让时间解决', bird: 'java' }
+            ]
+        }, {
+            text: '你更喜欢哪种艺术形式？',
+            options: [
+                { text: '音乐，尤其是旋律优美的', bird: 'myna' },
+                { text: '绘画，色彩和构图', bird: 'sun' },
+                { text: '文学，故事和文字', bird: 'grey' },
+                { text: '舞蹈，节奏和肢体表达', bird: 'budgie' }
+            ]
+        }, {
+            text: '你对「挑战」的态度是——',
+            options: [
+                { text: '喜欢挑战，越难越有动力', bird: 'quaker' },
+                { text: '接受挑战，但需要充分准备', bird: 'hwamei' },
+                { text: '不喜欢挑战，喜欢舒适区', bird: 'java' },
+                { text: '偶尔挑战，但不会强求', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你希望你的宠物——',
+            options: [
+                { text: '能和你一起看电视、听音乐', bird: 'lovebird' },
+                { text: '能自己玩耍，不需要你时刻关注', bird: 'zebrafinch' },
+                { text: '能和你互动游戏，比如接物、学动作', bird: 'quaker' },
+                { text: '能在你身边安静地陪伴', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你对自己的「创造力」评价是——',
+            options: [
+                { text: '很有创造力，喜欢设计和创作', bird: 'sun' },
+                { text: '有一定创造力，喜欢尝试新事物', bird: 'budgie' },
+                { text: '创造力一般，但欣赏别人的创意', bird: 'society' },
+                { text: '务实型，不太关注创造力', bird: 'java' }
+            ]
+        }, {
+            text: '你更看重「过程」还是「结果」？',
+            options: [
+                { text: '享受过程，结果不重要', bird: 'lovebird' },
+                { text: '重视结果，但也会享受过程', bird: 'quaker' },
+                { text: '结果最重要，过程可以忽略', bird: 'gouldian' },
+                { text: '过程和结果都重要，平衡看待', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你对「自然」的亲近程度是——',
+            options: [
+                { text: '非常喜欢自然，经常去户外', bird: 'leiothrix' },
+                { text: '喜欢自然，但更习惯城市生活', bird: 'budgie' },
+                { text: '对自然无感，喜欢室内环境', bird: 'java' },
+                { text: '欣赏自然，但不会刻意亲近', bird: 'cockatiel' }
+            ]
+        }, {
+            text: '你平时如何做决定？',
+            options: [
+                { text: '凭直觉，跟着感觉走', bird: 'lovebird' },
+                { text: '理性分析，权衡利弊', bird: 'whiteeye' },
+                { text: '咨询他人意见，再做决定', bird: 'quaker' },
+                { text: '随遇而安，不太纠结', bird: 'java' }
+            ]
+        }, {
+            text: '你更喜欢哪种宠物互动方式？',
+            options: [
+                { text: '用手轻轻抚摸和拥抱', bird: 'lovebird' },
+                { text: '用玩具和食物进行互动', bird: 'quaker' },
+                { text: '安静地待在一起，各自做各自的事', bird: 'myna' },
+                { text: '用语言和声音交流', bird: 'grey' }
+            ]
+        }, {
+            text: '你对「养宠物」这件事的总体态度是——',
+            options: [
+                { text: '已经做好准备，愿意承担所有责任', bird: 'hwamei' },
+                { text: '期待已久，充满热情和信心', bird: 'budgie' },
+                { text: '认真考虑过，愿意为宠物改变生活', bird: 'cockatiel' },
+                { text: '随缘，遇到合适的就养', bird: 'java' }
+            ]
+        }];
+
+        // ============================================================
+        //  3. 测试逻辑
+        // ============================================================
+        let currentQ = 0;
+        let scores = {};
+        let answers = []; // 存储每道题选择的 bird id
+        let autoTimer = null; // 自动跳转定时器
+        let totalQuestions = QUESTIONS.length;
+
+        function initScores() {
+            scores = {};
+            BIRD_IDS.forEach(id => { scores[id] = 0; });
+            answers = new Array(totalQuestions).fill(null);
+        }
+
+        function startTest() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            initScores();
+            currentQ = 0;
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = QUESTIONS[currentQ];
+            document.getElementById('questionNumber').textContent = `第 ${currentQ + 1} 题`;
+            document.getElementById('questionText').textContent = q.text;
+
+            // 更新大标题下的进度标签
+            document.getElementById('progressLabel').textContent = `第 ${currentQ + 1} / ${totalQuestions} 题`;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span class="opt-label">${labels[idx]}</span> ${opt.text}`;
+                btn.dataset.bird = opt.bird;
+                btn.onclick = () => selectOption(btn, opt.bird);
+                container.appendChild(btn);
+            });
+
+            // 恢复之前的选择（如果有）
+            const prevAnswer = answers[currentQ];
+            if (prevAnswer) {
+                const btns = container.querySelectorAll('.option-btn');
+                btns.forEach(btn => {
+                    if (btn.dataset.bird === prevAnswer) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+
+            // 更新进度
+            updateProgress();
+
+            // 更新导航按钮状态
+            const prevBtn = document.getElementById('btnPrev');
+            const nextBtn = document.getElementById('btnNext');
+
+            prevBtn.disabled = (currentQ === 0);
+
+            // 下一题按钮：根据当前题是否有答案启用
+            if (answers[currentQ]) {
+                nextBtn.disabled = false;
+                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+            } else {
+                nextBtn.disabled = true;
+                nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+            }
+
+            // 清除自动跳转定时器
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+        }
+
+        function selectOption(btn, birdId) {
+            // 取消同组其他选中
+            const container = document.getElementById('optionsContainer');
+            container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            // 保存答案
+            answers[currentQ] = birdId;
+
+            // 更新下一题按钮状态
+            const nextBtn = document.getElementById('btnNext');
+            nextBtn.disabled = false;
+            nextBtn.textContent = currentQ === totalQuestions - 1 ? '🎉 查看结果' : '下一题 →';
+
+            // 清除之前的定时器
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+
+            // 自动跳转（延迟 350ms）
+            autoTimer = setTimeout(() => {
+                autoTimer = null;
+                goToNext();
+            }, 350);
+        }
+
+        function goToNext() {
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+
+            if (!answers[currentQ]) {
+                return;
+            }
+
+            // 重新计算分数（确保分数准确）
+            recalcScores();
+
+            if (currentQ < totalQuestions - 1) {
+                currentQ++;
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function goToPrev() {
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+            if (currentQ > 0) {
+                currentQ--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (answers[currentQ]) {
+                goToNext();
+            } else {
+                // 提示用户选择
+                const nextBtn = document.getElementById('btnNext');
+                nextBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => { nextBtn.style.transform = ''; }, 200);
+                const msg = document.createElement('div');
+                msg.className = 'hint-msg';
+                msg.textContent = '👆 请先选择一个选项';
+                const existing = document.querySelector('.hint-msg');
+                if (existing) existing.remove();
+                const nav = document.querySelector('.nav-buttons');
+                nav.parentNode.insertBefore(msg, nav.nextSibling);
+                setTimeout(() => { if (msg.parentNode) msg.remove(); }, 1800);
+            }
+        }
+
+        function prevQuestion() {
+            goToPrev();
+        }
+
+        function recalcScores() {
+            initScores();
+            for (let i = 0; i < answers.length; i++) {
+                const birdId = answers[i];
+                if (birdId) {
+                    scores[birdId] = (scores[birdId] || 0) + 1;
+                }
+            }
+        }
+
+        function updateProgress() {
+            const pct = ((currentQ) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `${currentQ} / ${totalQuestions}`;
+        }
+
+        // ============================================================
+        //  4. 结果展示
+        // ============================================================
+        function showResult() {
+            recalcScores();
+
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+
+            let sorted = BIRD_IDS.map(id => ({ id, score: scores[id] || 0 }));
+            sorted.sort((a, b) => b.score - a.score);
+
+            const top = sorted[0];
+            const topBird = BIRDS[top.id];
+            const totalAnswered = answers.filter(a => a !== null).length;
+            const avgScore = totalAnswered / BIRD_IDS.length;
+            let matchPct = Math.round((top.score / (avgScore || 1)) * 50 + 30);
+            if (matchPct > 98) matchPct = 98;
+            if (matchPct < 30) matchPct = 30;
+
+            document.getElementById('resultEmoji').textContent = topBird.emoji;
+            document.getElementById('resultTitle').textContent = `你最适合养 · ${topBird.name}`;
+            document.getElementById('resultSub').textContent = `根据你的 36 项生活特质，匹配度最高的鸟类`;
+
+            document.getElementById('resultBirdName').innerHTML =
+                `${topBird.name} <small>${topBird.latin}</small>`;
+            document.getElementById('resultBirdDesc').textContent = topBird.desc;
+
+            const traitsContainer = document.getElementById('resultTraits');
+            traitsContainer.innerHTML = topBird.traits.map(t =>
+                `<span class="trait-tag">#${t}</span>`
+            ).join('');
+
+            document.getElementById('matchBarFill').style.width = matchPct + '%';
+            document.getElementById('matchPct').textContent = matchPct + '%';
+
+            document.getElementById('resultAdvice').innerHTML =
+                `<strong>💡 饲养贴士：</strong> ${topBird.advice}`;
+
+            // 其他鸟类
+            const otherGrid = document.getElementById('otherGrid');
+            otherGrid.innerHTML = '';
+            const others = sorted.slice(1);
+            const maxScore = sorted[0].score || 1;
+            others.forEach((item, idx) => {
+                const bird = BIRDS[item.id];
+                let pct = Math.round((item.score / maxScore) * 100);
+                if (pct < 5) pct = 5;
+                const div = document.createElement('div');
+                div.className = 'other-item';
+                div.innerHTML = `
+                    <span class="o-emoji">${bird.emoji}</span>
+                    <div class="o-name">${bird.name}</div>
+                    <div class="o-pct">${pct}%</div>
+                    <div class="o-bar-bg">
+                        <div class="o-bar-fill" style="width:${pct}%"></div>
+                    </div>
+                `;
+                setTimeout(() => {
+                    const fill = div.querySelector('.o-bar-fill');
+                    fill.style.width = pct + '%';
+                }, 100 + idx * 50);
+                otherGrid.appendChild(div);
+            });
+
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============================================================
+        //  5. 辅助功能
+        // ============================================================
+        function retest() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('home').style.display = 'block';
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (autoTimer) {
+                clearTimeout(autoTimer);
+                autoTimer = null;
+            }
+        }
+
+        function shareResult() {
+            const birdName = document.getElementById('resultTitle').textContent;
+            const pct = document.getElementById('matchPct').textContent;
+            const text = `🦜 我做了「鸟类适性测试」，结果是 ${birdName}，匹配度 ${pct}！你也来测测吧～`;
+            if (navigator.share) {
+                navigator.share({ title: '鸟类适性测试', text }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ 结果已复制到剪贴板，分享给朋友吧！');
+                }).catch(() => {
+                    prompt('复制以下内容分享：', text);
+                });
+            }
+        }
+
+        // 键盘支持
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                const btns = document.querySelectorAll('.option-btn');
+                if (btns[key - 1]) btns[key - 1].click();
+            }
+            if (e.key === 'Enter') {
+                const nextBtn = document.getElementById('btnNext');
+                if (!nextBtn.disabled) nextBtn.click();
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                const prevBtn = document.getElementById('btnPrev');
+                if (!prevBtn.disabled) prevBtn.click();
+                e.preventDefault();
+            }
+            if (e.key === 'ArrowRight') {
+                const nextBtn = document.getElementById('btnNext');
+                if (!nextBtn.disabled) nextBtn.click();
+                e.preventDefault();
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('home').style.display = 'block';
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
