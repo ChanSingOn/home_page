@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🦎 异宠适性测试 · 15种异宠</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f7f2ea 0%, #e8dfd3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 40px;
+            padding: 40px 36px;
+            box-shadow: 0 20px 60px rgba(60, 40, 20, 0.15), 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        #home {
+            text-align: center;
+        }
+
+        #home .logo {
+            font-size: 72px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        #home h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3e1f;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        #home .subtitle {
+            font-size: 18px;
+            color: #6b5a4a;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        #home .desc {
+            font-size: 15px;
+            color: #7a6a5a;
+            line-height: 1.8;
+            max-width: 480px;
+            margin: 0 auto 28px;
+        }
+
+        #home .desc strong {
+            color: #4a6a2a;
+        }
+
+        .btn-primary {
+            background: #4a7a2a;
+            color: #fff;
+            border: none;
+            padding: 16px 52px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 24px rgba(74, 122, 42, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            background: #3a6422;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(74, 122, 42, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #6b5a4a;
+            border: 2px solid #d4c8b8;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f0e8de;
+            border-color: #b8a898;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-small {
+            padding: 8px 20px;
+            font-size: 13px;
+        }
+
+        #quiz {
+            display: none;
+        }
+
+        .progress-wrap {
+            margin-bottom: 28px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #7a6a5a;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e8ddd0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #7aaa4a, #4a7a2a);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .question-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: #9a8a7a;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3e1f;
+            line-height: 1.6;
+            margin-bottom: 28px;
+            min-height: 60px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 16px 22px;
+            background: #f8f4ef;
+            border: 2px solid transparent;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #3d3a35;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #f0e8de;
+            border-color: #c8b8a8;
+            transform: translateX(4px);
+        }
+
+        .option-btn.selected {
+            background: #eaf3e0;
+            border-color: #4a7a2a;
+            box-shadow: 0 4px 16px rgba(74, 122, 42, 0.15);
+        }
+
+        .option-btn .letter {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            background: #e8ddd0;
+            border-radius: 50%;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6b5a4a;
+            margin-right: 14px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn.selected .letter {
+            background: #4a7a2a;
+            color: #fff;
+        }
+
+        .option-btn .text {
+            display: inline;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .nav-row .left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-row .right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: transparent;
+            border: 1.5px solid #d4c8b8;
+            border-radius: 40px;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b5a4a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: #f0e8de;
+            border-color: #b8a898;
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .btn-nav.primary {
+            background: #4a7a2a;
+            border-color: #4a7a2a;
+            color: #fff;
+        }
+
+        .btn-nav.primary:hover:not(:disabled) {
+            background: #3a6422;
+            border-color: #3a6422;
+        }
+
+        .btn-nav.primary:disabled {
+            opacity: 0.4;
+        }
+
+        .counter {
+            font-size: 14px;
+            color: #9a8a7a;
+            font-weight: 500;
+            padding: 0 4px;
+        }
+
+        #result {
+            display: none;
+        }
+
+        .result-badge {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .result-badge .big-emoji {
+            font-size: 80px;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .result-badge .result-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3e1f;
+            margin-top: 4px;
+        }
+
+        .result-badge .result-title {
+            font-size: 18px;
+            color: #6b5a4a;
+            font-weight: 400;
+        }
+
+        .result-divider {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #7aaa4a, #4a7a2a);
+            border-radius: 4px;
+            margin: 16px auto 24px;
+        }
+
+        .result-detail {
+            color: #3d3a35;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .result-detail p {
+            margin-bottom: 14px;
+        }
+
+        .result-detail .trait-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 20px;
+        }
+
+        .result-detail .trait-list li {
+            padding: 8px 0 8px 32px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%234a7a2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>') left center no-repeat;
+            background-size: 18px;
+            color: #3d3a35;
+        }
+
+        .result-detail .stars {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 12px 0 16px;
+            font-size: 18px;
+            color: #f5b342;
+        }
+
+        .result-detail .stars span {
+            font-size: 15px;
+            color: #6b5a4a;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .result-detail .advice-box {
+            background: #f4efe8;
+            border-radius: 18px;
+            padding: 18px 22px;
+            margin-top: 16px;
+            border-left: 4px solid #4a7a2a;
+        }
+
+        .result-detail .advice-box strong {
+            color: #2d3e1f;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .tie-break {
+            text-align: center;
+            margin: 12px 0 18px;
+        }
+
+        .tie-break .tie-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .tie-break .tie-btn {
+            background: #f8f4ef;
+            border: 2px solid #d4c8b8;
+            border-radius: 20px;
+            padding: 14px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tie-break .tie-btn:hover {
+            background: #eaf3e0;
+            border-color: #4a7a2a;
+            transform: translateY(-2px);
+        }
+
+        .tie-break .tie-btn .emoji {
+            font-size: 28px;
+        }
+
+        .tie-break .tie-btn .label {
+            font-weight: 500;
+            color: #2d3e1f;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 28px 20px;
+                border-radius: 28px;
+            }
+
+            #home h1 {
+                font-size: 26px;
+            }
+
+            #home .logo {
+                font-size: 56px;
+            }
+
+            .question-text {
+                font-size: 17px;
+                min-height: 44px;
+            }
+
+            .option-btn {
+                padding: 14px 16px;
+                font-size: 14px;
+                border-radius: 14px;
+            }
+
+            .option-btn .letter {
+                width: 24px;
+                height: 24px;
+                line-height: 24px;
+                font-size: 12px;
+                margin-right: 10px;
+            }
+
+            .nav-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav-row .left,
+            .nav-row .right {
+                flex: 1 1 auto;
+            }
+
+            .btn-nav {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .result-badge .big-emoji {
+                font-size: 60px;
+            }
+
+            .result-badge .result-name {
+                font-size: 22px;
+            }
+
+            .tie-break .tie-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .result-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .result-actions .btn-primary,
+            .result-actions .btn-secondary {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card {
+                padding: 20px 14px;
+                border-radius: 20px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .option-btn {
+                padding: 12px 12px;
+                font-size: 13px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.35s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0ebe4;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c8b8a8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0a090;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- 首页 -->
+        <div id="home" class="card fade-in">
+            <span class="logo">🦎</span>
+            <h1>异宠适性测试</h1>
+            <p class="subtitle">15种异宠 · 你适合哪一只？</p>
+            <p class="desc">
+                从生活、心理、习惯等多维度探索你的「异宠适配人格」<br />
+                ⏱ 约 10 分钟 · 36 道趣味选择题 · 凭直觉作答
+            </p>
+            <button class="btn-primary" id="startBtn">开始测试 →</button>
+        </div>
+
+        <!-- 答题页 -->
+        <div id="quiz" class="card fade-in">
+            <div class="progress-wrap">
+                <div class="progress-header">
+                    <span id="progressLabel">第 1 / 36 题</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="fill" id="progressFill" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <div class="question-number" id="qNumber">问题 01</div>
+            <div class="question-text" id="qText">加载题目中…</div>
+
+            <div class="options" id="optionsContainer"></div>
+
+            <div class="nav-row">
+                <div class="left">
+                    <button class="btn-nav" id="prevBtn" disabled>← 上一题</button>
+                </div>
+                <div class="right">
+                    <span class="counter" id="counterDisplay">1 / 36</span>
+                    <button class="btn-nav primary" id="nextBtn">下一题 →</button>
+                    <button class="btn-nav primary hidden" id="resultBtn">✨ 查看结果</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="result" class="card fade-in">
+            <div class="result-badge">
+                <span class="big-emoji" id="rEmoji">🦎</span>
+                <div class="result-name" id="rName">守宫</div>
+                <div class="result-title" id="rTitle">安静观察者</div>
+            </div>
+            <div class="result-divider"></div>
+            <div class="result-detail" id="rDetail"></div>
+            <div class="result-actions">
+                <button class="btn-primary" id="retryBtn">🔄 重新测试</button>
+                <button class="btn-secondary" id="shareBtn">📋 复制结果</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        //  1. 15种异宠类型及结果数据
+        // ================================================================
+
+        const TYPES = [
+            '守宫', '蛇', '蜘蛛', '蝎子', '乌龟',
+            '兔子', '仓鼠', '龙猫', '刺猬', '蜜袋鼯',
+            '鹦鹉', '角蛙', '蝾螈', '螳螂', '寄居蟹'
+        ];
+
+        const RESULT_DATA = {
+            '守宫': {
+                emoji: '🦎',
+                name: '守宫',
+                title: '安静观察者',
+                traits: ['独立不依赖', '细节敏感', '享受宁静'],
+                stars: 5,
+                advice: '保持稳定环境，不必频繁互动，它会用安静的方式陪伴你。'
+            },
+            '蛇': {
+                emoji: '🐍',
+                name: '蛇',
+                title: '冷静哲学家',
+                traits: ['逻辑清晰', '情绪稳定', '追求深度'],
+                stars: 5,
+                advice: '尊重它的空间，你们之间是一种默契的共存，无需言语。'
+            },
+            '蜘蛛': {
+                emoji: '🕷️',
+                name: '蜘蛛',
+                title: '猎奇探险家',
+                traits: ['好奇心旺盛', '不从众', '胆大心细'],
+                stars: 5,
+                advice: '饲养过程就是一场微观探险，观察结网、蜕皮，乐趣无穷。'
+            },
+            '蝎子': {
+                emoji: '🦂',
+                name: '蝎子',
+                title: '神秘独行侠',
+                traits: ['沉着冷静', '警惕性强', '自带力量感'],
+                stars: 4,
+                advice: '它不需要太多关注，但你需要学习它的习性，安全第一。'
+            },
+            '乌龟': {
+                emoji: '🐢',
+                name: '乌龟',
+                title: '稳重生活家',
+                traits: ['耐心十足', '生活规律', '心态平和'],
+                stars: 5,
+                advice: '给它稳定的环境和规律的饮食，你们会一起慢慢变老。'
+            },
+            '兔子': {
+                emoji: '🐇',
+                name: '兔子',
+                title: '活泼跳动者',
+                traits: ['敏捷好动', '好奇心强', '喜爱社交'],
+                stars: 4,
+                advice: '需要较大活动空间，多陪伴互动，它会用蹦跳表达快乐。'
+            },
+            '仓鼠': {
+                emoji: '🐹',
+                name: '仓鼠',
+                title: '囤积小达人',
+                traits: ['细致入微', '爱收藏', '有点小害羞'],
+                stars: 4,
+                advice: '给它丰富的玩具和藏身之处，观察它囤粮是种治愈。'
+            },
+            '龙猫': {
+                emoji: '🐭',
+                name: '龙猫',
+                title: '温柔治愈师',
+                traits: ['柔软细腻', '情感丰富', '需要安全感'],
+                stars: 5,
+                advice: '建立信任需要耐心，一旦信赖，它会成为最贴心的伙伴。'
+            },
+            '刺猬': {
+                emoji: '🦔',
+                name: '刺猬',
+                title: '敏感防御者',
+                traits: ['谨慎自我保护', '内心温柔', '慢热'],
+                stars: 4,
+                advice: '给它足够的隐蔽处，不要强行亲近，它的柔软只给信任的人。'
+            },
+            '蜜袋鼯': {
+                emoji: '🐿️',
+                name: '蜜袋鼯',
+                title: '空中舞者',
+                traits: ['活跃爱互动', '喜欢高处', '夜间精灵'],
+                stars: 4,
+                advice: '需要大笼子和攀爬物，多与它互动，它会滑翔到你肩上。'
+            },
+            '鹦鹉': {
+                emoji: '🦜',
+                name: '鹦鹉',
+                title: '社交明星',
+                traits: ['热情洋溢', '表达欲强', '聪明爱玩'],
+                stars: 5,
+                advice: '每天互动，提供玩具和智力游戏，它会成为你的话痨好友。'
+            },
+            '角蛙': {
+                emoji: '🐸',
+                name: '角蛙',
+                title: '稳坐钓鱼台',
+                traits: ['沉稳耐心', '不动如山', '食欲旺盛'],
+                stars: 4,
+                advice: '饲养简单，但注意温湿度，喂食时欣赏它的“一口吞”。'
+            },
+            '蝾螈': {
+                emoji: '🦎',
+                name: '蝾螈',
+                title: '隐秘观察者',
+                traits: ['神秘莫测', '适应力强', '安静优雅'],
+                stars: 4,
+                advice: '保持水质清洁，提供躲避处，观赏它缓慢而优雅的游动。'
+            },
+            '螳螂': {
+                emoji: '🥷',
+                name: '螳螂',
+                title: '优雅猎手',
+                traits: ['专注力强', '姿态优雅', '策略型'],
+                stars: 4,
+                advice: '需要活食，观察它的捕猎过程如同欣赏一场芭蕾。'
+            },
+            '寄居蟹': {
+                emoji: '🦀',
+                name: '寄居蟹',
+                title: '适应游牧民',
+                traits: ['灵活适应', '喜欢换壳', '群居习性'],
+                stars: 4,
+                advice: '提供多种贝壳，保持湿度，看它们“搬家”很有趣。'
+            }
+        };
+
+        // ================================================================
+        //  2. 36道题目（仅保留文本，类型动态分配）
+        // ================================================================
+
+        const QUESTIONS = [{
+            id: 1,
+            text: '周末的早晨，你通常：',
+            options: [
+                '睡到自然醒，赖在床上刷手机，享受不被打扰的时光',
+                '早早醒来，心里已经规划好今天要做的几件事',
+                '醒来第一件事就是看有没有人约，想安排点有趣的活动',
+                '安静地泡杯茶/咖啡，坐在窗边看看外面的世界'
+            ]
+        }, {
+            id: 2,
+            text: '工作或学习时，你更倾向：',
+            options: [
+                '按计划一步一步来，不喜欢被打断',
+                '喜欢钻研细节，把一个问题想透才罢休',
+                '边做边和人交流，讨论中产生新想法',
+                '随性而为，灵感来了就猛干，没状态就休息'
+            ]
+        }, {
+            id: 3,
+            text: '如果有一天完全空闲，你会：',
+            options: [
+                '待在家里，做点自己喜欢的小事，比如看书、看纪录片',
+                '去一个安静的地方，比如图书馆、美术馆，独自待着',
+                '约朋友出来，或者参加某个社交活动',
+                '尝试一件没做过的事，哪怕只是探索一个陌生街区'
+            ]
+        }, {
+            id: 4,
+            text: '对于「计划」这件事，你的态度是：',
+            options: [
+                '有计划让我安心，但不会太死板，可以灵活调整',
+                '计划就是用来执行的，我几乎不临时改变主意',
+                '计划赶不上变化，我更喜欢随性而为',
+                '我很少做详细计划，但心里大概有个方向'
+            ]
+        }, {
+            id: 5,
+            text: '你更喜欢哪种工作/学习环境？',
+            options: [
+                '安静、独立的空间，能让我集中注意力',
+                '整洁有序的环境，所有东西都在该在的位置',
+                '热闹有活力的氛围，大家在一起讨论',
+                '有点乱但充满灵感的空间，太多规矩反而压抑'
+            ]
+        }, {
+            id: 6,
+            text: '你的日常作息：',
+            options: [
+                '比较规律，但偶尔会熬夜',
+                '非常规律，早睡早起是我的习惯',
+                '完全随心情，想几点睡就几点睡',
+                '白天效率低，晚上特别有精神'
+            ]
+        }, {
+            id: 7,
+            text: '参加聚会时，你通常是：',
+            options: [
+                '坐在角落观察别人，偶尔参与对话',
+                '和几个聊得来的人深入交谈，避开喧闹的中心',
+                '全场最活跃的那个，带动气氛',
+                '待一会儿就想离开，觉得社交太耗能'
+            ]
+        }, {
+            id: 8,
+            text: '对于「独处」，你的真实感受是：',
+            options: [
+                '我很需要独处的时间，用来充电和思考',
+                '独处时我从不觉得无聊，有很多事可以做',
+                '我不太喜欢一个人，有人陪着才安心',
+                '独处和社交我都喜欢，看心情切换'
+            ]
+        }, {
+            id: 9,
+            text: '朋友向你倾诉烦恼时，你通常会：',
+            options: [
+                '耐心倾听，不多说，但让对方感到被理解',
+                '理性分析问题，帮对方找出解决办法',
+                '用幽默和热情转移对方的注意力',
+                '感同身受，和对方一起情绪起伏'
+            ]
+        }, {
+            id: 10,
+            text: '对于「认识新朋友」，你的态度是：',
+            options: [
+                '不排斥，但也不会主动去结交',
+                '比较慢热，需要时间才能建立信任',
+                '很喜欢认识新人，觉得很有趣',
+                '有点紧张，但内心又渴望被关注'
+            ]
+        }, {
+            id: 11,
+            text: '你更愿意和什么样的人相处？',
+            options: [
+                '安静、不聒噪，能一起享受沉默的人',
+                '有思想深度、能聊深刻话题的人',
+                '活泼开朗、能带给你快乐和活力的人',
+                '温柔体贴、能给你情感支持的人'
+            ]
+        }, {
+            id: 12,
+            text: '当你需要做重大决定时，你会：',
+            options: [
+                '自己反复思考，不太需要别人的意见',
+                '冷静分析各种可能性，做出最理性的选择',
+                '和朋友讨论，听取多方建议',
+                '凭直觉走，相信自己的第一感觉'
+            ]
+        }, {
+            id: 13,
+            text: '你平时收拾房间的频率是：',
+            options: [
+                '定期收拾，但不会太频繁，乱到一定程度才整理',
+                '每天都会保持整洁，东西必须归位',
+                '不太在意，乱中有序是我喜欢的风格',
+                '有人来的时候才收拾，平时随意'
+            ]
+        }, {
+            id: 14,
+            text: '对于「重复做同一件事」，你的感受是：',
+            options: [
+                '可以接受，甚至有点享受那种熟悉感',
+                '不喜欢重复，但为了效率可以忍受',
+                '极度讨厌重复，需要不断有新刺激',
+                '看什么事，喜欢的可以反复做，不喜欢的碰都不碰'
+            ]
+        }, {
+            id: 15,
+            text: '你更偏爱哪种类型的娱乐活动？',
+            options: [
+                '安静的、需要专注力的，比如拼图、绘画、阅读',
+                '有策略性的，比如棋类、解谜、策略游戏',
+                '热闹的、互动性的，比如桌游、派对、K歌',
+                '新奇有趣的，比如密室逃脱、剧本杀、探险'
+            ]
+        }, {
+            id: 16,
+            text: '对于「规则」，你的态度是：',
+            options: [
+                '大部分规则是合理的，但偶尔可以打破',
+                '规则就是秩序，严格遵守让我安心',
+                '规则是人定的，我觉得不合理就会无视',
+                '我不太关注规则，按自己的方式做事'
+            ]
+        }, {
+            id: 17,
+            text: '你更注重感官体验中的哪一种？',
+            options: [
+                '视觉——喜欢美的东西，对颜色和光影敏感',
+                '触觉——喜欢质感，用手感受世界的温度',
+                '听觉——对声音敏感，喜欢音乐和对话',
+                '嗅觉/味觉——通过气味和味道记忆世界'
+            ]
+        }, {
+            id: 18,
+            text: '对于「改变」，你的第一反应是：',
+            options: [
+                '有点不安，但会慢慢适应',
+                '不喜欢改变，觉得稳定更好',
+                '期待改变，觉得是新的机会',
+                '无所谓，来什么接什么'
+            ]
+        }, {
+            id: 19,
+            text: '当你感到压力时，你的应对方式是：',
+            options: [
+                '一个人待着，做点放松的事情慢慢消化',
+                '理性分析压力的来源，想办法解决',
+                '找人聊天，说出来就好多了',
+                '转移注意力，去做别的事情忘掉它'
+            ]
+        }, {
+            id: 20,
+            text: '你觉得自己更接近哪种情绪状态？',
+            options: [
+                '大部分时间平和稳定，情绪起伏不大',
+                '外表冷静，内心其实有很多思绪',
+                '情绪来得快去得也快，喜怒形于色',
+                '敏感细腻，容易被他人情绪影响'
+            ]
+        }, {
+            id: 21,
+            text: '你对于「未知」的态度是：',
+            options: [
+                '有点恐惧，但也能接受',
+                '保持警惕，做好准备再面对',
+                '充满好奇，未知意味着可能性',
+                '随遇而安，不太纠结'
+            ]
+        }, {
+            id: 22,
+            text: '你更喜欢哪种类型的电影/故事？',
+            options: [
+                '文艺片、纪录片，真实细腻的生活感',
+                '悬疑、推理类，烧脑又过瘾',
+                '喜剧、热闹的群像戏，看着开心',
+                '奇幻、科幻类，充满想象力'
+            ]
+        }, {
+            id: 23,
+            text: '对于「别人的评价」，你：',
+            options: [
+                '会在意，但不会因此改变自己',
+                '比较在意，特别是来自信任的人',
+                '不太在意，我做我自己',
+                '很在意，有时会过度反思'
+            ]
+        }, {
+            id: 24,
+            text: '你理想中的「完美一天」包含：',
+            options: [
+                '没有任何打扰，完全属于自己的一天',
+                '完成了所有计划，成就感满满',
+                '和喜欢的人一起度过，充满欢笑',
+                '尝试了一件全新的事，收获惊喜'
+            ]
+        }, {
+            id: 25,
+            text: '你更喜欢哪种自然环境？',
+            options: [
+                '宁静的森林或花园，有树有花有阳光',
+                '广阔的大海或沙漠，辽阔而神秘',
+                '热闹的都市公园，有烟火气和人群',
+                '山林或溪流边，清新又有探索空间'
+            ]
+        }, {
+            id: 26,
+            text: '你对待金钱和消费的态度是：',
+            options: [
+                '该花就花，但不会冲动消费',
+                '精打细算，喜欢做预算',
+                '花钱买快乐，开心最重要',
+                '随性而为，有时大手大脚有时很省'
+            ]
+        }, {
+            id: 27,
+            text: '你的手机/电脑桌面通常是：',
+            options: [
+                '干净简约，只有必要的图标',
+                '分类整理，文件夹整整齐齐',
+                '满满当当，各种应用和小组件',
+                '经常更换壁纸，喜欢新鲜感'
+            ]
+        }, {
+            id: 28,
+            text: '你更倾向于哪种饮食风格？',
+            options: [
+                '规律三餐，吃得健康简单',
+                '会认真研究食材和营养搭配',
+                '喜欢和朋友一起吃饭，热闹才有胃口',
+                '随性，饿了就吃，尝试各种新奇食物'
+            ]
+        }, {
+            id: 29,
+            text: '对于「运动」，你的态度是：',
+            options: [
+                '喜欢温和的运动，比如散步、瑜伽',
+                '有规律的运动计划，坚持执行',
+                '喜欢团队运动，有人一起才有动力',
+                '喜欢有挑战性的运动，比如攀岩、冲浪'
+            ]
+        }, {
+            id: 30,
+            text: '你家的绿植状态通常是：',
+            options: [
+                '长得不错，定期浇水但不过度关注',
+                '每一盆都照顾得很精细，状态都很好',
+                '经常忘记浇水，但生命力顽强',
+                '喜欢换不同的植物养，尝试新品种'
+            ]
+        }, {
+            id: 31,
+            text: '你更倾向于哪种沟通方式？',
+            options: [
+                '言简意赅，能不说话就不说话',
+                '逻辑清晰，表达有层次',
+                '热情洋溢，喜欢用表情和肢体语言',
+                '温和细腻，注意对方的感受'
+            ]
+        }, {
+            id: 32,
+            text: '对于「时间」的感知，你更接近：',
+            options: [
+                '时间很宝贵，喜欢慢慢品味每一刻',
+                '时间需要高效利用，不能浪费',
+                '时间是用来享受的，开心最重要',
+                '时间是个幻觉，我更关注当下的感受'
+            ]
+        }, {
+            id: 33,
+            text: '你会怎么形容自己的「冒险指数」？',
+            options: [
+                '低风险偏好，喜欢安全舒适',
+                '中等风险，会评估后再行动',
+                '高风险偏好，喜欢刺激和挑战',
+                '看情况，有时候冲动有时候谨慎'
+            ]
+        }, {
+            id: 34,
+            text: '你对于「收藏物品」的态度是：',
+            options: [
+                '会收藏一些有意义的物件，但不多',
+                '喜欢系统性地收藏某类东西',
+                '不太收藏，觉得东西多了是负担',
+                '喜欢收集稀奇古怪的小玩意'
+            ]
+        }, {
+            id: 35,
+            text: '你觉得自己是「观察者」还是「参与者」？',
+            options: [
+                '观察者——我喜欢看别人怎么做',
+                '两者都是——看情况切换',
+                '参与者——我总在行动中',
+                '观察者居多，但也会参与'
+            ]
+        }, {
+            id: 36,
+            text: '你对未来的态度是：',
+            options: [
+                '顺其自然，相信一切都会好',
+                '认真规划，为未来做好准备',
+                '乐观期待，未来有无限可能',
+                '有点迷茫，但保持开放心态'
+            ]
+        }];
+
+        // ================================================================
+        //  3. 应用状态
+        // ================================================================
+
+        const state = {
+            currentIndex: 0,
+            answers: new Array(QUESTIONS.length).fill(null), // 存储选项索引 (0-3)
+        };
+
+        // ================================================================
+        //  4. DOM 引用
+        // ================================================================
+
+        const $home = document.getElementById('home');
+        const $quiz = document.getElementById('quiz');
+        const $result = document.getElementById('result');
+
+        const $startBtn = document.getElementById('startBtn');
+        const $prevBtn = document.getElementById('prevBtn');
+        const $nextBtn = document.getElementById('nextBtn');
+        const $resultBtn = document.getElementById('resultBtn');
+        const $retryBtn = document.getElementById('retryBtn');
+        const $shareBtn = document.getElementById('shareBtn');
+
+        const $progressLabel = document.getElementById('progressLabel');
+        const $progressPercent = document.getElementById('progressPercent');
+        const $progressFill = document.getElementById('progressFill');
+        const $qNumber = document.getElementById('qNumber');
+        const $qText = document.getElementById('qText');
+        const $optionsContainer = document.getElementById('optionsContainer');
+        const $counterDisplay = document.getElementById('counterDisplay');
+
+        const $rEmoji = document.getElementById('rEmoji');
+        const $rName = document.getElementById('rName');
+        const $rTitle = document.getElementById('rTitle');
+        const $rDetail = document.getElementById('rDetail');
+
+        // ================================================================
+        //  5. 核心逻辑
+        // ================================================================
+
+        // 动态获取类型：根据题目索引和选项索引计算
+        function getTypeForOption(qIndex, optIndex) {
+            const totalTypes = TYPES.length;
+            const idx = (qIndex * 4 + optIndex) % totalTypes;
+            return TYPES[idx];
+        }
+
+        function renderQuestion() {
+            const q = QUESTIONS[state.currentIndex];
+            const idx = state.currentIndex;
+            const total = QUESTIONS.length;
+
+            const pct = Math.round(((idx) / total) * 100);
+            $progressFill.style.width = pct + '%';
+            $progressPercent.textContent = pct + '%';
+            $progressLabel.textContent = `第 ${idx + 1} / ${total} 题`;
+
+            $qNumber.textContent = `问题 ${String(idx + 1).padStart(2, '0')}`;
+            $qText.textContent = q.text;
+
+            $optionsContainer.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((optText, oi) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (state.answers[idx] === oi) {
+                    btn.classList.add('selected');
+                }
+                btn.innerHTML = `
+                    <span class="letter">${letters[oi]}</span>
+                    <span class="text">${optText}</span>
+                `;
+                btn.dataset.index = oi;
+                btn.addEventListener('click', () => handleOptionClick(oi));
+                $optionsContainer.appendChild(btn);
+            });
+
+            $prevBtn.disabled = idx === 0;
+            $counterDisplay.textContent = `${idx + 1} / ${total}`;
+
+            if (idx === total - 1) {
+                $nextBtn.classList.add('hidden');
+                $resultBtn.classList.remove('hidden');
+                $resultBtn.disabled = state.answers[idx] === null;
+            } else {
+                $nextBtn.classList.remove('hidden');
+                $resultBtn.classList.add('hidden');
+                $nextBtn.disabled = state.answers[idx] === null;
+            }
+
+            $qText.parentElement.classList.remove('slide-in');
+            void $qText.parentElement.offsetWidth;
+            $qText.parentElement.classList.add('slide-in');
+        }
+
+        function handleOptionClick(optIndex) {
+            const idx = state.currentIndex;
+            state.answers[idx] = optIndex;
+
+            const btns = $optionsContainer.querySelectorAll('.option-btn');
+            btns.forEach((btn, i) => {
+                btn.classList.toggle('selected', i === optIndex);
+            });
+
+            if (idx === QUESTIONS.length - 1) {
+                $resultBtn.disabled = false;
+            } else {
+                $nextBtn.disabled = false;
+                // 自动前进（用户可修改）
+                setTimeout(() => {
+                    goToNext();
+                }, 280);
+            }
+        }
+
+        function goToNext() {
+            if (state.currentIndex < QUESTIONS.length - 1) {
+                state.currentIndex++;
+                renderQuestion();
+                document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function goToPrev() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                renderQuestion();
+                document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function calculateResult() {
+            const scores = {};
+            TYPES.forEach(t => scores[t] = 0);
+
+            for (let i = 0; i < QUESTIONS.length; i++) {
+                const ansIdx = state.answers[i];
+                if (ansIdx === null) continue;
+                const type = getTypeForOption(i, ansIdx);
+                if (scores[type] !== undefined) {
+                    scores[type]++;
+                }
+            }
+
+            let maxScore = 0;
+            let topTypes = [];
+            for (const [type, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    topTypes = [type];
+                } else if (score === maxScore && score > 0) {
+                    topTypes.push(type);
+                }
+            }
+
+            if (topTypes.length === 0 || maxScore === 0) {
+                return ['守宫']; // fallback
+            }
+            return topTypes;
+        }
+
+        function showResult() {
+            const topTypes = calculateResult();
+
+            if (topTypes.length === 1) {
+                renderSingleResult(topTypes[0]);
+            } else {
+                renderTieResult(topTypes);
+            }
+
+            $home.style.display = 'none';
+            $quiz.style.display = 'none';
+            $result.style.display = 'block';
+            $result.classList.remove('fade-in');
+            void $result.offsetWidth;
+            $result.classList.add('fade-in');
+            document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderSingleResult(type) {
+            const data = RESULT_DATA[type];
+            if (!data) return;
+
+            $rEmoji.textContent = data.emoji;
+            $rName.textContent = data.name;
+            $rTitle.textContent = data.title;
+
+            let starsHtml = '';
+            for (let i = 0; i < data.stars; i++) starsHtml += '⭐';
+            starsHtml += `<span>${data.stars} 星适配</span>`;
+
+            let traitsHtml = data.traits.map(t => `<li>${t}</li>`).join('');
+
+            $rDetail.innerHTML = `
+                <p><strong>你的特质：</strong></p>
+                <ul class="trait-list">${traitsHtml}</ul>
+                <div class="stars">${starsHtml}</div>
+                <div class="advice-box">
+                    <strong>💡 相处建议：</strong> ${data.advice}
+                </div>
+                <p style="margin-top:16px; font-size:14px; color:#8a7a6a; text-align:center;">
+                    🧡 你与 ${data.emoji} ${data.name} 有着天然的契合度。
+                </p>
+            `;
+        }
+
+        function renderTieResult(types) {
+            let html = `
+                <div class="tie-break">
+                    <p style="font-size:16px; color:#5a4a3a; margin-bottom:6px;">
+                        🤔 你的性格有多重特质，有 <strong>${types.length}</strong> 种异宠与你适配！
+                    </p>
+                    <p style="font-size:14px; color:#8a7a6a; margin-bottom:16px;">
+                        选择你最心动的那一个，查看详细解读 👇
+                    </p>
+                    <div class="tie-options">
+            `;
+            types.forEach(type => {
+                const data = RESULT_DATA[type];
+                html += `
+                    <button class="tie-btn" data-type="${type}">
+                        <span class="emoji">${data.emoji}</span>
+                        <span class="label">${data.name}</span>
+                        <span style="font-size:13px; color:#8a7a6a;">· ${data.title}</span>
+                    </button>
+                `;
+            });
+            html += `
+                    </div>
+                </div>
+                <div style="text-align:center; margin-top:8px; font-size:13px; color:#b0a090;">
+                    👆 点击选择后查看完整解读
+                </div>
+            `;
+
+            $rEmoji.textContent = '🌟';
+            $rName.textContent = '多重适配';
+            $rTitle.textContent = '你拥有多元的灵魂';
+            $rDetail.innerHTML = html;
+
+            document.querySelectorAll('.tie-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    renderSingleResult(type);
+                    const data = RESULT_DATA[type];
+                    $rEmoji.textContent = data.emoji;
+                    $rName.textContent = data.name;
+                    $rTitle.textContent = data.title;
+                });
+            });
+        }
+
+        function resetTest() {
+            state.currentIndex = 0;
+            state.answers = new Array(QUESTIONS.length).fill(null);
+
+            $home.style.display = 'block';
+            $quiz.style.display = 'none';
+            $result.style.display = 'none';
+
+            $progressFill.style.width = '0%';
+            $progressPercent.textContent = '0%';
+            $prevBtn.disabled = true;
+            $nextBtn.disabled = true;
+            $nextBtn.classList.remove('hidden');
+            $resultBtn.classList.add('hidden');
+            $resultBtn.disabled = true;
+
+            document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ================================================================
+        //  6. 事件绑定
+        // ================================================================
+
+        $startBtn.addEventListener('click', () => {
+            $home.style.display = 'none';
+            $quiz.style.display = 'block';
+            $quiz.classList.remove('fade-in');
+            void $quiz.offsetWidth;
+            $quiz.classList.add('fade-in');
+            renderQuestion();
+            document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        $prevBtn.addEventListener('click', goToPrev);
+        $nextBtn.addEventListener('click', goToNext);
+        $resultBtn.addEventListener('click', showResult);
+        $retryBtn.addEventListener('click', resetTest);
+
+        $shareBtn.addEventListener('click', function() {
+            const type = $rName.textContent;
+            const emoji = $rEmoji.textContent;
+            const title = $rTitle.textContent;
+            const text =
+                `🦎 我的异宠适性测试结果：${emoji} ${type}（${title}）\n来测测你适合养哪种异宠吧！`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const orig = this.textContent;
+                    this.textContent = '✅ 已复制！';
+                    setTimeout(() => { this.textContent = orig; }, 2000);
+                }).catch(() => {
+                    fallbackCopy(text, this);
+                });
+            } else {
+                fallbackCopy(text, this);
+            }
+        });
+
+        function fallbackCopy(text, btn) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                const orig = btn.textContent;
+                btn.textContent = '✅ 已复制！';
+                setTimeout(() => { btn.textContent = orig; }, 2000);
+            } catch (e) {
+                alert('复制失败，请手动复制：\n' + text);
+            }
+            document.body.removeChild(ta);
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if ($quiz.style.display === 'block') {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    goToPrev();
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (state.currentIndex === QUESTIONS.length - 1) {
+                        if (!$resultBtn.disabled) showResult();
+                    } else {
+                        goToNext();
+                    }
+                }
+            }
+        });
+
+        // 初始化
+        $home.style.display = 'block';
+        $quiz.style.display = 'none';
+        $result.style.display = 'none';
+
+        console.log('🦎 异宠适性测试 · 15种异宠已加载！');
+    </script>
+
+</body>
+</html>
