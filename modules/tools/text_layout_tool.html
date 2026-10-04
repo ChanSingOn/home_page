@@ -1,0 +1,585 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>排版工坊 · 文字卡片生成器</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#F3F0EA;           /* 工作区米白 */
+    --panel:#FFFFFF;
+    --ink:#2F4156;          /* 强调墨蓝 */
+    --ink-soft:#5B6B7E;
+    --line:#E3DED4;
+    --shadow:0 1px 2px rgba(47,65,86,.06),0 8px 24px rgba(47,65,86,.08);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Noto Sans SC",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,textarea{font-family:inherit}
+
+  /* ===== 顶栏 ===== */
+  header.app{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 28px;background:var(--panel);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;background:var(--ink);
+    display:grid;place-items:center;color:#fff;font-size:17px;font-weight:700;
+    font-family:"Noto Serif SC",serif;letter-spacing:.5px;
+  }
+  .brand h1{font-size:18px;font-weight:700;letter-spacing:.2px}
+  .brand small{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px}
+  .top-actions{display:flex;gap:10px}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;
+    font-size:13.5px;font-weight:600;transition:.15s;border:1px solid var(--line);
+  }
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.primary:hover{background:#3A5070}
+  .btn.ghost{background:var(--panel)}
+  .btn.ghost:hover{background:#F7F5F0}
+  .btn svg{width:15px;height:15px}
+
+  /* ===== 主体布局 ===== */
+  main.workspace{
+    display:grid;grid-template-columns:340px 1fr;gap:24px;
+    padding:24px 28px;max-width:1280px;margin:0 auto;
+  }
+  @media (max-width:960px){main.workspace{grid-template-columns:1fr}}
+
+  /* ===== 控制面板 ===== */
+  .panel{
+    background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+    box-shadow:var(--shadow);padding:20px;align-self:start;position:sticky;top:86px;
+  }
+  @media (max-width:960px){.panel{position:static}}
+  .group{margin-bottom:20px}
+  .group:last-child{margin-bottom:4px}
+  .group-label{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;font-weight:700;color:var(--ink-soft);letter-spacing:.4px;
+    text-transform:uppercase;margin-bottom:10px;
+  }
+  .group-label .hint{font-weight:400;color:#9AA4B0}
+
+  /* 文字输入 */
+  textarea#textInput{
+    width:100%;min-height:120px;resize:vertical;padding:12px 13px;border-radius:10px;
+    border:1px solid var(--line);background:#FBF9F5;font-size:14px;line-height:1.7;
+    color:var(--ink);outline:none;transition:.15s;
+  }
+  textarea#textInput:focus{border-color:var(--ink);background:#fff}
+
+  /* 背景 swatches */
+  .swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .swatch{
+    aspect-ratio:1;border-radius:10px;border:2px solid transparent;position:relative;
+    transition:.12s;overflow:hidden;
+  }
+  .swatch:hover{transform:translateY(-1px)}
+  .swatch.active{border-color:var(--ink);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
+  .swatch .dot{position:absolute;inset:0;display:grid;place-items:center;opacity:0;color:#fff;font-size:14px}
+  .swatch.active .dot{opacity:1}
+  .swatch.custom .dot{color:var(--ink-soft)}
+
+  /* 选择行（字体/对齐/字重） */
+  .choice-row{display:grid;gap:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:#FBF9F5;
+    font-size:13px;font-weight:500;transition:.12s;
+  }
+  .chip:hover{border-color:#C9C2B4}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* 滑块 */
+  .slider-row{display:flex;align-items:center;gap:12px}
+  input[type=range]{flex:1;accent-color:var(--ink)}
+  .slider-val{
+    width:44px;text-align:right;font-size:13px;font-weight:600;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* 颜色 */
+  .color-inputs{display:flex;align-items:center;gap:10px}
+  .color-chip{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--line);cursor:pointer;
+    background:#fff;position:relative;overflow:hidden;flex:0 0 auto;
+  }
+  .color-chip input{position:absolute;inset:-8px;opacity:0;cursor:pointer}
+  .color-chip span{
+    position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--ink-soft);pointer-events:none;
+  }
+
+  /* 导出 */
+  .export-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .export-actions .btn{justify-content:center;width:100%}
+  .export-actions .wide{grid-column:1/-1}
+  .mini-note{font-size:11.5px;color:#9AA4B0;line-height:1.5;margin-top:10px}
+
+  /* ===== 预览区 ===== */
+  .stage{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(47,65,86,.10) 1px, transparent 1.5px);
+    background-size:22px 22px;
+    border-radius:var(--radius);border:1px solid var(--line);
+    min-height:620px;display:grid;place-items:center;padding:32px;overflow:hidden;
+  }
+  .stage-inner{display:grid;place-items:center}
+  #previewCard{
+    width:420px;height:560px;border-radius:6px;box-shadow:0 12px 40px rgba(30,30,30,.22);
+    padding:44px 42px;display:flex;flex-direction:column;justify-content:center;
+    background:var(--card-bg,#fff);transition:background .3s;overflow:hidden;
+  }
+  #previewText{
+    width:100%;white-space:pre-wrap;word-break:break-word;
+    font-family:var(--f-family);font-size:var(--f-size);font-weight:var(--f-weight);
+    text-align:var(--f-align);line-height:var(--f-line);color:var(--f-color);
+    letter-spacing:.02em;
+  }
+  /* 底部工具条 */
+  .stage-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+  .meta{font-size:12.5px;color:var(--ink-soft)}
+  .meta b{color:var(--ink)}
+
+  @media (max-width:560px){
+    header.app{padding:14px 16px}
+    main.workspace{padding:16px}
+    .stage{padding:16px;min-height:0}
+    #previewCard{width:320px;height:427px;padding:32px 28px}
+  }
+
+  /* ===== 页脚 ===== */
+  footer.app-foot{
+    display:flex;align-items:center;justify-content:center;
+    padding:16px 28px;border-top:1px solid var(--line);
+    color:var(--ink-soft);font-size:12.5px;text-align:center;
+  }
+  footer.app-foot span{letter-spacing:.2px}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="brand">
+    <div class="mark">排</div>
+    <div>
+      <h1>排版工坊</h1>
+      <small>文字卡片 · 输入即排版</small>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="btn ghost" onclick="exportPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      导出 PDF
+    </button>
+    <button class="btn primary" onclick="exportPNG()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      导出图片
+    </button>
+  </div>
+</header>
+
+<main class="workspace">
+
+  <!-- 控制面板 -->
+  <aside class="panel">
+
+    <div class="group">
+      <div class="group-label">文字内容 <span class="hint">输入即排版</span></div>
+      <textarea id="textInput" spellcheck="false">愿你眼中有光，
+心中有海，
+脚下有路。
+
+—— 写给此刻正在努力的你</textarea>
+    </div>
+
+    <div class="group">
+      <div class="group-label">背景</div>
+      <div class="swatches" id="bgSwatches"></div>
+      <div style="margin-top:8px">
+        <button class="btn ghost" id="bgUploadBtn" style="width:100%;justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          上传背景图
+        </button>
+        <input type="file" id="bgFile" accept="image/*" hidden>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">字体</div>
+      <div class="chips" id="fontChips"></div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">对齐</div>
+      <div class="chips" id="alignChips"></div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">字重</div>
+      <div class="chips" id="weightChips"></div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">字号</div>
+      <div class="slider-row">
+        <input type="range" id="fontSize" min="16" max="64" step="1" value="30">
+        <span class="slider-val" id="fontSizeVal">30px</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">行距</div>
+      <div class="slider-row">
+        <input type="range" id="lineHeight" min="1.1" max="2.2" step="0.05" value="1.5">
+        <span class="slider-val" id="lineHeightVal">1.5</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">文字颜色</div>
+      <div class="color-inputs">
+        <div class="chips" id="colorChips" style="flex:1"></div>
+        <label class="color-chip" title="自定义颜色">
+          <input type="color" id="customColor" value="#2F4156">
+          <span>+</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">导出</div>
+      <div class="export-actions">
+        <button class="btn primary" onclick="exportPNG()">图片 PNG</button>
+        <button class="btn ghost" onclick="exportPDF()">PDF 文档</button>
+        <button class="btn ghost wide" onclick="exportTxt()">纯文本 .txt</button>
+      </div>
+      <div class="mini-note">图片按 3× 高清导出；PDF 用打印引擎生成，排版与预览一致。</div>
+    </div>
+
+  </aside>
+
+  <!-- 预览区 -->
+  <section class="stage">
+    <div class="stage-inner">
+      <div id="previewCard">
+        <div id="previewText"></div>
+      </div>
+      <div class="stage-foot" style="width:100%">
+        <span class="meta">实时预览</span>
+        <span class="meta" id="charCount"><b>0</b> 字</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-foot">
+  <span>排版工坊 v1.1 · 作者：陈省安</span>
+</footer>
+
+<script>
+/* ===== 状态 ===== */
+const state = {
+  text: document.getElementById('textInput').value,
+  bg: 0,            // 背景索引 (-1自定义色, -2背景图)
+  customBg: '#FFFFFF',
+  bgImage: null,    // 背景图 dataURL
+  font: 0,
+  align: 0,         // 0左 1中 2右
+  weight: 1,        // 字重索引
+  size: 30,
+  line: 1.5,
+  color: null,      // null = 跟随背景自动
+  customColor: '#2F4156',
+};
+
+/* ===== 配置 ===== */
+const BGS = [
+  { name:'暖白',  from:'#F7F3EA', to:'#EDE3D2', auto:'#2F4156' },
+  { name:'墨黑',  from:'#17161A', to:'#2A2830', auto:'#F4F1EA' },
+  { name:'雾蓝',  from:'#DDE6F1', to:'#B9C9DC', auto:'#2F4156' },
+  { name:'玫瑰',  from:'#F1E2E0', to:'#D9BCB6', auto:'#5A3A33' },
+  { name:'苔绿',  from:'#E4EAD9', to:'#C3CFAE', auto:'#33402A' },
+];
+const FONTS = [
+  { name:'衬线', family:'"Noto Serif SC", "SimSun", serif' },
+  { name:'无衬线', family:'"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' },
+  { name:'楷体', family:'"KaiTi", "STKaiti", "楷体", serif' },
+  { name:'黑体', family:'"SimHei", "Heiti SC", sans-serif' },
+];
+const ALIGNS = [
+  { name:'左对齐', value:'left', ico:'left' },
+  { name:'居中', value:'center', ico:'center' },
+  { name:'右对齐', value:'right', ico:'right' },
+];
+const WEIGHTS = [
+  { name:'细', v:300 }, { name:'常规', v:400 },
+  { name:'加粗', v:700 }, { name:'特粗', v:900 },
+];
+const COLORS = [
+  { name:'跟随背景', v:null, sample:null },
+  { name:'深墨', v:'#2F4156', sample:'#2F4156' },
+  { name:'暖棕', v:'#6B4F3A', sample:'#6B4F3A' },
+  { name:'橄榄', v:'#4C5A3D', sample:'#4C5A3D' },
+];
+
+/* ===== DOM 引用 ===== */
+const $ = id => document.getElementById(id);
+const previewText = $('previewText');
+const previewCard = $('previewCard');
+
+/* ===== 构建控件 ===== */
+function buildSwatches(){
+  const wrap = $('bgSwatches'); wrap.innerHTML='';
+  BGS.forEach((bg,i)=>{
+    const el=document.createElement('div');
+    el.className='swatch'+(state.bg===i?' active':'');
+    el.style.background=`linear-gradient(135deg, ${bg.from}, ${bg.to})`;
+    el.innerHTML='<span class="dot">✓</span>';
+    el.title=bg.name;
+    el.onclick=()=>{ state.bg=i; buildSwatches(); applyStyle(); };
+    wrap.appendChild(el);
+  });
+  // 背景图 swatch（已上传时显示，可点击切换/移除）
+  if(state.bgImage){
+    const im=document.createElement('div');
+    im.className='swatch'+(state.bg===-2?' active':'');
+    im.style.background=`url(${state.bgImage}) center/cover no-repeat`;
+    im.style.backgroundSize='cover';
+    im.innerHTML='<span class="dot">✓</span>';
+    im.title='背景图（点击移除，恢复纯色背景）';
+    im.onclick=()=>{ state.bgImage=null; state.bg=0; buildSwatches(); applyStyle(); };
+    wrap.appendChild(im);
+  }
+  // 自定义背景
+  const c=document.createElement('div');
+  c.className='swatch custom'+(state.bg===-1?' active':'');
+  c.style.background='linear-gradient(135deg,#ffffff,#f2f2f2)';
+  c.innerHTML='<span class="dot">+</span>';
+  c.title='自定义背景色';
+  c.onclick=()=>{ state.bg=-1; buildSwatches(); applyStyle(); };
+  wrap.appendChild(c);
+}
+function buildChips(kind, items, getVal, setVal){
+  const wrap = $(kind); wrap.innerHTML='';
+  items.forEach((it,i)=>{
+    const el=document.createElement('button');
+    el.className='chip'+(getVal()===i?' active':'');
+    if(kind==='alignChips'){ el.style.minWidth='52px'; }
+    el.textContent=it.name;
+    el.onclick=()=>{ setVal(i); buildChips(kind,items,getVal,setVal); applyStyle(); };
+    wrap.appendChild(el);
+  });
+}
+function buildColorChips(){
+  const wrap=$('colorChips'); wrap.innerHTML='';
+  COLORS.forEach((c,i)=>{
+    const el=document.createElement('button');
+    el.className='chip'+(state.color===c.v?' active':'');
+    el.textContent=c.name;
+    el.onclick=()=>{ state.color=c.v; buildColorChips(); applyStyle(); };
+    wrap.appendChild(el);
+  });
+}
+
+/* ===== 应用样式 ===== */
+function resolveBg(){
+  if(state.bg===-2 && state.bgImage) return { from:null, to:null, image:state.bgImage };
+  const b = state.bg;
+  if(b===-1) return { from:state.customBg, to:state.customBg, image:null };
+  return { from:BGS[b].from, to:BGS[b].to, image:null };
+}
+function currentFamily(){ return FONTS[state.font].family; }
+function resolveColor(){
+  if(state.color) return state.color;
+  if(state.bg===-2) return '#FFFFFF';
+  const b = state.bg;
+  return b===-1 ? '#2F4156' : BGS[b].auto;
+}
+function applyStyle(){
+  const bg = resolveBg();
+  if(bg.image){
+    previewCard.style.background=`url(${bg.image}) center/cover no-repeat`;
+  }else{
+    previewCard.style.background=`linear-gradient(135deg, ${bg.from}, ${bg.to})`;
+  }
+  previewText.style.background='';
+  const f = currentFamily();
+  previewText.style.setProperty('--f-family', f);
+  previewText.style.setProperty('--f-size', state.size+'px');
+  previewText.style.setProperty('--f-weight', WEIGHTS[state.weight].v);
+  previewText.style.setProperty('--f-align', ALIGNS[state.align].value);
+  previewText.style.setProperty('--f-line', state.line);
+  previewText.style.setProperty('--f-color', resolveColor());
+  previewText.textContent = state.text;
+  $('charCount').innerHTML='<b>'+state.text.replace(/\s/g,'').length+'</b> 字';
+  $('fontSizeVal').textContent=state.size+'px';
+  $('lineHeightVal').textContent=state.line.toFixed(2);
+}
+
+/* ===== 事件绑定 ===== */
+$('textInput').addEventListener('input', e=>{ state.text=e.target.value; applyStyle(); });
+$('fontSize').addEventListener('input', e=>{ state.size=+e.target.value; applyStyle(); });
+$('lineHeight').addEventListener('input', e=>{ state.line=+e.target.value; applyStyle(); });
+$('customColor').addEventListener('input', e=>{ state.customColor=e.target.value; applyStyle(); });
+$('customColor').addEventListener('change', e=>{ state.bg=-1; buildSwatches(); applyStyle(); });
+// 自定义背景点击逻辑：打开选色后应用
+(function(){
+  const cc = $('customColor');
+  cc.addEventListener('click', function(e){ e.stopPropagation(); });
+})();
+
+// 上传背景图
+$('bgUploadBtn').addEventListener('click', ()=> $('bgFile').click());
+$('bgFile').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    state.bgImage = ev.target.result;
+    state.bg = -2;
+    buildSwatches(); applyStyle();
+    e.target.value=''; // 允许重复选择同一文件
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ===== 导出：PNG（canvas 复刻，3× 高清） ===== */
+function drawExport(ctx, W, H, bgImg){
+  // 背景
+  const bg = resolveBg();
+  if(bg.image && bgImg){
+    // cover 填充
+    const ir = bgImg.width/bgImg.height, cr = W/H;
+    let dw, dh;
+    if(ir > cr){ dh=H; dw=H*ir; } else { dw=W; dh=W/ir; }
+    ctx.drawImage(bgImg, (W-dw)/2, (H-dh)/2, dw, dh);
+  } else {
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0, bg.from); g.addColorStop(1, bg.to);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  // 文字排版
+  const scale = W / 420;               // 相对预览卡 420px 缩放
+  const padX = 42*scale, padY = 44*scale;
+  const maxW = W - padX*2;
+  const fSize = state.size*scale;
+  const fontV = WEIGHTS[state.weight].v;
+  ctx.font = `${fontV} ${fSize}px ${currentFamily()}`;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = ALIGNS[state.align].value;
+  ctx.fillStyle = resolveColor();
+  // 逐行换行
+  const lines = state.text.split('\n');
+  const wrapped = [];
+  for(const ln of lines){
+    if(ln===''){ wrapped.push(''); continue; }
+    let cur='';
+    for(const ch of ln){
+      if(ctx.measureText(cur+ch).width > maxW && cur!==''){ wrapped.push(cur); cur=ch; }
+      else cur+=ch;
+    }
+    wrapped.push(cur);
+  }
+  const lineH = fSize*state.line;
+  const totalH = wrapped.length*lineH;
+  let y = (H-totalH)/2;                 // 垂直居中
+  for(const wl of wrapped){
+    ctx.fillText(wl, padX + (ALIGNS[state.align].value==='center'? maxW/2 : ALIGNS[state.align].value==='right'? maxW : 0), y);
+    y += lineH;
+  }
+}
+
+function exportPNG(){
+  const W=1260, H=1680;                 // 420×560 的 3 倍
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  // 确保字体已加载
+  const job = document.fonts ? document.fonts.ready : Promise.resolve();
+  job.then(()=>{
+    const bg = resolveBg();
+    if(bg.image){
+      const img = new Image();
+      img.onload = ()=>{ drawExport(ctx, W, H, img); savePNG(canvas); };
+      img.src = bg.image;
+    } else {
+      drawExport(ctx, W, H, null); savePNG(canvas);
+    }
+  });
+}
+function savePNG(canvas){
+  const a=document.createElement('a');
+  a.download='排版卡片.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+}
+
+/* ===== 导出：PDF（打印引擎生成，排版与预览一致） ===== */
+function exportPDF(){
+  const bg = resolveBg();
+  const fColor = resolveColor();
+  const bgCss = bg.image
+    ? `background:url("${bg.image}") center/cover no-repeat;`
+    : `background:linear-gradient(135deg,${bg.from},${bg.to});`;
+  const safe = state.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // 与预览完全同比例：预览卡 420px 宽，PDF 卡放大到约 1.62 倍
+  const scale = 1.62;
+  const cardW = Math.round(420*scale), cardH = Math.round(560*scale);
+  const padX = Math.round(42*scale), padY = Math.round(44*scale);
+  const fSize = Math.round(state.size*scale);
+  const doc = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>排版卡片</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+  @page{size:A4;margin:0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:210mm;height:297mm;display:flex;align-items:center;justify-content:center;
+    font-family:"Noto Sans SC",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card{width:${cardW}px;height:${cardH}px;border-radius:6px;display:flex;flex-direction:column;justify-content:center;
+    padding:${padY}px ${padX}px;${bgCss}}
+  .card p{width:100%;font-family:${currentFamily()};font-size:${fSize}px;
+    font-weight:${WEIGHTS[state.weight].v};line-height:${state.line};text-align:${ALIGNS[state.align].value};
+    color:${fColor};white-space:pre-wrap;word-break:break-word;letter-spacing:.02em}
+</style></head>
+<body>
+  <div class="card"><p>${safe}</p></div>
+  <script>window.addEventListener('load',()=>{ if(document.fonts)document.fonts.ready.then(()=>window.print()); else window.print(); });<\/script>
+</body></html>`;
+  const win = window.open('','_blank');
+  if(!win){ alert('浏览器阻止了弹出窗口，请允许本页面弹出窗口后再试'); return; }
+  win.document.write(doc);
+  win.document.close();
+}
+
+/* ===== 导出：纯文本 ===== */
+function exportTxt(){
+  const content = state.text;
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.download='排版文本.txt';
+  a.href=url; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+/* ===== 初始化 ===== */
+buildSwatches();
+buildChips('fontChips', FONTS, ()=>state.font, i=>state.font=i);
+buildChips('alignChips', ALIGNS, ()=>state.align, i=>state.align=i);
+buildChips('weightChips', WEIGHTS, ()=>state.weight, i=>state.weight=i);
+buildColorChips();
+applyStyle();
+</script>
+</body>
+</html>
