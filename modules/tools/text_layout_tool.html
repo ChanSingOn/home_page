@@ -16,6 +16,7 @@
     --radius:14px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none !important}
   html,body{height:100%}
   body{
     font-family:"Noto Sans SC",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -47,6 +48,8 @@
   .btn.primary:hover{background:#3A5070}
   .btn.ghost{background:var(--panel)}
   .btn.ghost:hover{background:#F7F5F0}
+  .btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.active svg{color:#fff}
   .btn svg{width:15px;height:15px}
 
   /* ===== 主体布局 ===== */
@@ -120,11 +123,12 @@
   .color-chip span{
     position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--ink-soft);pointer-events:none;
   }
+  #bgColorsWrap{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:4px}
   .bg-color{
-    display:flex;align-items:center;gap:10px;margin-top:10px;
+    display:flex;align-items:center;gap:8px;
     font-size:12.5px;color:var(--ink-soft);
   }
-  .bg-color input{width:46px;height:30px;border:none;padding:0;background:none;cursor:pointer}
+  .bg-color input{width:44px;height:30px;border:none;padding:0;background:none;cursor:pointer}
 
   /* 导出 */
   .export-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -212,16 +216,37 @@
     <div class="group">
       <div class="group-label">背景</div>
       <div class="swatches" id="bgSwatches"></div>
-      <label class="bg-color" id="bgColorWrap" hidden>
-        <span>背景色</span>
-        <input type="color" id="bgColorInput" value="#FFFFFF">
-      </label>
       <div style="margin-top:8px">
-        <button class="btn ghost" id="bgUploadBtn" style="width:100%;justify-content:center">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          上传背景图
+        <button class="btn ghost" id="bgCustomBtn" style="width:100%;justify-content:center">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path id="bgCustomIcon" d="M12 5v14M5 12h14"/></svg>
+          自定义背景色
         </button>
-        <input type="file" id="bgFile" accept="image/*" hidden>
+      </div>
+      <div id="bgCustomPanel" hidden>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:8px" id="bgModeWrap">
+          <div class="chips" id="bgModeChips" style="flex:1"></div>
+          <button class="btn ghost" id="bgUploadBtn" style="padding:7px 12px;flex:0 0 auto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            上传背景
+          </button>
+          <input type="file" id="bgFile" accept="image/*" hidden>
+        </div>
+        <div style="margin-top:8px" id="bgGradWrap" hidden>
+          <div class="chips" id="bgGradChips"></div>
+        </div>
+        <div id="bgColorsWrap">
+          <label class="bg-color">
+            <span id="bgFromLabel">起始色</span>
+            <input type="color" id="bgFromInput" value="#FFFFFF">
+          </label>
+          <label class="bg-color" id="bgToWrap">
+            <span>结束色</span>
+            <input type="color" id="bgToInput" value="#D0D8E8">
+          </label>
+        </div>
+        <div id="bgAngleWrap" hidden>
+          <div class="chips" id="bgAngleChips"></div>
+        </div>
       </div>
     </div>
 
@@ -302,8 +327,12 @@
 /* ===== 状态 ===== */
 const state = {
   text: document.getElementById('textInput').value,
-  bg: 0,            // 背景索引 (-1自定义色, -2背景图)
-  customBg: '#FFFFFF',
+  bg: 0,            // 背景索引 (-1自定义, -2背景图)
+  bgMode: 1,        // 主级：0纯色 1渐变
+  bgGrad: 0,        // 次级渐变类型：0线性 1径向
+  bgFrom: '#FFFFFF',
+  bgTo: '#D0D8E8',
+  bgAngle: 2,       // 线性渐变角度索引
   bgImage: null,    // 背景图 dataURL
   font: 0,
   align: 0,         // 0左 1中 2右
@@ -321,6 +350,19 @@ const BGS = [
   { name:'雾蓝',  from:'#DDE6F1', to:'#B9C9DC', auto:'#2F4156' },
   { name:'玫瑰',  from:'#F1E2E0', to:'#D9BCB6', auto:'#5A3A33' },
   { name:'苔绿',  from:'#E4EAD9', to:'#C3CFAE', auto:'#33402A' },
+];
+const BGMODES = [
+  { name:'纯色', v:'solid' },
+  { name:'渐变', v:'grad' },
+];
+const BGGRADS = [
+  { name:'线性', v:'linear' },
+  { name:'径向', v:'radial' },
+];
+const BGANGLES = [
+  { name:'↗ 135°', deg:135 }, { name:'→ 90°', deg:90 },
+  { name:'↓ 180°', deg:180 }, { name:'↑ 0°', deg:0 },
+  { name:'↘ 45°', deg:45 },
 ];
 const FONTS = [
   { name:'衬线', family:'"Noto Serif SC", "SimSun", serif' },
@@ -372,17 +414,39 @@ function buildSwatches(){
     im.onclick=()=>{ state.bgImage=null; state.bg=0; buildSwatches(); applyStyle(); };
     wrap.appendChild(im);
   }
-  // 自定义背景
-  const c=document.createElement('div');
-  c.className='swatch custom'+(state.bg===-1?' active':'');
-  c.style.background='linear-gradient(135deg,#ffffff,#f2f2f2)';
-  c.innerHTML='<span class="dot">+</span>';
-  c.title='自定义背景色';
-  c.onclick=()=>{ state.bg=-1; buildSwatches(); applyStyle(); };
-  wrap.appendChild(c);
-  // 自定义背景色输入框随状态显隐
-  $('bgColorWrap').hidden = state.bg !== -1;
-  $('bgColorInput').value = state.customBg;
+  syncBgControls();
+}
+function syncBgControls(){
+  // 自定义背景控件：仅自定义背景色（-1）时展开面板；背景图（-2）不展开
+  const isCustomMode = state.bg === -1;
+  const panelOpen = state.bg === -1;
+  const type = currentBgType();
+  $('bgCustomPanel').hidden = !panelOpen;
+  $('bgCustomBtn').classList.toggle('active', panelOpen);
+  // 图标：展开为 −，收起为 +
+  $('bgCustomIcon').setAttribute('d', panelOpen ? 'M5 12h14' : 'M12 5v14M5 12h14');
+  // 主级按钮(纯色/渐变)仅自定义背景模式显示
+  $('bgModeWrap').hidden = !isCustomMode;
+  // 次级按钮(线性/径向)仅在选中"渐变"时显示
+  $('bgGradWrap').hidden = !(isCustomMode && BGMODES[state.bgMode].v==='grad');
+  // 颜色控件：纯色时单色板，渐变时起始/结束
+  $('bgColorsWrap').hidden = !isCustomMode;
+  $('bgToWrap').hidden = isCustomMode && type==='solid';
+  $('bgFromLabel').textContent = type==='solid' ? '背景色' : '起始色';
+  // 线性方向仅在"线性"时显示
+  $('bgAngleWrap').hidden = !(isCustomMode && type==='linear');
+  $('bgFromInput').value = state.bgFrom;
+  $('bgToInput').value = state.bgTo;
+}
+function currentBgType(){
+  // 返回实际背景类型：solid / linear / radial
+  if(BGMODES[state.bgMode].v==='solid') return 'solid';
+  return BGGRADS[state.bgGrad].v; // 'linear' 或 'radial'
+}
+function buildBgChips(){
+  buildChips('bgModeChips', BGMODES, ()=>state.bgMode, i=>{ state.bgMode=i; buildBgChips(); syncBgControls(); applyStyle(); });
+  buildChips('bgGradChips', BGGRADS, ()=>state.bgGrad, i=>{ state.bgGrad=i; buildBgChips(); syncBgControls(); applyStyle(); });
+  buildChips('bgAngleChips', BGANGLES, ()=>state.bgAngle, i=>{ state.bgAngle=i; buildBgChips(); applyStyle(); });
 }
 function buildChips(kind, items, getVal, setVal){
   const wrap = $(kind); wrap.innerHTML='';
@@ -413,25 +477,32 @@ function buildColorChips(){
 
 /* ===== 应用样式 ===== */
 function resolveBg(){
-  if(state.bg===-2 && state.bgImage) return { from:null, to:null, image:state.bgImage };
+  if(state.bg===-2 && state.bgImage) return { image:state.bgImage, from:null, to:null, mode:'solid' };
   const b = state.bg;
-  if(b===-1) return { from:state.customBg, to:state.customBg, image:null };
-  return { from:BGS[b].from, to:BGS[b].to, image:null };
+  if(b===-1){
+    const mode = currentBgType();
+    return { image:null, from:state.bgFrom, to:state.bgTo,
+             mode, deg:BGANGLES[state.bgAngle].deg };
+  }
+  return { image:null, from:BGS[b].from, to:BGS[b].to, mode:'linear', deg:135 };
+}
+function bgCSS(bg){
+  if(bg.image) return `url(${bg.image}) center/cover no-repeat`;
+  if(bg.mode==='solid') return `${bg.from}`;
+  if(bg.mode==='radial') return `radial-gradient(circle at center, ${bg.from}, ${bg.to})`;
+  return `linear-gradient(${bg.deg}deg, ${bg.from}, ${bg.to})`;
 }
 function currentFamily(){ return FONTS[state.font].family; }
 function resolveColor(){
   if(state.color) return state.color;
   if(state.bg===-2) return '#FFFFFF';
   const b = state.bg;
-  return b===-1 ? '#2F4156' : BGS[b].auto;
+  if(b===-1) return '#2F4156';
+  return BGS[b].auto;
 }
 function applyStyle(){
   const bg = resolveBg();
-  if(bg.image){
-    previewCard.style.background=`url(${bg.image}) center/cover no-repeat`;
-  }else{
-    previewCard.style.background=`linear-gradient(135deg, ${bg.from}, ${bg.to})`;
-  }
+  previewCard.style.background = bgCSS(bg);
   previewText.style.background='';
   const f = currentFamily();
   previewText.style.setProperty('--f-family', f);
@@ -455,11 +526,27 @@ $('customColor').addEventListener('input', e=>{
   state.color = e.target.value;
   buildColorChips(); applyStyle();
 });
-// 自定义背景色
-$('bgColorInput').addEventListener('input', e=>{
-  state.customBg = e.target.value;
-  if(state.bg !== -1){ state.bg = -1; buildSwatches(); }
-  applyStyle();
+// 自定义背景：起始色 / 结束色
+function bindBgColor(el, key){
+  el.addEventListener('input', e=>{
+    state[key] = e.target.value;
+    if(state.bg !== -1){ state.bg = -1; buildSwatches(); }
+    syncBgControls(); applyStyle();
+  });
+}
+bindBgColor($('bgFromInput'), 'bgFrom');
+bindBgColor($('bgToInput'), 'bgTo');
+// 自定义背景模式：展开 / 折叠切换
+$('bgCustomBtn').addEventListener('click', ()=>{
+  const isOpen = state.bg === -1 || state.bg === -2;
+  if(isOpen){
+    // 折叠：回到第一个预设背景，隐藏面板
+    state.bgImage = null;
+    state.bg = 0;
+  } else {
+    state.bg = -1;
+  }
+  buildSwatches(); syncBgControls(); applyStyle();
 });
 
 // 上传背景图
@@ -487,8 +574,19 @@ function drawExport(ctx, W, H, bgImg){
     let dw, dh;
     if(ir > cr){ dh=H; dw=H*ir; } else { dw=W; dh=W/ir; }
     ctx.drawImage(bgImg, (W-dw)/2, (H-dh)/2, dw, dh);
+  } else if(bg.mode==='solid'){
+    ctx.fillStyle = bg.from;
+    ctx.fillRect(0,0,W,H);
+  } else if(bg.mode==='radial'){
+    const g = ctx.createRadialGradient(W/2,H/2,0, W/2,H/2, Math.max(W,H)/2);
+    g.addColorStop(0, bg.from); g.addColorStop(1, bg.to);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   } else {
-    const g = ctx.createLinearGradient(0,0,W,H);
+    // 线性渐变按角度
+    const a = (bg.deg*Math.PI)/180;
+    const x1 = W/2 - Math.cos(a)*W/2, y1 = H/2 - Math.sin(a)*H/2;
+    const x2 = W/2 + Math.cos(a)*W/2, y2 = H/2 + Math.sin(a)*H/2;
+    const g = ctx.createLinearGradient(x1,y1,x2,y2);
     g.addColorStop(0, bg.from); g.addColorStop(1, bg.to);
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   }
@@ -554,7 +652,7 @@ function exportPDF(){
   const fColor = resolveColor();
   const bgCss = bg.image
     ? `background:url("${bg.image}") center/cover no-repeat;`
-    : `background:linear-gradient(135deg,${bg.from},${bg.to});`;
+    : `background:${bgCSS(bg)};`;
   const safe = state.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   // 与预览完全同比例：预览卡 420px 宽，PDF 卡放大到约 1.62 倍
   const scale = 1.62;
@@ -597,6 +695,7 @@ function exportTxt(){
 
 /* ===== 初始化 ===== */
 buildSwatches();
+buildBgChips();
 buildChips('fontChips', FONTS, ()=>state.font, i=>state.font=i);
 buildChips('alignChips', ALIGNS, ()=>state.align, i=>state.align=i);
 buildChips('weightChips', WEIGHTS, ()=>state.weight, i=>state.weight=i);
